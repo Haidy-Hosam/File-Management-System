@@ -85,7 +85,7 @@ Client
 
 ↓
 
-ASP.NET Core Web API
+Spring boot Web API
 
 ↓
 
