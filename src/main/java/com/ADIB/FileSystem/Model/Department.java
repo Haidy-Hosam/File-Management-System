@@ -4,17 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import java.time.LocalDateTime;
+
 import java.util.List;
 
-@Data
+@Data // (to getter and setter)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Department {
+public class Department extends AuditEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,19 +24,6 @@ public class Department {
     @Column(nullable = false)
     private Boolean isActive;
 
-    @ManyToOne
-    @JoinColumn(name = "created_by")
-    private User created_by;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    @ManyToOne
-    @JoinColumn(name = "updated_by")
-    private User updatedBy;
-
-    @UpdateTimestamp
-    private LocalDateTime updated_at;
     @OneToMany(mappedBy = "d_id",cascade =CascadeType.ALL)
     private List<File> files;
 

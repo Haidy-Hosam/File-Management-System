@@ -34,9 +34,4 @@ public class ActivityLog {
     @ManyToOne
     @JoinColumn(name="file_id",nullable = false)
     private File file;
-
-
-
-
-
 }
