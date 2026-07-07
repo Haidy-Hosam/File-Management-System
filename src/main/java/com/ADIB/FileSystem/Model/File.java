@@ -13,29 +13,39 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Department {
-
+@Table(name = "files")
+public class File {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @Column(unique = true, nullable = false)
-    private String name;
+    private Long id;
 
     @Column(nullable = false)
-    private Boolean isActive;
+    private String name;
+    @Column(nullable = false)
+    private String path;
+
+    @CreationTimestamp
+    private LocalDateTime creation_At;
 
     @ManyToOne
     @JoinColumn(name = "created_by")
-    private User created_by;
+    private User createdBy;
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "updated_by")
     private User updatedBy;
 
-    @UpdateTimestamp
-    private LocalDateTime updated_at;
+    @Column(nullable = false)
+    private String encryptionIV;
+
+    @Column(nullable = false)
+    private Long  size;
+
+    @Column(nullable = false)
+    private String fileExtension;
+
+
 }

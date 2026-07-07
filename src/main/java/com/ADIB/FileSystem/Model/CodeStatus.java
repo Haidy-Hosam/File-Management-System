@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,5 +22,5 @@ public class CodeStatus {
     private String description;
 
     @OneToMany(mappedBy = "status")
-    private List<FileEntity> files;
+    private List<File> files;
 }

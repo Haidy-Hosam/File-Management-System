@@ -1,6 +1,6 @@
 package com.ADIB.FileSystem.Enum;
 
-public enum FileStatus {
+public enum FILE_STATUS {
     PENDING,
 
     APPROVED,
