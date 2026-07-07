@@ -17,7 +17,7 @@ public class Department {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private long d_id;
 
     @Column(unique = true, nullable = false)
     private String name;
@@ -38,4 +38,7 @@ public class Department {
 
     @UpdateTimestamp
     private LocalDateTime updated_at;
+    @OneToMany(mappedBy = "d_id",cascade =CascadeType.ALL)
+    private List<File> files;
+
 }
