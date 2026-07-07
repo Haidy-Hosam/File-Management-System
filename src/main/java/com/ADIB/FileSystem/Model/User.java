@@ -31,7 +31,7 @@ public class User {
     private String password;
 
 
-
+    @Enumerated(EnumType.STRING)
     private USER_STATUS status;
     @ManyToOne
     @JoinColumn(name = "department_id")

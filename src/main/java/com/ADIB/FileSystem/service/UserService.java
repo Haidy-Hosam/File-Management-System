@@ -2,11 +2,14 @@ package com.ADIB.FileSystem.service;
 
 import com.ADIB.FileSystem.Model.User;
 import com.ADIB.FileSystem.repository.UserRepo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
+
     @Autowired
     UserRepo userRepo;
 
@@ -15,8 +18,8 @@ public class UserService {
         this.userRepo = userRepo;
     }*/
 
-    private String getUsername(String name) {
-        return userRepo.findByUsername(name ).getName();
+    private UserResponse getUser(String name) {
+        return Mapper(userRepo.findByUsername(name));
     }
 
 }
