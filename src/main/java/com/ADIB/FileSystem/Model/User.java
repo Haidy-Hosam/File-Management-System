@@ -43,7 +43,7 @@ public class User {
             joinColumns = @JoinColumn(name="user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<USER_ROLE> roles;
+    private Set<Roles> roles;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created by")
