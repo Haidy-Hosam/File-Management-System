@@ -20,5 +20,5 @@ public class CodeStatus {
     private String description;
 
     @OneToMany(mappedBy = "status")
-    private List<FileEntity> files;
+    private List<File> files;
 }

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -54,4 +55,10 @@ public class User {
     private LocalDateTime created_at;
     @CreationTimestamp
     private LocalDateTime updated_at;
+    @OneToMany (mappedBy = "user",cascade =CascadeType.ALL )
+    private List<ActivityLog> fileActivity;
+
+
 }
+
+
