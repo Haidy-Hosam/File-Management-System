@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public class User {
             joinColumns = @JoinColumn(name="user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<USER_ROLE> roles;
+    private Set<Roles> roles;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created by")
@@ -58,6 +59,8 @@ public class User {
     @OneToMany (mappedBy = "user",cascade =CascadeType.ALL )
     private List<ActivityLog> fileActivity;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<FileAccess> fileAccesses ;
 
 }
 
