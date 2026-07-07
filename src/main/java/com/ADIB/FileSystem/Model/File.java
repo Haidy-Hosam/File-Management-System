@@ -7,7 +7,10 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -47,6 +50,9 @@ public class File {
 
     @Column(nullable = false)
     private String fileExtension;
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL)
+    private Set<FileAccess> fileAccesses ;
 
-
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL)
+    private List<ActivityLog> activity ;
 }

@@ -20,9 +20,7 @@ public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long r_id;
-
-    @Enumerated(EnumType.STRING)
-    private USER_ROLE name;
+    private String name;
 
     @CreationTimestamp
     private LocalDateTime created_at;
