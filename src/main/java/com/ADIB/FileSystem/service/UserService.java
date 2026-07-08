@@ -14,17 +14,8 @@ import com.ADIB.FileSystem.dto.request.*;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
-    @Autowired
-    UserRepo userRepo;
-
-    UserMapper userMapper;
-
-
-    public UserService(UserRepo userRepo, UserMapper userMapper) {
-        this.userRepo = userRepo;
-        this.userMapper = userMapper;}
-
+private final UserRepo userRepo;
+private final UserMapper userMapper;
 
 
     public User getUser(String  nn) {

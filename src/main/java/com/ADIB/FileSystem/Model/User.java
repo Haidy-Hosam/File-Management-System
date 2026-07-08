@@ -10,7 +10,7 @@ import lombok.*;
 @Entity(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long u_id;
