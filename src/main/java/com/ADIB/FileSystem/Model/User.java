@@ -4,10 +4,9 @@ package com.ADIB.FileSystem.Model;
 import jakarta.persistence.*;
 import lombok.*;
 
-
-@Getter
-@Setter
+@Data
 @Entity(name = "users")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class User extends Audit {

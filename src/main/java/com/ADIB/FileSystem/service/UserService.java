@@ -18,10 +18,37 @@ private final UserRepo userRepo;
 private final UserMapper userMapper;
 
 
-    public User getUser(String  nn) {
-        User user = userRepo.findByusername(nn);
-        System.out.println(user.getEmail());
-        return user;
+    public UserResponse getUser(UserRequest  request) {
+        User user = userRepo.findByusername(request.getName());
+        return userMapper.mapToResponse(user);
+    }
+
+    public UserResponse createUser(UserRequest  request) {
+        User user = userRepo.findByusername(request.getName());
+        if(user==null){
+            throw new RuntimeException("Username exist");
+        }
+        User newUser = User.builder()
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .username(request.getName())
+                .name(request.getName())
+                .build();
+
+        return userMapper.mapToResponse( userRepo.save(newUser));
+    }
+
+    public UserResponse updateUser(UserRequest  request) {
+        User user = userRepo.findByusername(request.getName());
+        if(user==null){
+            throw new RuntimeException("Username not exist");
+        }
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        user.setUsername(request.getName());
+        user.setName(request.getName());
+
+        return userMapper.mapToResponse(userRepo.save(user));
     }
 
 }

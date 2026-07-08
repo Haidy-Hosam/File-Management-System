@@ -15,33 +15,31 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/ByParam")
-    public ResponseEntity<User> getUser(@RequestParam String reqnameuest){
-        if(reqnameuest == null){
+    @GetMapping
+    public ResponseEntity<UserResponse> getUser(@RequestParam UserRequest request){
+        if(request.getName() == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok(userService.getUser(reqnameuest));
+        return ResponseEntity.ok(userService.getUser(request));
     }
-
-
-
-
-    @GetMapping("/ByPath/{reqnameuest}")
-    public ResponseEntity<User> getUserPath(@PathVariable String reqnameuest){
-        if(reqnameuest == null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return ResponseEntity.ok(userService.getUser(reqnameuest));
-    }
-
 
     @PostMapping
-    public ResponseEntity<User> getUser(@RequestBody UserRequest request){
-        if(request == null){
+    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest request){
+        if(request.getName() == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok(userService.getUser(request.getName()));
+        return ResponseEntity.ok(userService.createUser(request));
     }
+
+    @PutMapping
+    public ResponseEntity<UserResponse> updateUser(@RequestBody UserRequest request){
+        if(request.getName() == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok(userService.updateUser(request));
+    }
+
+
 
 
 }
