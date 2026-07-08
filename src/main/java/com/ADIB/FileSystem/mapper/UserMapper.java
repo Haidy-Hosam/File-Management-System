@@ -5,17 +5,16 @@ import com.ADIB.FileSystem.Model.Roles;
 import com.ADIB.FileSystem.Model.User;
 import org.springframework.stereotype.Component;
 
-import java.util.stream.Collectors;
 
 
+@Component
 public class UserMapper {
 
     public UserResponse mapToResponse(User user) {
-UserResponse userResponse = new UserResponse();
-userResponse.setName(user.getUsername());
-userResponse.setEmail(user.getEmail());
-
-        return userResponse;
-
+        return UserResponse.builder()
+                .id(user.getU_id())
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
     }
 }

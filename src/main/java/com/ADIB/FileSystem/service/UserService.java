@@ -6,7 +6,6 @@ import com.ADIB.FileSystem.repository.UserRepo;
 import com.ADIB.FileSystem.dto.response.UserResponse;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ADIB.FileSystem.dto.request.*;
 
@@ -18,14 +17,14 @@ private final UserRepo userRepo;
 private final UserMapper userMapper;
 
 
-    public UserResponse getUser(UserRequest  request) {
-        User user = userRepo.findByusername(request.getName());
+    public UserResponse getUser(String name) {
+        User user = userRepo.findByname(name);
         return userMapper.mapToResponse(user);
     }
 
     public UserResponse createUser(UserRequest  request) {
-        User user = userRepo.findByusername(request.getName());
-        if(user==null){
+        User user = userRepo.findByname(request.getName());
+        if(user!=null){
             throw new RuntimeException("Username exist");
         }
         User newUser = User.builder()
@@ -39,7 +38,7 @@ private final UserMapper userMapper;
     }
 
     public UserResponse updateUser(UserRequest  request) {
-        User user = userRepo.findByusername(request.getName());
+        User user = userRepo.findByname(request.getName());
         if(user==null){
             throw new RuntimeException("Username not exist");
         }
@@ -49,6 +48,14 @@ private final UserMapper userMapper;
         user.setName(request.getName());
 
         return userMapper.mapToResponse(userRepo.save(user));
+    }
+
+    public void deleteUser(String username) {
+        User user = userRepo.findByname(username);
+        if (user == null) {
+            throw new RuntimeException("Username not exist");
+        }
+        userRepo.delete(user);
     }
 
 }

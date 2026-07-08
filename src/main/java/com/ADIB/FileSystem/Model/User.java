@@ -17,6 +17,8 @@ public class User extends Audit {
     private String email;
     private String password;
     private String username;
+    private Boolean deleted = false;
+
 
 }
 

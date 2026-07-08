@@ -29,6 +29,4 @@ public class Audit {
     @JoinColumn(name = "updated_by")
     private User updatedBy;
 
-    @Column(nullable = false)
-    private Boolean deleted = false;
 }

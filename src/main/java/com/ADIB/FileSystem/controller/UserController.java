@@ -1,6 +1,5 @@
 package com.ADIB.FileSystem.controller;
 
-import com.ADIB.FileSystem.Model.User;
 import com.ADIB.FileSystem.dto.request.UserRequest;
 import com.ADIB.FileSystem.dto.response.UserResponse;
 import com.ADIB.FileSystem.service.UserService;
@@ -15,12 +14,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping
-    public ResponseEntity<UserResponse> getUser(@RequestParam UserRequest request){
-        if(request.getName() == null){
+    @GetMapping("/{name}")
+    public ResponseEntity<UserResponse> getUser(@PathVariable String name){
+        if(name == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok(userService.getUser(request));
+        return ResponseEntity.ok(userService.getUser(name));
     }
 
     @PostMapping
@@ -37,6 +36,15 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok(userService.updateUser(request));
+    }
+
+    @DeleteMapping("{username}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String username){
+        if(username== null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        userService.deleteUser(username);
+        return ResponseEntity.noContent().build();
     }
 
 
