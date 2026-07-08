@@ -4,13 +4,12 @@ package com.ADIB.FileSystem.Model;
 import jakarta.persistence.*;
 import lombok.*;
 
-
-@Getter
-@Setter
+@Data
 @Entity(name = "users")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long u_id;
@@ -18,6 +17,8 @@ public class User {
     private String email;
     private String password;
     private String username;
+    private Boolean deleted = false;
+
 
 }
 

@@ -1,6 +1,5 @@
 package com.ADIB.FileSystem.controller;
 
-import com.ADIB.FileSystem.Model.User;
 import com.ADIB.FileSystem.dto.request.UserRequest;
 import com.ADIB.FileSystem.dto.response.UserResponse;
 import com.ADIB.FileSystem.service.UserService;
@@ -15,33 +14,40 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/ByParam")
-    public ResponseEntity<User> getUser(@RequestParam String reqnameuest){
-        if(reqnameuest == null){
+    @GetMapping("/{name}")
+    public ResponseEntity<UserResponse> getUser(@PathVariable String name){
+        if(name == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok(userService.getUser(reqnameuest));
+        return ResponseEntity.ok(userService.getUser(name));
     }
-
-
-
-
-    @GetMapping("/ByPath/{reqnameuest}")
-    public ResponseEntity<User> getUserPath(@PathVariable String reqnameuest){
-        if(reqnameuest == null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return ResponseEntity.ok(userService.getUser(reqnameuest));
-    }
-
 
     @PostMapping
-    public ResponseEntity<User> getUser(@RequestBody UserRequest request){
-        if(request == null){
+    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest request){
+        if(request.getName() == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.ok(userService.getUser(request.getName()));
+        return ResponseEntity.ok(userService.createUser(request));
     }
+
+    @PutMapping
+    public ResponseEntity<UserResponse> updateUser(@RequestBody UserRequest request){
+        if(request.getName() == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok(userService.updateUser(request));
+    }
+
+    @DeleteMapping("{username}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String username){
+        if(username== null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        userService.deleteUser(username);
+        return ResponseEntity.noContent().build();
+    }
+
+
 
 
 }

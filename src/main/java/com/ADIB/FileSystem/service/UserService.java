@@ -6,7 +6,6 @@ import com.ADIB.FileSystem.repository.UserRepo;
 import com.ADIB.FileSystem.dto.response.UserResponse;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ADIB.FileSystem.dto.request.*;
 
@@ -14,23 +13,49 @@ import com.ADIB.FileSystem.dto.request.*;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
-    @Autowired
-    UserRepo userRepo;
-
-    UserMapper userMapper;
+private final UserRepo userRepo;
+private final UserMapper userMapper;
 
 
-    public UserService(UserRepo userRepo, UserMapper userMapper) {
-        this.userRepo = userRepo;
-        this.userMapper = userMapper;}
+    public UserResponse getUser(String name) {
+        User user = userRepo.findByname(name);
+        return userMapper.mapToResponse(user);
+    }
 
+    public UserResponse createUser(UserRequest  request) {
+        User user = userRepo.findByname(request.getName());
+        if(user!=null){
+            throw new RuntimeException("Username exist");
+        }
+        User newUser = User.builder()
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .username(request.getName())
+                .name(request.getName())
+                .build();
 
+        return userMapper.mapToResponse( userRepo.save(newUser));
+    }
 
-    public User getUser(String  nn) {
-        User user = userRepo.findByusername(nn);
-        System.out.println(user.getEmail());
-        return user;
+    public UserResponse updateUser(UserRequest  request) {
+        User user = userRepo.findByname(request.getName());
+        if(user==null){
+            throw new RuntimeException("Username not exist");
+        }
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        user.setUsername(request.getName());
+        user.setName(request.getName());
+
+        return userMapper.mapToResponse(userRepo.save(user));
+    }
+
+    public void deleteUser(String username) {
+        User user = userRepo.findByname(username);
+        if (user == null) {
+            throw new RuntimeException("Username not exist");
+        }
+        userRepo.delete(user);
     }
 
 }
