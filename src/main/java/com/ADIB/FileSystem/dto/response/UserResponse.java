@@ -1,4 +1,4 @@
-package com.ADIB.FileSystem.DTO;
+package com.ADIB.FileSystem.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,8 +19,6 @@ public class UserResponse {
     private String email;
     private String status;
     private String departmentName;
-    private Set<String> roles;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
 
 }

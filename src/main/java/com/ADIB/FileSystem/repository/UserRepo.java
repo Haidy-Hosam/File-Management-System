@@ -9,10 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 @Repository
 public interface UserRepo extends JpaRepository<User, Long> {
-    Optional<User> findByUsername(String username);
+    User findByusername(String username);
     Optional<User> findByEmail(String email);
     //------------ SEARCH BY ID AND RETURN ONLY EMP NAME
-    @Query(value = "SELECT username FROM users WHERE id = :id", nativeQuery = true)
-    String returnName(@Param("id") Long id);
+    @Query(value = "SELECT username FROM users WHERE id = :1 and name=:2", nativeQuery = true)
+    String returnName(@Param("i") Long id, @Param("2") String name);
 
 }

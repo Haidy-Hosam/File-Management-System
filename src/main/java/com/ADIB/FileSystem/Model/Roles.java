@@ -1,19 +1,12 @@
 package com.ADIB.FileSystem.Model;
 
-import com.ADIB.FileSystem.Enum.USER_ROLE;
+
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.*;
 
-import java.time.LocalDateTime;
-
-@Data
-@Entity
-@Builder
+@Getter
+@Setter
+@Entity(name = "roles")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Roles {
@@ -21,18 +14,4 @@ public class Roles {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long r_id;
     private String name;
-
-    @CreationTimestamp
-    private LocalDateTime created_at;
-
-    @UpdateTimestamp
-    private LocalDateTime updated_at;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created by")
-    private User created_by;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "updated by")
-    private User updated_by;
 }

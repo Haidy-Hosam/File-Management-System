@@ -1,4 +1,4 @@
-package com.ADIB.FileSystem.DTO;
+package com.ADIB.FileSystem.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
