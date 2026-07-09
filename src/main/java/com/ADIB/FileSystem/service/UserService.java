@@ -39,17 +39,14 @@ private final RoleRepo roleRepo;
         if(user!=null){
             throw new RuntimeException("Username exist");
         }
-        Set<Role> roles = new HashSet<>(roleRepo.findAllById(request.getRoleId()));
-
-        System.out.println("Requested IDs = " + request.getRoleId());
-        System.out.println("Roles = " + roles);
+        Role role = roleRepo.findById(request.getRoleId()).orElseThrow(() -> new RuntimeException("Role not found"));
 
         User newUser = User.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .username(request.getName())
                 .name(request.getName())
-                .roles(roles)
+                .role(role)
                 .build();
 
         return userMapper.mapToResponse(userRepo.save(newUser));
@@ -60,10 +57,13 @@ private final RoleRepo roleRepo;
         if(user==null){
             throw new RuntimeException("Username not exist");
         }
+        Role role = roleRepo.findById(request.getRoleId()).orElseThrow(() -> new RuntimeException("Role not found"));
+
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setUsername(request.getName());
         user.setName(request.getName());
+        user.setRole(role);
 
         return userMapper.mapToResponse(userRepo.save(user));
     }

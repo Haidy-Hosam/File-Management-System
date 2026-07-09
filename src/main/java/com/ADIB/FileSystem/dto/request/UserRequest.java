@@ -16,7 +16,7 @@ public class UserRequest {
     private String name;
     private String email;
     private String password;
-    private Set<Long> roleId;
+    private Long   roleId;
 //    private Long departmentId;
 
 }

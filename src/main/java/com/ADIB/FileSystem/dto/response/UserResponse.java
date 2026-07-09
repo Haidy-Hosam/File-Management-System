@@ -17,7 +17,7 @@ public class UserResponse {
     private Long u_id;
     private String name;
     private String email;
-    private Set<String> role;
+    private String role;
 
 //    private String departmentName;
 
