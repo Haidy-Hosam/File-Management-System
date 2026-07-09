@@ -9,10 +9,10 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "roles")
-public class Role {
-
+public class Role extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "r_id")
     private Long id;
 
     private String name;
