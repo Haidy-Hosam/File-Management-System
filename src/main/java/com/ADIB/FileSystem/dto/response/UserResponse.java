@@ -14,10 +14,11 @@ import java.util.Set;
 @AllArgsConstructor
 public class UserResponse {
 
-    private Long id;
+    private Long u_id;
     private String name;
     private String email;
-    private String status;
+    private Set<String> role;
+
 //    private String departmentName;
 
 
