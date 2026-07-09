@@ -15,4 +15,5 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Query(value = "SELECT username FROM users WHERE id = :1 and name=:2", nativeQuery = true)
     String returnName(@Param("i") Long id, @Param("2") String name);
 
+
 }

@@ -15,16 +15,17 @@ public class RoleController {
 
     private final RoleService roleService;
 
-    @PostMapping
-    public RoleResponse addRole(@RequestBody RoleRequest request) {
-
-        return roleService.addRole(request);
-    }
 
     @GetMapping
     public List<RoleResponse> getAllRoles() {
 
         return roleService.getAllRoles();
+    }
+
+    @PostMapping
+    public RoleResponse addRole(@RequestBody RoleRequest request) {
+
+        return roleService.addRole(request);
     }
 
     @GetMapping("/{id}")
