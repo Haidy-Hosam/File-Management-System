@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 @Component
 public class UserMapper {
 
-    public UserResponse mapToResponse(User user) {
+    public static UserResponse mapToResponse(User user) {
         UserResponse userResponse = new UserResponse();
         userResponse.setU_id(user.getU_id());
         userResponse.setName(user.getUsername());
