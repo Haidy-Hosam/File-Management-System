@@ -16,22 +16,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .message(ex.getMessage())
-                .status(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.OK.value())
                 .timestamp(LocalDateTime.now())
                 .path(request.getRequestURI())
                 .build();
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return  ResponseEntity.ok(error);
     }
 
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleAlreadyExists(ResourceAlreadyExistsException ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .message(ex.getMessage())
-                .status(HttpStatus.CONFLICT.value())
+                .status(HttpStatus.OK.value())
                 .timestamp(LocalDateTime.now())
                 .path(request.getRequestURI())
                 .build();
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+        return  ResponseEntity.ok(error);
     }
 
     @ExceptionHandler(RuntimeException.class)
