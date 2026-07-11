@@ -3,6 +3,7 @@ package com.ADIB.FileSystem.service;
 import com.ADIB.FileSystem.Model.Role;
 import com.ADIB.FileSystem.dto.request.RoleRequest;
 import com.ADIB.FileSystem.dto.response.RoleResponse;
+import com.ADIB.FileSystem.exception.ResourceNotFoundException;
 import com.ADIB.FileSystem.mapper.RoleMapper;
 import com.ADIB.FileSystem.repository.RoleRepo;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class RoleService {
     public RoleResponse getRoleById(Long id) {
 
         Role role = roleRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Role Not Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role Not Found"));
 
         return roleMapper.toResponse(role);
     }
@@ -45,7 +46,7 @@ public class RoleService {
     public RoleResponse updateRole(Long id, RoleRequest request) {
 
         Role role = roleRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Role Not Found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role Not Found"));
 
         role.setName(request.getName());
 

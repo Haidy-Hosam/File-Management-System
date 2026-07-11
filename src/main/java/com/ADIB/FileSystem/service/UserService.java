@@ -2,6 +2,8 @@ package com.ADIB.FileSystem.service;
 
 import com.ADIB.FileSystem.Model.Role;
 import com.ADIB.FileSystem.Model.User;
+import com.ADIB.FileSystem.exception.ResourceAlreadyExistsException;
+import com.ADIB.FileSystem.exception.ResourceNotFoundException;
 import com.ADIB.FileSystem.mapper.UserMapper;
 import com.ADIB.FileSystem.repository.RoleRepo;
 import com.ADIB.FileSystem.repository.UserRepo;
@@ -26,20 +28,26 @@ private final RoleRepo roleRepo;
 
 
     public UserResponse getUser(String name) {
-        User user = userRepo.findByname(name);
+        User user =userRepo.findByname(name);
+        if(user == null){
+            throw new ResourceNotFoundException("Username not found");
+        }
         return userMapper.mapToResponse(user);
     }
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepo.findAll();
+        if(users.isEmpty()){
+            throw new ResourceNotFoundException("No users yet.");
+        }
         return users.stream().map(user -> userMapper.mapToResponse(user)).collect(Collectors.toList());
     }
 
     public UserResponse createUser(UserRequest  request) {
         User user = userRepo.findByname(request.getName());
         if(user!=null){
-            throw new RuntimeException("Username exist");
+           throw new ResourceAlreadyExistsException("Username exist");
         }
-        Role role = roleRepo.findById(request.getRoleId()).orElseThrow(() -> new RuntimeException("Role not found"));
+        Role role = roleRepo.findById(request.getRoleId()).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
         User newUser = User.builder()
                 .email(request.getEmail())
@@ -52,12 +60,11 @@ private final RoleRepo roleRepo;
         return userMapper.mapToResponse(userRepo.save(newUser));
     }
 
-    public UserResponse updateUser(UserRequest  request) {
-        User user = userRepo.findByname(request.getName());
-        if(user==null){
-            throw new RuntimeException("Username not exist");
-        }
-        Role role = roleRepo.findById(request.getRoleId()).orElseThrow(() -> new RuntimeException("Role not found"));
+    public UserResponse updateUser(Long id,UserRequest  request) {
+//        User user = userRepo.findByname(request.getName());
+        User user =userRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+
+        Role role = roleRepo.findById(request.getRoleId()).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
@@ -68,11 +75,9 @@ private final RoleRepo roleRepo;
         return userMapper.mapToResponse(userRepo.save(user));
     }
 
-    public void deleteUser(String username) {
-        User user = userRepo.findByname(username);
-        if (user == null) {
-            throw new RuntimeException("Username not exist");
-        }
+    public void deleteUser(Long id) {
+        User user = userRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+
         userRepo.delete(user);
     }
 
