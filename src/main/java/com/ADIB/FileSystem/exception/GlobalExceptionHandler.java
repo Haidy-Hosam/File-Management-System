@@ -12,8 +12,16 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    //ده معناه:
+//لو أي حتة في المشروع رمت ResourceNotFoundException، ناديني
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
+        //HttpServletRequest request
+        //ده بيمثل الـ Request اللي جاي من الـ Client.
+        //
+        //ليه استخدمناه؟
+        //
+        //علشان نعرف الـ URL اللي حصل فيه الخطأ.
         ErrorResponse error = ErrorResponse.builder()
                 .message(ex.getMessage())
                 .status(HttpStatus.NOT_FOUND.value())
