@@ -14,6 +14,4 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileRequest {
     private MultipartFile file;
     private Long department_id;
-    @NotBlank(message = "file status is required.")
-    private String status;
 }
