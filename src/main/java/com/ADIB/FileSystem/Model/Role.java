@@ -3,6 +3,8 @@ package com.ADIB.FileSystem.Model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,4 +18,7 @@ public class Role extends Audit {
     private Long id;
 
     private String name;
+
+    @OneToMany(mappedBy = "role",cascade = CascadeType.ALL)
+    private List<User> users;
 }

@@ -19,7 +19,7 @@ public class UserController {
     @GetMapping("/{name}")
     public ResponseEntity<UserResponse> getUser(@PathVariable String name){
         if(name == null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new RuntimeException("Username is required");
         }
         return ResponseEntity.ok(userService.getUser(name));
     }
@@ -34,25 +34,25 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest request){
         if(request.getName() == null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new RuntimeException("Username is required");
         }
         return ResponseEntity.ok(userService.createUser(request));
     }
 
-    @PutMapping
-    public ResponseEntity<UserResponse> updateUser(@RequestBody UserRequest request){
-        if(request.getName() == null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,@RequestBody UserRequest request){
+        if(id== null){
+            throw new RuntimeException("User id is required");
         }
-        return ResponseEntity.ok(userService.updateUser(request));
+        return ResponseEntity.ok(userService.updateUser(id,request));
     }
 
-    @DeleteMapping("{username}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String username){
-        if(username== null){
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
+        if(id== null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        userService.deleteUser(username);
+        userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 

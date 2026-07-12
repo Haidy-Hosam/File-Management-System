@@ -15,11 +15,12 @@ public class UserMapper {
         userResponse.setU_id(user.getU_id());
         userResponse.setName(user.getUsername());
         userResponse.setEmail(user.getEmail());
-        userResponse.setRole(
-                user.getRoles()
-                        .stream()
-                        .map(Role::getName)
-                        .collect(Collectors.toSet()));
+//        userResponse.setRole(
+//                user.getRoles()
+//                        .stream()
+//                        .map(Role::getName)
+//                        .collect(Collectors.toSet()));
+        userResponse.setRole(user.getRole().getName());
 
         return userResponse;
 

@@ -24,25 +24,24 @@ public class GlobalExceptionHandler {
         //علشان نعرف الـ URL اللي حصل فيه الخطأ.
         ErrorResponse error = ErrorResponse.builder()
                 .message(ex.getMessage())
-                .status(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.OK.value())
                 .timestamp(LocalDateTime.now())
                 .path(request.getRequestURI())
                 .build();
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return  ResponseEntity.ok(error);
     }
 
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleAlreadyExists(ResourceAlreadyExistsException ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .message(ex.getMessage())
-                .status(HttpStatus.CONFLICT.value())
+                .status(HttpStatus.OK.value())
                 .timestamp(LocalDateTime.now())
                 .path(request.getRequestURI())
                 .build();
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+        return  ResponseEntity.ok(error);
     }
 
-    // fallback: أي RuntimeException تاني ملقتش لها handler مخصص
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
@@ -54,7 +53,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    // fallback عام لأي exception تاني (لحماية إضافية)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
