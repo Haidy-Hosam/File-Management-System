@@ -21,16 +21,14 @@ public class User extends Audit {
     private String password;
     private String username;
     private Boolean deleted = false;
-//    @ManyToMany
-//    @JoinTable(
-//            name="user_roles",
-//            joinColumns = @JoinColumn(name="user_id"),
-//            inverseJoinColumns = @JoinColumn(name = "role_id")
-//    )
-//    private Set<Role> roles;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @ManyToOne
+    @JoinColumn(name="department_id")
+    private Department department;
 
 }
 
