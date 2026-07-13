@@ -28,25 +28,23 @@ public class FileController {
 
         return ResponseEntity.ok(fileService.uploadFile(request));
     }
+    @DeleteMapping("/{fileId}")
+    public ResponseEntity<Void> deleteFile(@PathVariable("fileId") Long fileId) throws IOException {
+        fileService.deleteFile(fileId);
+        return ResponseEntity.noContent().build();
 
-//    @GetMapping
-//    public <> ()
-//
-//    {
-//
-//    }
+    }
 
-//    @PostMapping
-//    public FileResponse uploadFile(
-//            @ModelAttribute FileRequest request // @ModelAttribute عشان ببعت multipart/form-data
-//    ) {
-//        return fileService.uploadFile(request);
-//    }
-//
-//    @GetMapping("/{id}")
-//
-//    @PutMapping("/{id}")
-//
-//
-//    @DeleteMapping("/{id}")
+    @GetMapping("/all")
+    public ResponseEntity<List<FileResponse>> getAllFiles() {
+        return ResponseEntity.ok(fileService.listAllFiles());
+    }
+    @GetMapping("/dept/{deptId}")
+    public ResponseEntity<List<FileResponse>> getAllFilesByDepartment(@PathVariable("deptId") Long deptId) {
+        return ResponseEntity.ok(fileService.listFilesByDepartment(deptId));
+    }
+    @GetMapping("/{fileId}")
+    public ResponseEntity<FileResponse> getFileData(@PathVariable("fileId") Long fileId) throws IOException {
+        return ResponseEntity.ok(fileService.getFileData(fileId));
+    }
 }
