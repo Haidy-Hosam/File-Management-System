@@ -11,18 +11,15 @@ import java.util.stream.Collectors;
 public class UserMapper {
 
     public static UserResponse mapToResponse(User user) {
-        UserResponse userResponse = new UserResponse();
-        userResponse.setU_id(user.getU_id());
-        userResponse.setName(user.getUsername());
-        userResponse.setEmail(user.getEmail());
-//        userResponse.setRole(
-//                user.getRoles()
-//                        .stream()
-//                        .map(Role::getName)
-//                        .collect(Collectors.toSet()));
-        userResponse.setRole(user.getRole().getName());
+       UserResponse userResponse = UserResponse.builder()
+               .u_id(user.getU_id())
+               .name(user.getName())
+               .email(user.getEmail())
+               .role(user.getRole().getName())
+               .departmentName(user.getDepartment().getName())
+               .build();
 
-        return userResponse;
+        return userResponse ;
 
     }
 }

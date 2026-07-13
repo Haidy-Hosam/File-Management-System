@@ -1,5 +1,6 @@
 package com.ADIB.FileSystem.service;
 
+import com.ADIB.FileSystem.Enum.FILE_STATUS;
 import com.ADIB.FileSystem.Model.Department;
 import com.ADIB.FileSystem.Model.File;
 import com.ADIB.FileSystem.dto.request.FileRequest;
@@ -38,18 +39,22 @@ public class FileService {
                 fileName.lastIndexOf(".") + 1
         );
 
-        Path uploadDirectory = Paths.get("uploads");
+        Path uploadDirectory = Paths.get("C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads");
 
         Files.createDirectories(uploadDirectory);
 
         Path filePath = uploadDirectory.resolve(fileName);// ركّبي الاتنين على بعض كـ Path
 
-
+        Files.copy(
+                request.getFile().getInputStream(),
+                filePath
+        );
         File file = File.builder()
                 .name(fileName)
                 .path(filePath.toString())
                 .size(request.getFile().getSize())
                 .extension(extension)
+                .status(FILE_STATUS.PENDING)
                 .department(department)
                 .build();
 

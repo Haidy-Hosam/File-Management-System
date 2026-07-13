@@ -1,10 +1,12 @@
 package com.ADIB.FileSystem.service;
 
+import com.ADIB.FileSystem.Model.Department;
 import com.ADIB.FileSystem.Model.Role;
 import com.ADIB.FileSystem.Model.User;
 import com.ADIB.FileSystem.exception.ResourceAlreadyExistsException;
 import com.ADIB.FileSystem.exception.ResourceNotFoundException;
 import com.ADIB.FileSystem.mapper.UserMapper;
+import com.ADIB.FileSystem.repository.DepartmentRepo;
 import com.ADIB.FileSystem.repository.RoleRepo;
 import com.ADIB.FileSystem.repository.UserRepo;
 import com.ADIB.FileSystem.dto.response.UserResponse;
@@ -25,6 +27,7 @@ public class UserService {
 private final UserRepo userRepo;
 private final UserMapper userMapper;
 private final RoleRepo roleRepo;
+private final DepartmentRepo departmentRepo;
 
 
     public UserResponse getUser(String name) {
@@ -48,13 +51,14 @@ private final RoleRepo roleRepo;
            throw new ResourceAlreadyExistsException("Username exist");
         }
         Role role = roleRepo.findById(request.getRoleId()).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
-
+        Department department = departmentRepo.findById(request.getDepartmentId()).orElseThrow(() -> new ResourceNotFoundException("Department not found"));
         User newUser = User.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .username(request.getName())
                 .name(request.getName())
                 .role(role)
+                .department(department)
                 .build();
 
         return userMapper.mapToResponse(userRepo.save(newUser));

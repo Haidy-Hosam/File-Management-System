@@ -3,6 +3,7 @@ package com.ADIB.FileSystem.Model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.sql.results.graph.Fetch;
 
 import java.util.List;
 import java.util.Set;
@@ -26,7 +27,7 @@ public class User extends Audit {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="department_id")
     private Department department;
 
