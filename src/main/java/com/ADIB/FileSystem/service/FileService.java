@@ -4,6 +4,7 @@ import com.ADIB.FileSystem.Enum.FILE_STATUS;
 import com.ADIB.FileSystem.Model.Department;
 import com.ADIB.FileSystem.Model.File;
 import com.ADIB.FileSystem.dto.request.FileRequest;
+import com.ADIB.FileSystem.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.dto.response.FileResponse;
 import com.ADIB.FileSystem.exception.ResourceNotFoundException;
 import com.ADIB.FileSystem.mapper.FileMapper;
@@ -126,5 +127,12 @@ public class FileService {
                 )
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(byteArrayResource);
+    }
+
+    public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request)  {
+        File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
+        file.setStatus(request.getStatus());
+        File updatedFile = fileRepository.save(file);
+        return fileMapper.mapToResponse(updatedFile);
     }
 }

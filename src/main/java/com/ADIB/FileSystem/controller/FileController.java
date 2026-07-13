@@ -2,6 +2,7 @@ package com.ADIB.FileSystem.controller;
 
 import com.ADIB.FileSystem.dto.request.FileRequest;
 import com.ADIB.FileSystem.dto.request.RoleRequest;
+import com.ADIB.FileSystem.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.dto.response.FileResponse;
 import com.ADIB.FileSystem.dto.response.RoleResponse;
 import com.ADIB.FileSystem.service.FileService;
@@ -51,5 +52,10 @@ public class FileController {
     @GetMapping("/{fileId}/download")
     public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable("fileId") Long fileId) throws IOException {
         return fileService.downloadFile(fileId);
+    }
+
+    @PutMapping("/{fileId}/status")
+    public ResponseEntity<FileResponse> updateFileStatus(@PathVariable("fileId") Long fileId, @RequestBody UpdateFileStatusRequest fileStatus) {
+        return ResponseEntity.ok(fileService.updateFileStatus(fileId, fileStatus));
     }
 }
