@@ -10,6 +10,10 @@ import com.ADIB.FileSystem.mapper.FileMapper;
 import com.ADIB.FileSystem.repository.DepartmentRepo;
 import com.ADIB.FileSystem.repository.FileRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -26,6 +30,7 @@ public class FileService {
     private final FileRepo fileRepository;
     private final FileMapper fileMapper;
     private final DepartmentRepo departmentRepository;
+    private final FileEncryptionService fileEncryptionService;
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
 
@@ -46,11 +51,21 @@ public class FileService {
         Files.createDirectories(uploadDirectory);
 
         Path filePath = uploadDirectory.resolve(fileName);
+//    store normal file-------------------
+//        Files.copy(
+//                request.getFile().getInputStream(),
+//                filePath
+//        );
+        byte[] fileBytes = request.getFile().getBytes();
+        byte[] encryptedBytes;
+        try{
+        encryptedBytes = fileEncryptionService.encrypt(fileBytes);
+        }catch(Exception e){
+            throw new IOException("Failed to encrypt and save file", e);
+        }
 
-        Files.copy(
-                request.getFile().getInputStream(),
-                filePath
-        );
+        Files.write(filePath, encryptedBytes);
+
         File file = File.builder()
                 .name(fileName)
                 .path(filePath.toString())
@@ -90,5 +105,26 @@ public class FileService {
     public FileResponse getFileData(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
         return fileMapper.mapToResponse(file);
+    }
+
+    public ResponseEntity<ByteArrayResource> downloadFile(Long fileId) throws IOException {
+        File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
+
+        Path filePath = Paths.get(file.getPath());
+        byte[] encryptedBytes  = Files.readAllBytes(filePath);
+        ByteArrayResource byteArrayResource;
+        try{
+            byte[] originalBytes = fileEncryptionService.decrypt(encryptedBytes);
+            byteArrayResource =new ByteArrayResource(originalBytes);
+        }catch(Exception e){
+            throw new IOException("Failed to decrypt and save file", e);
+        }
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + file.getName() + "\""
+                )
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(byteArrayResource);
     }
 }

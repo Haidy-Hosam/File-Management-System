@@ -7,6 +7,7 @@ import com.ADIB.FileSystem.dto.response.RoleResponse;
 import com.ADIB.FileSystem.service.FileService;
 import com.ADIB.FileSystem.service.RoleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,5 +47,9 @@ public class FileController {
     @GetMapping("/{fileId}")
     public ResponseEntity<FileResponse> getFileData(@PathVariable("fileId") Long fileId) throws IOException {
         return ResponseEntity.ok(fileService.getFileData(fileId));
+    }
+    @GetMapping("/{fileId}/download")
+    public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable("fileId") Long fileId) throws IOException {
+        return fileService.downloadFile(fileId);
     }
 }
