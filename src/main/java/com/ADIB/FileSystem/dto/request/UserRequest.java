@@ -18,5 +18,6 @@ public class UserRequest {
     private String password;
     private Long   roleId;
     private Long departmentId;
+    private boolean isDeleted;
 
 }

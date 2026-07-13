@@ -59,6 +59,7 @@ private final DepartmentRepo departmentRepo;
                 .name(request.getName())
                 .role(role)
                 .department(department)
+                .deleted(false)
                 .build();
 
         return userMapper.mapToResponse(userRepo.save(newUser));
@@ -74,6 +75,7 @@ private final DepartmentRepo departmentRepo;
         user.setPassword(request.getPassword());
         user.setUsername(request.getName());
         user.setName(request.getName());
+        user.setDeleted(request.isDeleted());
         user.setRole(role);
 
         return userMapper.mapToResponse(userRepo.save(user));

@@ -17,6 +17,7 @@ public class UserMapper {
                .email(user.getEmail())
                .role(user.getRole().getName())
                .departmentName(user.getDepartment().getName())
+               .isDeleted(user.getDeleted())
                .build();
 
         return userResponse ;
