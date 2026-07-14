@@ -12,6 +12,7 @@ import com.ADIB.FileSystem.repository.UserRepo;
 import com.ADIB.FileSystem.dto.response.UserResponse;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.ADIB.FileSystem.dto.request.*;
 
@@ -28,6 +29,7 @@ private final UserRepo userRepo;
 private final UserMapper userMapper;
 private final RoleRepo roleRepo;
 private final DepartmentRepo departmentRepo;
+private final PasswordEncoder passwordEncoder;
 
 
     public UserResponse getUser(String name) {
@@ -46,7 +48,7 @@ private final DepartmentRepo departmentRepo;
     }
 
     public UserResponse createUser(UserRequest  request) {
-        User user = userRepo.findByname(request.getName());
+        User user = userRepo.findByUsername(request.getName());
         if(user!=null){
            throw new ResourceAlreadyExistsException("Username exist");
         }
@@ -54,7 +56,7 @@ private final DepartmentRepo departmentRepo;
         Department department = departmentRepo.findById(request.getDepartmentId()).orElseThrow(() -> new ResourceNotFoundException("Department not found"));
         User newUser = User.builder()
                 .email(request.getEmail())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .username(request.getName())
                 .name(request.getName())
                 .role(role)

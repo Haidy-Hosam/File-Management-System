@@ -23,7 +23,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/files/**").authenticated()
+                .authorizeHttpRequests(
+                        auth ->
+                                auth.requestMatchers("/api/files/**").authenticated()
                         .anyRequest().permitAll())
                 .httpBasic(Customizer.withDefaults());
         return http.build();
@@ -34,27 +36,5 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public UserDetailsService users() {
-        UserDetails admin =
-                User.builder()
-                        .username("admin")
-                        .password(passwordEncoder().encode("123"))
-                        .roles("ADMIN")
-                        .build();
 
-
-        UserDetails employee =
-                User.builder()
-                        .username("employee")
-                        .password(passwordEncoder().encode("123"))
-                        .roles("EMPLOYEE")
-                        .build();
-
-
-        return new InMemoryUserDetailsManager(
-                admin,
-                employee
-        );
-    }
 }
