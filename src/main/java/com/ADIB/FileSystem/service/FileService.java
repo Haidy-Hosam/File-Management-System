@@ -41,32 +41,35 @@ public class FileService {
                         new ResourceNotFoundException("Department not found")
                 );
 
-        String fileName = request.getFile().getOriginalFilename();
+        String fileName = request.getFile().getOriginalFilename(); // اسم الفايل
 
         String extension = fileName.substring(
                 fileName.lastIndexOf(".") + 1
         );
 
-        Path uploadDirectory = Paths.get("C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads");
+        Path uploadDirectory = Paths.get("D:\\ADIB\\ADIB Project"); // الفولدر
 
-        Files.createDirectories(uploadDirectory);
+        Files.createDirectories(uploadDirectory); // لو مش موجود اعمله
 
-        Path filePath = uploadDirectory.resolve(fileName);
+        Path filePath = uploadDirectory.resolve(fileName); // ركبهم علي بعض
 //    store normal file-------------------
 //        Files.copy(
 //                request.getFile().getInputStream(),
 //                filePath
 //        );
+        // -------------- خطوة Encrypt اللي قبل الحفظ ------------
         byte[] fileBytes = request.getFile().getBytes();
         byte[] encryptedBytes;
-        try{
-        encryptedBytes = fileEncryptionService.encrypt(fileBytes);
-        }catch(Exception e){
+        try {
+            encryptedBytes = fileEncryptionService.encrypt(fileBytes);
+        } catch (Exception e) {
             throw new IOException("Failed to encrypt and save file", e);
         }
 
         Files.write(filePath, encryptedBytes);
+        // -------------------------------------------------------
 
+        // Goal 2  : حفظ الداتا بتاعة الفايل علي DB
         File file = File.builder()
                 .name(fileName)
                 .path(filePath.toString())
@@ -75,13 +78,13 @@ public class FileService {
                 .status(FILE_STATUS.PENDING)
                 .department(department)
                 .build();
-
+        // اخد البيانات دي بقي و احفظها في الريبو
         File savedFile = fileRepository.save(file);
 
         return fileMapper.mapToResponse(savedFile);
     }
 
-    public void deleteFile(Long fileId)  throws IOException {
+    public void deleteFile(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
         Path filePath = Paths.get(file.getPath());
         Files.deleteIfExists(filePath);
@@ -112,12 +115,12 @@ public class FileService {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
 
         Path filePath = Paths.get(file.getPath());
-        byte[] encryptedBytes  = Files.readAllBytes(filePath);
+        byte[] encryptedBytes = Files.readAllBytes(filePath);
         ByteArrayResource byteArrayResource;
-        try{
+        try {
             byte[] originalBytes = fileEncryptionService.decrypt(encryptedBytes);
-            byteArrayResource =new ByteArrayResource(originalBytes);
-        }catch(Exception e){
+            byteArrayResource = new ByteArrayResource(originalBytes);
+        } catch (Exception e) {
             throw new IOException("Failed to decrypt and save file", e);
         }
         return ResponseEntity.ok()
@@ -129,7 +132,7 @@ public class FileService {
                 .body(byteArrayResource);
     }
 
-    public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request)  {
+    public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request) {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
         file.setStatus(request.getStatus());
         File updatedFile = fileRepository.save(file);
