@@ -3,6 +3,7 @@ package com.ADIB.FileSystem.service;
 import com.ADIB.FileSystem.Enum.FILE_STATUS;
 import com.ADIB.FileSystem.Model.Department;
 import com.ADIB.FileSystem.Model.File;
+import com.ADIB.FileSystem.Model.FileType;
 import com.ADIB.FileSystem.dto.request.FileRequest;
 import com.ADIB.FileSystem.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.dto.response.FileResponse;
@@ -10,6 +11,7 @@ import com.ADIB.FileSystem.exception.ResourceNotFoundException;
 import com.ADIB.FileSystem.mapper.FileMapper;
 import com.ADIB.FileSystem.repository.DepartmentRepo;
 import com.ADIB.FileSystem.repository.FileRepo;
+import com.ADIB.FileSystem.repository.FileTypeRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +34,7 @@ public class FileService {
     private final FileMapper fileMapper;
     private final DepartmentRepo departmentRepository;
     private final FileEncryptionService fileEncryptionService;
+    private final FileTypeRepo fileTypeRepo;
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
 
@@ -40,7 +43,10 @@ public class FileService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Department not found")
                 );
-
+        FileType fileType = fileTypeRepo.findById(request.getFileType_id())
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("File type not found")
+                );
         String fileName = request.getFile().getOriginalFilename();
 
         String extension = fileName.substring(
@@ -74,6 +80,7 @@ public class FileService {
                 .extension(extension)
                 .status(FILE_STATUS.PENDING)
                 .department(department)
+                .fileType(fileType)
                 .build();
 
         File savedFile = fileRepository.save(file);

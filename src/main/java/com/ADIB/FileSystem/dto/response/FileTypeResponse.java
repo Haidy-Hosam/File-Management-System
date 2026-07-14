@@ -1,6 +1,5 @@
 package com.ADIB.FileSystem.dto.response;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,11 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileResponse {
+public class FileTypeResponse {
     private Long id;
     private String name;
-    private String extension;
-    private Long department_id;
-    private String status;
-    private String fileType;
+    private String description;
 }
