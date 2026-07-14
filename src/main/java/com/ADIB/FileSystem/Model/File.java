@@ -30,5 +30,9 @@ public class File extends Audit{
     @Enumerated(EnumType.STRING)
     private FILE_STATUS status;
 
+    @ManyToOne
+    @JoinColumn(name = "file_type_id")
+    private FileType fileType;
+
 
 }

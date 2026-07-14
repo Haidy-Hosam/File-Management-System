@@ -14,4 +14,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileRequest {
     private MultipartFile file;
     private Long department_id;
+    private Long fileType_id;
 }
