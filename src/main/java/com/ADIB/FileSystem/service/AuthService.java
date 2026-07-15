@@ -76,9 +76,23 @@ public class AuthService {
                         request.getPassword()));
 
 
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(()-> new ResourceNotFoundException("User not found"));
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Long deptId = user.getDepartment() != null ? user.getDepartment().getId() : null;
+
+        String accessToken = jwtUtil.generateAccessToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRole().getName(),
+                deptId
+        );
+        String refreshToken = jwtUtil.generateAccessToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRole().getName(),
+                deptId
+        );
 
         RefreshToken storedRefreshToken = RefreshToken.builder()
                 .token(refreshToken)
@@ -108,8 +122,13 @@ public class AuthService {
         }
 
         String email = jwtUtil.extractEmail(refreshToken.getToken());
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        String accessToken = jwtUtil.generateAccessToken(email);
+        String accessToken = jwtUtil.generateAccessToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRole().getName(),
+                user.getDepartment().getId());
 
         return AuthResponse.builder()
                 .accessToken(accessToken)

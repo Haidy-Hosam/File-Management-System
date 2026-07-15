@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 public class JWTUtil {
@@ -24,10 +25,14 @@ public class JWTUtil {
     private SecretKey getSigningKey(){
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
-
-    public String generateAccessToken(String email){
+    public String generateAccessToken(Long userId, String email, String role, Long departmentId) {
         return Jwts.builder()
                 .subject(email)
+                .claims(Map.of(
+                        "userId", userId,
+                        "role", role,
+                        "deptId", departmentId != null ? departmentId : -1L
+                ))
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + accessExpiration))
                 .signWith(getSigningKey())
@@ -42,7 +47,6 @@ public class JWTUtil {
                 .signWith(getSigningKey())
                 .compact();
     }
-
     public String extractEmail(String token){return getClaims(token).getSubject();}
 
     public boolean isTokenValid(String token){
