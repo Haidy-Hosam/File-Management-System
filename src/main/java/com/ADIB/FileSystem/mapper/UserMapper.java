@@ -1,23 +1,20 @@
 package com.ADIB.FileSystem.mapper;
 
-import com.ADIB.FileSystem.Model.Role;
-import com.ADIB.FileSystem.dto.response.UserResponse;
+import com.ADIB.FileSystem.dto.response.AuthResponse;
 import com.ADIB.FileSystem.Model.User;
 import org.springframework.stereotype.Component;
-
-import java.util.stream.Collectors;
 
 @Component
 public class UserMapper {
 
-    public static UserResponse mapToResponse(User user) {
-       UserResponse userResponse = UserResponse.builder()
-               .u_id(user.getU_id())
+    public static AuthResponse mapToResponse(User user) {
+       AuthResponse userResponse = AuthResponse.builder()
+               .u_id(user.getId())
                .name(user.getName())
                .email(user.getEmail())
-               .role(user.getRole().getName())
-               .departmentName(user.getDepartment().getName())
-               .isDeleted(user.getDeleted())
+               .role(user.getRole() != null ? user.getRole().getName() : null)
+               .departmentName(user.getDepartment() != null ? user.getDepartment().getName() : null)
+               .isDeleted(Boolean.TRUE.equals(user.getDeleted()))
                .build();
 
         return userResponse ;

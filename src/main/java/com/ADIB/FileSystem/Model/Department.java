@@ -17,7 +17,8 @@ public class Department extends Audit{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long d_id;
+    @Column(name = "d_id")
+    private Long id;
 
     @Column(unique = true, nullable = false)
     private String name;

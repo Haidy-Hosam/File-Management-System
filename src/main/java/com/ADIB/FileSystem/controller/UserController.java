@@ -1,7 +1,7 @@
 package com.ADIB.FileSystem.controller;
 
-import com.ADIB.FileSystem.dto.request.UserRequest;
-import com.ADIB.FileSystem.dto.response.UserResponse;
+import com.ADIB.FileSystem.dto.request.RegisterRequest;
+import com.ADIB.FileSystem.dto.response.AuthResponse;
 import com.ADIB.FileSystem.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{name}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable String name){
+    public ResponseEntity<AuthResponse> getUser(@PathVariable String name){
         if(name == null){
             throw new RuntimeException("Username is required");
         }
@@ -26,13 +26,13 @@ public class UserController {
 
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers(){
+    public ResponseEntity<List<AuthResponse>> getAllUsers(){
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest request){
+    public ResponseEntity<AuthResponse> createUser(@RequestBody RegisterRequest request){
         if(request.getName() == null){
             throw new RuntimeException("Username is required");
         }
@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,@RequestBody UserRequest request){
+    public ResponseEntity<AuthResponse> updateUser(@PathVariable Long id, @RequestBody RegisterRequest request){
         if(id== null){
             throw new RuntimeException("User id is required");
         }

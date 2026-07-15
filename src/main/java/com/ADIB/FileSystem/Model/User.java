@@ -16,7 +16,8 @@ import java.util.Set;
 public class User extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long u_id;
+    @Column(name = "u_id")
+    private Long id;
     private String name;
     private String email;
     private String password;
