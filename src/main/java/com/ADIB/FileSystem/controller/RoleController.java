@@ -4,6 +4,7 @@ import com.ADIB.FileSystem.dto.request.RoleRequest;
 import com.ADIB.FileSystem.dto.response.RoleResponse;
 import com.ADIB.FileSystem.service.RoleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/roles")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
+@CrossOrigin(origins = "http://localhost:4200")
 public class RoleController {
 
     private final RoleService roleService;

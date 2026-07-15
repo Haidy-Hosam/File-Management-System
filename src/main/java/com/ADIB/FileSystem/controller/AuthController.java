@@ -9,20 +9,18 @@ import com.ADIB.FileSystem.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
     private final AuthService authService;
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest Request) {
-        return ResponseEntity.ok(authService.register(Request));
-    }
+//    @PostMapping("/register")
+//    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest Request) {
+//        return ResponseEntity.ok(authService.register(Request));
+//    }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest Request) {
@@ -32,6 +30,11 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshTokenRequest Request) {
         return ResponseEntity.ok(authService.refreshToken(Request));
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest Request) {
+        authService.logout(Request);
+        return ResponseEntity.noContent().build();
     }
 
 }

@@ -34,40 +34,40 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenRepo refreshTokenRepo;
 
-    public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new ResourceAlreadyExistsException("Email already exists");
-        }
-
-        Role role = roleRepository.findById(request.getRoleId())
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + request.getRoleId()));
-
-        Department department = null;
-        if (request.getDepartmentId() != null) {
-            department = departmentRepository.findById(request.getDepartmentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + request.getDepartmentId()));
-        }
-
-        User user = User.builder()
-                .name(request.getName())
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(role)
-                .department(department)
-                .deleted(request.isDeleted())
-                .build();
-
-        userRepository.save(user);
-
-        return AuthResponse.builder()
-                .name(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRole().getName())
-                .departmentName(user.getDepartment().getName())
-                .isDeleted(false)
-                .build();
-    }
+//    public AuthResponse register(RegisterRequest request) {
+//        if (userRepository.existsByEmail(request.getEmail())) {
+//            throw new ResourceAlreadyExistsException("Email already exists");
+//        }
+//
+//        Role role = roleRepository.findById(request.getRoleId())
+//                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + request.getRoleId()));
+//
+//        Department department = null;
+//        if (request.getDepartmentId() != null) {
+//            department = departmentRepository.findById(request.getDepartmentId())
+//                    .orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + request.getDepartmentId()));
+//        }
+//
+//        User user = User.builder()
+//                .name(request.getName())
+//                .username(request.getUsername())
+//                .email(request.getEmail())
+//                .password(passwordEncoder.encode(request.getPassword()))
+//                .role(role)
+//                .department(department)
+//                .deleted(request.isDeleted())
+//                .build();
+//
+//        userRepository.save(user);
+//
+//        return AuthResponse.builder()
+//                .name(user.getUsername())
+//                .email(user.getEmail())
+//                .role(user.getRole().getName())
+//                .departmentName(user.getDepartment().getName())
+//                .isDeleted(false)
+//                .build();
+//    }
 
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
@@ -82,7 +82,7 @@ public class AuthService {
 
         RefreshToken storedRefreshToken = RefreshToken.builder()
                 .token(refreshToken)
-                .expiryDate(LocalDateTime.now().minusHours(4))
+                .expiryDate(LocalDateTime.now().plusDays(7))
                 .user(user)
                 .build();
 
@@ -116,6 +116,14 @@ public class AuthService {
                 .refreshToken(refreshToken.getToken())
                 .build();
     }
+    public void logout(RefreshTokenRequest request){
 
+        RefreshToken refreshToken = refreshTokenRepo
+                .findByToken(request.getRefreshToken())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Refresh Token not found"));
+
+        refreshTokenRepo.delete(refreshToken);
+    }
 
 }
