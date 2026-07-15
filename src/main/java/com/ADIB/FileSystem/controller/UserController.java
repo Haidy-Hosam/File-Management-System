@@ -1,18 +1,19 @@
 package com.ADIB.FileSystem.controller;
-
 import com.ADIB.FileSystem.dto.request.RegisterRequest;
 import com.ADIB.FileSystem.dto.response.AuthResponse;
 import com.ADIB.FileSystem.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/user")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
+@CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
     private final UserService userService;
 
@@ -24,12 +25,10 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(name));
     }
 
-
     @GetMapping
     public ResponseEntity<List<AuthResponse>> getAllUsers(){
         return ResponseEntity.ok(userService.getAllUsers());
     }
-
 
     @PostMapping
     public ResponseEntity<AuthResponse> createUser(@RequestBody RegisterRequest request){
@@ -55,8 +54,4 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
-
-
-
-
 }
