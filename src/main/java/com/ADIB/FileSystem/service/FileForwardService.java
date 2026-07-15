@@ -42,7 +42,7 @@ public class FileForwardService {
         List<FileForwardResponse> responses =new ArrayList<>();
 
         for(Long recipientId : request.getRecipientIds()) {
-            if(recipientId.equals(sender.getU_id())){
+            if(recipientId.equals(sender.getId())){
                 continue;
             }
             User recipient = userRepo.findById(recipientId).orElseThrow(() -> new ResourceNotFoundException("User not found"));

@@ -11,7 +11,9 @@ import java.util.Optional;
 public interface UserRepo extends JpaRepository<User, Long> {
     User findByname(String name);
     User findByUsername(String username);
+
     Optional<User> findByEmail(String email);
+    boolean existsByEmail(String email);
     //------------ SEARCH BY ID AND RETURN ONLY EMP NAME
     @Query(value = "SELECT username FROM users WHERE id = :1 and name=:2", nativeQuery = true)
     String returnName(@Param("i") Long id, @Param("2") String name);

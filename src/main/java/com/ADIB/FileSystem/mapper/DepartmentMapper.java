@@ -9,7 +9,7 @@ public class DepartmentMapper {
     public DepartmentResponse MapToDepartmentResponse(Department department){
         return DepartmentResponse.builder()
                 .name(department.getName())
-                .id(department.getD_id())
+                .id(department.getId())
                 .build();
     }
 }

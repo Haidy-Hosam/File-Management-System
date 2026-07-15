@@ -37,7 +37,7 @@ public class FileMapper {
                 .id(file.getId())
                 .name(file.getName())
                 .extension(file.getExtension())
-                .department_id(file.getDepartment().getD_id())
+                .department_id(file.getDepartment().getId())
                 .status(file.getStatus().name())
                 .fileType(file.getFileType().getName())
                 .build();

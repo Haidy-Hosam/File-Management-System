@@ -24,7 +24,7 @@ public class DepartmentService {
                 .build();
         departmentRepo.save(department);
         return  DepartmentResponse.builder()
-                .id(department.getD_id())
+                .id(department.getId())
                 .name(department.getName())
                 .build();
     }

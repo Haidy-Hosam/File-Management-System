@@ -9,16 +9,14 @@ import com.ADIB.FileSystem.mapper.UserMapper;
 import com.ADIB.FileSystem.repository.DepartmentRepo;
 import com.ADIB.FileSystem.repository.RoleRepo;
 import com.ADIB.FileSystem.repository.UserRepo;
-import com.ADIB.FileSystem.dto.response.UserResponse;
+import com.ADIB.FileSystem.dto.response.AuthResponse;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.ADIB.FileSystem.dto.request.*;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -32,14 +30,14 @@ private final DepartmentRepo departmentRepo;
 private final PasswordEncoder passwordEncoder;
 
 
-    public UserResponse getUser(String name) {
+    public AuthResponse getUser(String name) {
         User user =userRepo.findByname(name);
         if(user == null){
             throw new ResourceNotFoundException("Username not found");
         }
         return userMapper.mapToResponse(user);
     }
-    public List<UserResponse> getAllUsers() {
+    public List<AuthResponse> getAllUsers() {
         List<User> users = userRepo.findAll();
         if(users.isEmpty()){
             throw new ResourceNotFoundException("No users yet.");
@@ -47,7 +45,7 @@ private final PasswordEncoder passwordEncoder;
         return users.stream().map(user -> userMapper.mapToResponse(user)).collect(Collectors.toList());
     }
 
-    public UserResponse createUser(UserRequest  request) {
+    public AuthResponse createUser(RegisterRequest request) {
         User user = userRepo.findByUsername(request.getName());
         if(user!=null){
            throw new ResourceAlreadyExistsException("Username exist");
@@ -67,7 +65,7 @@ private final PasswordEncoder passwordEncoder;
         return userMapper.mapToResponse(userRepo.save(newUser));
     }
 
-    public UserResponse updateUser(Long id,UserRequest  request) {
+    public AuthResponse updateUser(Long id, RegisterRequest request) {
 //        User user = userRepo.findByname(request.getName());
         User user =userRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("User not found"));
 
