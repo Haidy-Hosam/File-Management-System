@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
     private final AuthService authService;
-//    @PostMapping("/register")
-//    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest Request) {
-//        return ResponseEntity.ok(authService.register(Request));
-//    }
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest Request) {
+        return ResponseEntity.ok(authService.register(Request));
+    }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest Request) {
