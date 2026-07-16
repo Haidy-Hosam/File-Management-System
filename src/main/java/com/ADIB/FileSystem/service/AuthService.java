@@ -143,17 +143,17 @@ public class AuthService {
     }
 
     //will be deleted !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//    public PageResponse addPage (PageRequest request){
-//        Page page = Page.builder()
-//                .pageName(request.getPageName())
-//                .route(request.getRoute())
-//                .build();
-//
-//        pageRepo.save(page);
-//
-//        return PageResponse.builder()
-//                .name(page.getPageName())
-//                .route(page.getRoute())
-//                .build();
-//    }
+    public PageResponse addPage (PageRequest request){
+        Page page = Page.builder()
+                .pageName(request.getPageName())
+                .route(request.getRoute())
+                .build();
+
+        pageRepo.save(page);
+
+        return PageResponse.builder()
+                .name(page.getPageName())
+                .route(page.getRoute())
+                .build();
+    }
 }
