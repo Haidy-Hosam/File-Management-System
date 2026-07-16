@@ -3,6 +3,7 @@ package com.ADIB.FileSystem.service;
 import com.ADIB.FileSystem.Model.Department;
 import com.ADIB.FileSystem.Model.Role;
 import com.ADIB.FileSystem.Model.User;
+import com.ADIB.FileSystem.dto.response.PageResponse;
 import com.ADIB.FileSystem.exception.ResourceAlreadyExistsException;
 import com.ADIB.FileSystem.exception.ResourceNotFoundException;
 import com.ADIB.FileSystem.mapper.UserMapper;
@@ -12,6 +13,8 @@ import com.ADIB.FileSystem.repository.UserRepo;
 import com.ADIB.FileSystem.dto.response.AuthResponse;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.ADIB.FileSystem.dto.request.*;
@@ -85,6 +88,21 @@ private final PasswordEncoder passwordEncoder;
         User user = userRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("User not found"));
 
         userRepo.delete(user);
+    }
+
+    public List<PageResponse> getCurrentUserPages(){
+        Authentication auth =  SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
+        Role role = user.getRole();
+
+        return role.getPages()
+                .stream()
+                .map(page -> new PageResponse(
+                        page.getPageName(),
+                        page.getRoute()
+                ))
+                .toList();
     }
 
 }

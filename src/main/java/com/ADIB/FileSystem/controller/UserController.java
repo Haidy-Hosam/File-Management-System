@@ -1,6 +1,7 @@
 package com.ADIB.FileSystem.controller;
 import com.ADIB.FileSystem.dto.request.RegisterRequest;
 import com.ADIB.FileSystem.dto.response.AuthResponse;
+import com.ADIB.FileSystem.dto.response.PageResponse;
 import com.ADIB.FileSystem.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/user")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("@permissionService.hasPage('User')")
 @CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
     private final UserService userService;
@@ -53,5 +54,10 @@ public class UserController {
         }
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/pages")
+    public ResponseEntity<List<PageResponse>> getMyPages(){
+        return ResponseEntity.ok(userService.getCurrentUserPages());
     }
 }

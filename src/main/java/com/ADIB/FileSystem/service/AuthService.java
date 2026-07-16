@@ -1,19 +1,15 @@
 package com.ADIB.FileSystem.service;
 
-import com.ADIB.FileSystem.Model.RefreshToken;
-import com.ADIB.FileSystem.Model.User;
+import com.ADIB.FileSystem.Model.*;
 import com.ADIB.FileSystem.dto.request.LoginRequest;
+import com.ADIB.FileSystem.dto.request.PageRequest;
 import com.ADIB.FileSystem.dto.request.RefreshTokenRequest;
 import com.ADIB.FileSystem.dto.request.RegisterRequest;
 import com.ADIB.FileSystem.dto.response.AuthResponse;
+import com.ADIB.FileSystem.dto.response.PageResponse;
 import com.ADIB.FileSystem.exception.ResourceAlreadyExistsException;
 import com.ADIB.FileSystem.exception.ResourceNotFoundException;
-import com.ADIB.FileSystem.repository.RefreshTokenRepo;
-import com.ADIB.FileSystem.repository.UserRepo;
-import com.ADIB.FileSystem.repository.RoleRepo;
-import com.ADIB.FileSystem.repository.DepartmentRepo;
-import com.ADIB.FileSystem.Model.Role;
-import com.ADIB.FileSystem.Model.Department;
+import com.ADIB.FileSystem.repository.*;
 import com.ADIB.FileSystem.security.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +29,7 @@ public class AuthService {
     private final JWTUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenRepo refreshTokenRepo;
+    private final PageRepo  pageRepo;  //will be deletet!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -145,4 +142,18 @@ public class AuthService {
         refreshTokenRepo.delete(refreshToken);
     }
 
+    //will be deleted !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//    public PageResponse addPage (PageRequest request){
+//        Page page = Page.builder()
+//                .pageName(request.getPageName())
+//                .route(request.getRoute())
+//                .build();
+//
+//        pageRepo.save(page);
+//
+//        return PageResponse.builder()
+//                .name(page.getPageName())
+//                .route(page.getRoute())
+//                .build();
+//    }
 }

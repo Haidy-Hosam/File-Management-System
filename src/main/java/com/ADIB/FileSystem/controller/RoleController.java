@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/roles")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("@permissionService.hasPage('Role')")
 @CrossOrigin(origins = "http://localhost:4200")
 public class RoleController {
 
