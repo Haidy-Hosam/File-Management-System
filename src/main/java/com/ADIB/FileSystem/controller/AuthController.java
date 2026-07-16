@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
-//@PreAuthorize("@permissionService.hasPage('Login')")
+@PreAuthorize("@permissionService.hasPage('Login')")
 public class AuthController {
     private final AuthService authService;
 //    @PostMapping("/register")
