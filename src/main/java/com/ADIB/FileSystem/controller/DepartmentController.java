@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("api/department")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
-@PreAuthorize("@permissionService.hasPage('Department')")
+//@PreAuthorize("@permissionService.hasPage('Department')")
 public class DepartmentController {
     private final DepartmentService departmentService;
 

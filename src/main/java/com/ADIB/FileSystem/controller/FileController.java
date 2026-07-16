@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
-@PreAuthorize("@permissionService.hasPage('Files')")
+//@PreAuthorize("@permissionService.hasPage('Files')")
 public class FileController {
 
     private final FileService fileService;

@@ -15,7 +15,7 @@ import java.util.Map;
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
-@PreAuthorize("@permissionService.hasPage('FileForward')")
+//@PreAuthorize("@permissionService.hasPage('FileForward')")
 public class FileForwardController {
     private final FileForwardService fileForwardService;
     @PostMapping("{fileId}/forward")
