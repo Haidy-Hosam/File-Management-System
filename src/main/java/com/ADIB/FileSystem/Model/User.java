@@ -33,5 +33,3 @@ public class User extends Audit {
     private Department department;
 
 }
-
-
