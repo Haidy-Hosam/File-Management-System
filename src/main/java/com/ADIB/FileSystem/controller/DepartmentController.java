@@ -32,9 +32,9 @@ public class DepartmentController {
 
     @GetMapping
     public ResponseEntity<List<DepartmentResponse>> getAllDepartments() {
-        if(!permissionService.hasPage("Departments")){
-            throw new AccessDeniedException("Access denied");
-        }
+//        if(!permissionService.hasPage("Departments")){
+//            throw new AccessDeniedException("Access denied");
+//        }
             return ResponseEntity.ok(departmentService.getAllDepartments());
     }
 

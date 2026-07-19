@@ -20,8 +20,6 @@ public class PermissionService {
         String email = auth.getName();
         User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-
-
         return user.getRole()
                 .getPages()
                 .stream()
