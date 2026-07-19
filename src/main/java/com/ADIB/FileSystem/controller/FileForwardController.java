@@ -5,6 +5,7 @@ import com.ADIB.FileSystem.dto.response.FileForwardResponse;
 import com.ADIB.FileSystem.service.FileForwardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Map;
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
+//@PreAuthorize("@permissionService.hasPage('FileForward')")
 public class FileForwardController {
     private final FileForwardService fileForwardService;
     @PostMapping("{fileId}/forward")

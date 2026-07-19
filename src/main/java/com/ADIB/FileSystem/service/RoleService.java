@@ -1,12 +1,17 @@
 package com.ADIB.FileSystem.service;
 
 import com.ADIB.FileSystem.Model.Role;
+import com.ADIB.FileSystem.Model.User;
 import com.ADIB.FileSystem.dto.request.RoleRequest;
+import com.ADIB.FileSystem.dto.response.PageResponse;
 import com.ADIB.FileSystem.dto.response.RoleResponse;
 import com.ADIB.FileSystem.exception.ResourceNotFoundException;
 import com.ADIB.FileSystem.mapper.RoleMapper;
 import com.ADIB.FileSystem.repository.RoleRepo;
+import com.ADIB.FileSystem.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -61,4 +66,6 @@ public class RoleService {
 
         return "Role Deleted Successfully";
     }
+
+
 }
