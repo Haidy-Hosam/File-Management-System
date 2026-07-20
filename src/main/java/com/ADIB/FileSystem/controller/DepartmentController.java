@@ -20,8 +20,6 @@ import java.util.List;
 @PreAuthorize("@permissionService.hasPage('Departments')")
 public class DepartmentController {
     private final DepartmentService departmentService;
-    private final PermissionService permissionService;
-
 
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -32,9 +30,6 @@ public class DepartmentController {
 
     @GetMapping
     public ResponseEntity<List<DepartmentResponse>> getAllDepartments() {
-//        if(!permissionService.hasPage("Departments")){
-//            throw new AccessDeniedException("Access denied");
-//        }
             return ResponseEntity.ok(departmentService.getAllDepartments());
     }
 

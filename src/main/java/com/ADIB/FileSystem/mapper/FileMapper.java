@@ -38,8 +38,11 @@ public class FileMapper {
                 .name(file.getName())
                 .extension(file.getExtension())
                 .department_id(file.getDepartment().getId())
+                .departmentName(file.getDepartment().getName())
                 .status(file.getStatus().name())
                 .fileType(file.getFileType().getName())
+                .modifiedDate(file.getUpdatedAt().toLocalDate().toString())
+                .size(file.getSize())
                 .build();
     }
 }

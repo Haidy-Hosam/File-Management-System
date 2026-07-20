@@ -13,11 +13,11 @@ import java.util.List;
 @RestController
 @RequestMapping("api/user")
 @RequiredArgsConstructor
-@PreAuthorize("@permissionService.hasPage('Users')")
 @CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
     private final UserService userService;
 
+    @PreAuthorize("@permissionService.hasPage('Users')")
     @GetMapping("/{name}")
     public ResponseEntity<AuthResponse> getUser(@PathVariable String name){
         if(name == null){
@@ -26,11 +26,13 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(name));
     }
 
+    @PreAuthorize("@permissionService.hasPage('Users')")
     @GetMapping
     public ResponseEntity<List<AuthResponse>> getAllUsers(){
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @PreAuthorize("@permissionService.hasPage('Users')")
     @PostMapping
     public ResponseEntity<AuthResponse> createUser(@RequestBody RegisterRequest request){
         if(request.getName() == null){
@@ -39,6 +41,7 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(request));
     }
 
+    @PreAuthorize("@permissionService.hasPage('Users')")
     @PutMapping("/{id}")
     public ResponseEntity<AuthResponse> updateUser(@PathVariable Long id, @RequestBody RegisterRequest request){
         if(id== null){
@@ -47,6 +50,7 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(id,request));
     }
 
+    @PreAuthorize("@permissionService.hasPage('Users')")
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id){
         if(id== null){

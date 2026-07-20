@@ -3,6 +3,7 @@ package com.ADIB.FileSystem.Model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -30,4 +31,12 @@ public class Role extends Audit {
             inverseJoinColumns = @JoinColumn(name="page_id")
     )
     private Set<Page> pages;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "role_permissions",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name ="permission_id")
+    )
+    private Set<Permission> permissions = new HashSet<>();
 }

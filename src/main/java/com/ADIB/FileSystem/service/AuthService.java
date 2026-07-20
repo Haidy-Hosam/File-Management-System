@@ -78,22 +78,18 @@ public class AuthService {
 
         Long deptId = user.getDepartment() != null ? user.getDepartment().getId() : null;
 
-        String accessToken = jwtUtil.generateAccessToken(
+        boolean rememberMe = Boolean.TRUE.equals(request.isRememberMe());        String accessToken = jwtUtil.generateAccessToken(
                 user.getId(),
                 user.getEmail(),
                 user.getRole().getName(),
                 deptId
         );
-        String refreshToken = jwtUtil.generateAccessToken(
-                user.getId(),
-                user.getEmail(),
-                user.getRole().getName(),
-                deptId
-        );
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), rememberMe);
 
+        LocalDateTime expiryDate = request.isRememberMe()? LocalDateTime.now().plusDays(30): LocalDateTime.now().plusDays(7);
         RefreshToken storedRefreshToken = RefreshToken.builder()
                 .token(refreshToken)
-                .expiryDate(LocalDateTime.now().plusDays(7))
+                .expiryDate(expiryDate)
                 .user(user)
                 .build();
 
