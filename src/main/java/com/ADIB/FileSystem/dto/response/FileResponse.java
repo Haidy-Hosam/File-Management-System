@@ -1,6 +1,5 @@
 package com.ADIB.FileSystem.dto.response;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +14,9 @@ public class FileResponse {
     private String name;
     private String extension;
     private Long department_id;
+    private String departmentName;
     private String status;
     private String fileType;
+    private Long size;
+    private String modifiedDate;
 }
