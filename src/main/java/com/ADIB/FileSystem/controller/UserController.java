@@ -2,6 +2,7 @@ package com.ADIB.FileSystem.controller;
 import com.ADIB.FileSystem.dto.request.RegisterRequest;
 import com.ADIB.FileSystem.dto.response.AuthResponse;
 import com.ADIB.FileSystem.dto.response.PageResponse;
+import com.ADIB.FileSystem.dto.response.UserRoleResponse;
 import com.ADIB.FileSystem.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -63,5 +64,10 @@ public class UserController {
     @GetMapping("/pages")
     public ResponseEntity<List<PageResponse>> getMyPages(){
         return ResponseEntity.ok(userService.getCurrentUserPages());
+    }
+
+    @GetMapping("/userRole")
+    public ResponseEntity<UserRoleResponse> getUserRole(){
+        return ResponseEntity.ok(userService.getUserRole());
     }
 }

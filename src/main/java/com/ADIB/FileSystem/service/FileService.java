@@ -4,6 +4,7 @@ import com.ADIB.FileSystem.Enum.FILE_STATUS;
 import com.ADIB.FileSystem.Model.Department;
 import com.ADIB.FileSystem.Model.File;
 import com.ADIB.FileSystem.Model.FileType;
+import com.ADIB.FileSystem.dto.request.BulkFileUploadRequest;
 import com.ADIB.FileSystem.dto.request.FileRequest;
 import com.ADIB.FileSystem.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.dto.response.FileResponse;
@@ -18,12 +19,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +39,9 @@ public class FileService {
     private final DepartmentRepo departmentRepository;
     private final FileEncryptionService fileEncryptionService;
     private final FileTypeRepo fileTypeRepo;
+    private static final Path UPLOAD_DIRECTORY = Paths.get(
+            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
+    );
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
 
@@ -87,6 +94,98 @@ public class FileService {
 
         return fileMapper.mapToResponse(savedFile);
     }
+
+    // Multiple files (each with its own file type) sent to one or more departments.
+    // Produces one File row per (file, department) combination.
+    public List<FileResponse> uploadFilesBulk(BulkFileUploadRequest request) throws IOException {
+
+        List<MultipartFile> files = request.getFiles();
+        List<Long> fileTypeIds = request.getFileTypeIds();
+        List<Long> departmentIds = request.getDepartmentIds();
+
+        if (files == null || files.isEmpty()) {
+            throw new IllegalArgumentException("No files provided");
+        }
+        if (fileTypeIds == null || fileTypeIds.size() != files.size()) {
+            throw new IllegalArgumentException("Each file must have a matching file type");
+        }
+        if (departmentIds == null || departmentIds.isEmpty()) {
+            throw new IllegalArgumentException("At least one department must be selected");
+        }
+
+        // Resolve all departments up front so we fail fast on a bad id
+        // before writing anything to disk.
+        List<Department> departments = new ArrayList<>();
+        for (Long deptId : departmentIds) {
+            departments.add(departmentRepository.findById(deptId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Department not found: " + deptId)));
+        }
+
+        List<FileResponse> results = new ArrayList<>();
+
+        for (int i = 0; i < files.size(); i++) {
+            MultipartFile multipartFile = files.get(i);
+            Long fileTypeId = fileTypeIds.get(i);
+
+            FileType fileType = fileTypeRepo.findById(fileTypeId)
+                    .orElseThrow(() -> new ResourceNotFoundException("File type not found: " + fileTypeId));
+
+            String fileName = multipartFile.getOriginalFilename();
+            String extension = extractExtension(fileName);
+            byte[] fileBytes = multipartFile.getBytes();
+
+            for (Department department : departments) {
+                FileResponse response = storeSingleFile(
+                        fileName, extension, fileBytes, multipartFile.getSize(), department, fileType
+                );
+                results.add(response);
+            }
+        }
+
+        return results;
+    }
+
+    private FileResponse storeSingleFile(
+            String originalFileName,
+            String extension,
+            byte[] fileBytes,
+            long size,
+            Department department,
+            FileType fileType
+    ) throws IOException {
+
+        Files.createDirectories(UPLOAD_DIRECTORY);
+
+        String storedFileName = UUID.randomUUID() + "_" + originalFileName;
+        Path filePath = UPLOAD_DIRECTORY.resolve(storedFileName);
+
+        byte[] encryptedBytes;
+        try {
+            encryptedBytes = fileEncryptionService.encrypt(fileBytes);
+        } catch (Exception e) {
+            throw new IOException("Failed to encrypt and save file", e);
+        }
+
+        Files.write(filePath, encryptedBytes);
+
+        File file = File.builder()
+                .name(originalFileName)
+                .path(filePath.toString())
+                .size(size)
+                .extension(extension)
+                .status(FILE_STATUS.PENDING)
+                .department(department)
+                .fileType(fileType)
+                .build();
+
+        File savedFile = fileRepository.save(file);
+        return fileMapper.mapToResponse(savedFile);
+    }
+
+    private String extractExtension(String fileName) {
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
+    }
+
 
     public void deleteFile(Long fileId)  throws IOException {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
