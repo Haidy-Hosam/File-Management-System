@@ -1,5 +1,6 @@
 package com.ADIB.FileSystem.controller;
 
+import com.ADIB.FileSystem.dto.request.BulkFileUploadRequest;
 import com.ADIB.FileSystem.dto.request.FileRequest;
 import com.ADIB.FileSystem.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.dto.response.FileResponse;
@@ -27,6 +28,11 @@ public class FileController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FileResponse> createFile(@ModelAttribute FileRequest request) throws IOException {
         return ResponseEntity.ok(fileService.uploadFile(request));
+    }
+
+    @PostMapping(value = "/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<List<FileResponse>> createFilesBulk(@ModelAttribute BulkFileUploadRequest request) throws IOException {
+        return ResponseEntity.ok(fileService.uploadFilesBulk(request));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
