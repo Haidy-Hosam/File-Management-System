@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 @RequiredArgsConstructor
@@ -243,4 +246,39 @@ public class FileService {
         File updatedFile = fileRepository.save(file);
         return fileMapper.mapToResponse(updatedFile);
     }
+
+
+    public ResponseEntity<ByteArrayResource> downloadFilesBulk (List<Long> fileIds)  throws IOException {
+        List<File> files = fileRepository.findAllById(fileIds);
+        if(files.isEmpty()){
+            throw new ResourceNotFoundException("Files not found");
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+            for (File file : files) {
+                Path filePath = Paths.get(file.getPath());
+                byte[] encryptedBytes = Files.readAllBytes(filePath);
+
+                byte[] originalBytes ;
+                try{
+                    originalBytes = fileEncryptionService.decrypt(encryptedBytes);
+                }catch (Exception e){
+                    throw new IOException("Failed to decrypt and save file" + file.getName(), e);
+                }
+
+                String entryName = "Arkive"+ "_" + file.getName();
+                zos.putNextEntry(new ZipEntry(entryName));
+                zos.write(originalBytes);
+                zos.closeEntry();
+            }
+        }
+
+        ByteArrayResource resource = new ByteArrayResource(baos.toByteArray());
+
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"files.zip\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+
 }

@@ -69,4 +69,8 @@ public class FileController {
     public ResponseEntity<FileResponse> updateFileStatus(@PathVariable("fileId") Long fileId, @RequestBody UpdateFileStatusRequest fileStatus) {
         return ResponseEntity.ok(fileService.updateFileStatus(fileId, fileStatus));
     }
+    @PostMapping("/download-bulk")
+    public ResponseEntity<ByteArrayResource> downloadFilesBulk(@RequestBody List<Long> fileIds) throws IOException {
+        return fileService.downloadFilesBulk(fileIds);
+    }
 }
