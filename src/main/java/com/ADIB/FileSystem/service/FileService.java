@@ -134,9 +134,11 @@ public class FileService {
             String extension = extractExtension(fileName);
             byte[] fileBytes = multipartFile.getBytes();
 
+            String groupId = UUID.randomUUID().toString();
+
             for (Department department : departments) {
                 FileResponse response = storeSingleFile(
-                        fileName, extension, fileBytes, multipartFile.getSize(), department, fileType
+                        fileName, extension, fileBytes, multipartFile.getSize(), department, fileType, groupId
                 );
                 results.add(response);
             }
@@ -151,7 +153,9 @@ public class FileService {
             byte[] fileBytes,
             long size,
             Department department,
-            FileType fileType
+            FileType fileType,
+            String groupId
+
     ) throws IOException {
 
         Files.createDirectories(UPLOAD_DIRECTORY);
