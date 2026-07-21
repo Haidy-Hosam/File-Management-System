@@ -45,11 +45,11 @@ public class FileService {
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
 
-        Department department = departmentRepository
-                .findById(request.getDepartment_id())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Department not found")
-                );
+        List<Department> departments = departmentRepository.findAllById(request.getDepartment_ids());
+        if (departments.isEmpty()) {
+            throw new ResourceNotFoundException("No valid departments found");
+        }
+
         FileType fileType = fileTypeRepo.findById(request.getFileType_id())
                 .orElseThrow(
                         () -> new ResourceNotFoundException("File type not found")
@@ -86,7 +86,7 @@ public class FileService {
                 .size(request.getFile().getSize())
                 .extension(extension)
                 .status(FILE_STATUS.PENDING)
-                .department(department)
+                .departments(departments)
                 .fileType(fileType)
                 .build();
 
@@ -134,14 +134,11 @@ public class FileService {
             String extension = extractExtension(fileName);
             byte[] fileBytes = multipartFile.getBytes();
 
-            String groupId = UUID.randomUUID().toString();
-
-            for (Department department : departments) {
-                FileResponse response = storeSingleFile(
-                        fileName, extension, fileBytes, multipartFile.getSize(), department, fileType, groupId
-                );
-                results.add(response);
-            }
+            // ONE record per file, linked to ALL selected departments at once
+            FileResponse response = storeSingleFile(
+                    fileName, extension, fileBytes, multipartFile.getSize(), departments, fileType
+            );
+            results.add(response);
         }
 
         return results;
@@ -152,9 +149,8 @@ public class FileService {
             String extension,
             byte[] fileBytes,
             long size,
-            Department department,
-            FileType fileType,
-            String groupId
+            List<Department> departments, // CHANGED — list, not single department
+            FileType fileType
 
     ) throws IOException {
 
@@ -178,13 +174,14 @@ public class FileService {
                 .size(size)
                 .extension(extension)
                 .status(FILE_STATUS.PENDING)
-                .department(department)
+                .departments(departments) // CHANGED — one row, many departments
                 .fileType(fileType)
                 .build();
 
         File savedFile = fileRepository.save(file);
         return fileMapper.mapToResponse(savedFile);
     }
+
 
     private String extractExtension(String fileName) {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
@@ -206,13 +203,14 @@ public class FileService {
     }
 
     public List<FileResponse> listFilesByDepartment(Long departmentId) {
-        Department department = departmentRepository.findById(departmentId).orElseThrow(() -> new ResourceNotFoundException("Department not found"));
-        return fileRepository.findByDepartment(department)
+        departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+
+        return fileRepository.findByDepartmentId(departmentId)
                 .stream()
                 .map(fileMapper::mapToResponse)
                 .collect(Collectors.toList());
     }
-
     public FileResponse getFileData(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
         return fileMapper.mapToResponse(file);

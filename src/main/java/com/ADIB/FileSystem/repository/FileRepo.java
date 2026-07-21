@@ -15,5 +15,8 @@ public interface FileRepo extends JpaRepository<File, Long> {
     @Query(nativeQuery= true , value = "DELETE FROM files WHERE id = :fileId")
     void deleteById(@Param("fileId") Long fileId);
 
-    List<File> findByDepartment(Department dept);
+    @Query("SELECT f FROM File f JOIN f.departments d WHERE d.id = :deptId")
+    List<File> findByDepartmentId(@Param("deptId") Long deptId);
+
+//    List<File> findByDepartment(Department dept);
 }
