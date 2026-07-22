@@ -59,7 +59,7 @@ public class FileController {
     }
 
     @GetMapping("/dept/{deptId}")
-    public ResponseEntity<Page<FileResponse>> getAllFilesByDepartment(@PathVariable("deptId") Long deptId,  @RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<Page<FileResponse>> getAllFilesByDepartment(@PathVariable("deptId") Long deptId, @RequestParam(defaultValue = "0") int page,
                                                                       @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(fileService.listFilesByDepartment(deptId, page, size));
     }
@@ -79,8 +79,18 @@ public class FileController {
     public ResponseEntity<FileResponse> updateFileStatus(@PathVariable("fileId") Long fileId, @RequestBody UpdateFileStatusRequest fileStatus) {
         return ResponseEntity.ok(fileService.updateFileStatus(fileId, fileStatus));
     }
+
     @PostMapping("/download-bulk")
     public ResponseEntity<ByteArrayResource> downloadFilesBulk(@RequestBody List<Long> fileIds) throws IOException {
         return fileService.downloadFilesBulk(fileIds);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/trash")
+    public ResponseEntity<Page<FileResponse>> listDeletedFiles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(fileService.listAllDeletedFiles(page, size));
     }
 }

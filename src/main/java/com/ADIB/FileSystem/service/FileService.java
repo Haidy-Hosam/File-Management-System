@@ -45,8 +45,10 @@ public class FileService {
     private final FileEncryptionService fileEncryptionService;
     private final FileTypeRepo fileTypeRepo;
     private static final Path UPLOAD_DIRECTORY = Paths.get(
-            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
+            "D:\\ADIB\\ADIB Project\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
     );
+
+    private static final Path TRASH_DIRECTORY = Paths.get("D:\\ADIB\\ADIB Project\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash");
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
 
@@ -65,7 +67,7 @@ public class FileService {
                 fileName.lastIndexOf(".") + 1
         );
 
-        Path uploadDirectory = Paths.get("C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads");
+        Path uploadDirectory = Paths.get("D:\\ADIB\\ADIB Project\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads");
 
         Files.createDirectories(uploadDirectory);
 
@@ -77,9 +79,9 @@ public class FileService {
 //        );
         byte[] fileBytes = request.getFile().getBytes();
         byte[] encryptedBytes;
-        try{
-        encryptedBytes = fileEncryptionService.encrypt(fileBytes);
-        }catch(Exception e){
+        try {
+            encryptedBytes = fileEncryptionService.encrypt(fileBytes);
+        } catch (Exception e) {
             throw new IOException("Failed to encrypt and save file", e);
         }
 
@@ -95,6 +97,7 @@ public class FileService {
                 .status(FILE_STATUS.PENDING)
                 .departments(departments)
                 .fileType(fileType)
+                .isDeleted(false)
                 .build();
 
         File savedFile = fileRepository.save(file);
@@ -115,7 +118,7 @@ public class FileService {
         }
         if (fileTypeIds == null || fileTypeIds.size() != files.size()) {
             throw new IllegalArgumentException("Each file must have a matching file type");
-        }
+       }
         if (departmentIds == null || departmentIds.isEmpty()) {
             throw new IllegalArgumentException("At least one department must be selected");
         }
@@ -196,21 +199,26 @@ public class FileService {
     }
 
 
-    @Transactional
     public void deleteFile(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new ResourceNotFoundException("File not found"));
 
-        file.getDepartments().clear();
-        fileRepository.save(file);
-        fileRepository.delete(file);
-
+        Files.createDirectories(TRASH_DIRECTORY);
         Path filePath = Paths.get(file.getPath());
-        java.io.File diskFile = filePath.toFile();
-        if (diskFile.exists()) {
-            diskFile.setWritable(true); // must clear read-only before delete
-            Files.deleteIfExists(filePath);
-        }
+        Path targetPath = TRASH_DIRECTORY.resolve(filePath.getFileName());
+//        filePath.toFile().setWritable(true);
+        Files.move(filePath,targetPath);
+        file.setPath(targetPath.toString());
+        file.setIsDeleted(true);
+        file.setStatus(FILE_STATUS.REJECTED);
+        fileRepository.save(file);
+    }
+
+
+    public Page<FileResponse> listAllDeletedFiles(int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return fileRepository.findDeletedFiles(pageable)
+                .map(fileMapper::mapToResponse);
     }
 
     public Page<FileResponse> listAllFiles(int page, int size) {
@@ -225,6 +233,7 @@ public class FileService {
 
         return fileRepository.findByDepartmentId(departmentId, pageable).map(fileMapper::mapToResponse);
     }
+
     public FileResponse getFileData(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
         return fileMapper.mapToResponse(file);
@@ -234,12 +243,12 @@ public class FileService {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
 
         Path filePath = Paths.get(file.getPath());
-        byte[] encryptedBytes  = Files.readAllBytes(filePath);
+        byte[] encryptedBytes = Files.readAllBytes(filePath);
         ByteArrayResource byteArrayResource;
-        try{
+        try {
             byte[] originalBytes = fileEncryptionService.decrypt(encryptedBytes);
-            byteArrayResource =new ByteArrayResource(originalBytes);
-        }catch(Exception e){
+            byteArrayResource = new ByteArrayResource(originalBytes);
+        } catch (Exception e) {
             throw new IOException("Failed to decrypt and save file", e);
         }
         return ResponseEntity.ok()
@@ -251,7 +260,7 @@ public class FileService {
                 .body(byteArrayResource);
     }
 
-    public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request)  {
+    public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request) {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
         file.setStatus(request.getStatus());
         File updatedFile = fileRepository.save(file);
@@ -259,9 +268,9 @@ public class FileService {
     }
 
 
-    public ResponseEntity<ByteArrayResource> downloadFilesBulk (List<Long> fileIds)  throws IOException {
+    public ResponseEntity<ByteArrayResource> downloadFilesBulk(List<Long> fileIds) throws IOException {
         List<File> files = fileRepository.findAllById(fileIds);
-        if(files.isEmpty()){
+        if (files.isEmpty()) {
             throw new ResourceNotFoundException("Files not found");
         }
 
@@ -274,10 +283,10 @@ public class FileService {
                 Path filePath = Paths.get(file.getPath());
                 byte[] encryptedBytes = Files.readAllBytes(filePath);
 
-                byte[] originalBytes ;
-                try{
+                byte[] originalBytes;
+                try {
                     originalBytes = fileEncryptionService.decrypt(encryptedBytes);
-                }catch (Exception e){
+                } catch (Exception e) {
                     throw new IOException("Failed to decrypt and save file" + file.getName(), e);
                 }
 
@@ -291,7 +300,7 @@ public class FileService {
 
         ByteArrayResource resource = new ByteArrayResource(baos.toByteArray());
 
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"files.zip\"")
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"files.zip\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }

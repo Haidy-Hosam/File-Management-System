@@ -2,13 +2,11 @@ package com.ADIB.FileSystem.Model;
 
 import com.ADIB.FileSystem.Enum.FILE_STATUS;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Builder
@@ -44,5 +42,6 @@ public class File extends Audit{
     @JoinColumn(name = "file_type_id")
     private FileType fileType;
 
-
+    @Column(nullable=false,columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isDeleted  ;
 }
