@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Entity
 @Builder
@@ -23,9 +25,17 @@ public class File extends Audit{
     private String path;
     private String extension;
 
-    @ManyToOne
-    @JoinColumn(name="department_id")
-    private Department department;
+//    @ManyToOne
+//    @JoinColumn(name="department_id")
+//    private Department department;
+
+    @ManyToMany
+    @JoinTable(
+            name = "file_departments",
+            joinColumns = @JoinColumn(name = "file_id"),
+            inverseJoinColumns = @JoinColumn(name = "department_id")
+    )
+    private List<Department> departments;
 
     @Enumerated(EnumType.STRING)
     private FILE_STATUS status;

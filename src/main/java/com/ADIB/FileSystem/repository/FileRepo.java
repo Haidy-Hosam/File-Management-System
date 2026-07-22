@@ -3,6 +3,8 @@ package com.ADIB.FileSystem.repository;
 import com.ADIB.FileSystem.Model.Department;
 import com.ADIB.FileSystem.Model.File;
 import com.ADIB.FileSystem.dto.response.FileResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,5 +17,8 @@ public interface FileRepo extends JpaRepository<File, Long> {
     @Query(nativeQuery= true , value = "DELETE FROM files WHERE id = :fileId")
     void deleteById(@Param("fileId") Long fileId);
 
-    List<File> findByDepartment(Department dept);
+    @Query("SELECT f FROM File f JOIN f.departments d WHERE d.id = :deptId")
+    Page<File> findByDepartmentId(@Param("deptId") Long deptId, Pageable pageable);
+
+//    List<File> findByDepartment(Department dept);
 }

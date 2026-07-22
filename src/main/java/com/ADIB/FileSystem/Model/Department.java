@@ -26,8 +26,8 @@ public class Department extends Audit{
     @Column(nullable = false)
     private Boolean isActive;
 
-    @OneToMany(mappedBy = "department")
-    private List<File> files;
+//    @OneToMany(mappedBy = "department")
+//    private List<File> files;
 
     @OneToMany(mappedBy = "department")
     private List<User> users;

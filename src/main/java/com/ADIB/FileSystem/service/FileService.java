@@ -15,20 +15,25 @@ import com.ADIB.FileSystem.repository.FileRepo;
 import com.ADIB.FileSystem.repository.FileTypeRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 @RequiredArgsConstructor
@@ -45,11 +50,11 @@ public class FileService {
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
 
-        Department department = departmentRepository
-                .findById(request.getDepartment_id())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Department not found")
-                );
+        List<Department> departments = departmentRepository.findAllById(request.getDepartment_ids());
+        if (departments.isEmpty()) {
+            throw new ResourceNotFoundException("No valid departments found");
+        }
+
         FileType fileType = fileTypeRepo.findById(request.getFileType_id())
                 .orElseThrow(
                         () -> new ResourceNotFoundException("File type not found")
@@ -80,13 +85,15 @@ public class FileService {
 
         Files.write(filePath, encryptedBytes);
 
+        filePath.toFile().setReadOnly();
+
         File file = File.builder()
                 .name(fileName)
                 .path(filePath.toString())
                 .size(request.getFile().getSize())
                 .extension(extension)
                 .status(FILE_STATUS.PENDING)
-                .department(department)
+                .departments(departments)
                 .fileType(fileType)
                 .build();
 
@@ -134,12 +141,11 @@ public class FileService {
             String extension = extractExtension(fileName);
             byte[] fileBytes = multipartFile.getBytes();
 
-            for (Department department : departments) {
-                FileResponse response = storeSingleFile(
-                        fileName, extension, fileBytes, multipartFile.getSize(), department, fileType
-                );
-                results.add(response);
-            }
+            // ONE record per file, linked to ALL selected departments at once
+            FileResponse response = storeSingleFile(
+                    fileName, extension, fileBytes, multipartFile.getSize(), departments, fileType
+            );
+            results.add(response);
         }
 
         return results;
@@ -150,8 +156,9 @@ public class FileService {
             String extension,
             byte[] fileBytes,
             long size,
-            Department department,
+            List<Department> departments, // CHANGED — list, not single department
             FileType fileType
+
     ) throws IOException {
 
         Files.createDirectories(UPLOAD_DIRECTORY);
@@ -167,6 +174,7 @@ public class FileService {
         }
 
         Files.write(filePath, encryptedBytes);
+        filePath.toFile().setReadOnly();
 
         File file = File.builder()
                 .name(originalFileName)
@@ -174,7 +182,7 @@ public class FileService {
                 .size(size)
                 .extension(extension)
                 .status(FILE_STATUS.PENDING)
-                .department(department)
+                .departments(departments) // CHANGED — one row, many departments
                 .fileType(fileType)
                 .build();
 
@@ -182,33 +190,41 @@ public class FileService {
         return fileMapper.mapToResponse(savedFile);
     }
 
+
     private String extractExtension(String fileName) {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
 
-    public void deleteFile(Long fileId)  throws IOException {
-        File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
+    @Transactional
+    public void deleteFile(Long fileId) throws IOException {
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new ResourceNotFoundException("File not found"));
+
+        file.getDepartments().clear();
+        fileRepository.save(file);
+        fileRepository.delete(file);
+
         Path filePath = Paths.get(file.getPath());
-        Files.deleteIfExists(filePath);
-        fileRepository.deleteById(fileId);
+        java.io.File diskFile = filePath.toFile();
+        if (diskFile.exists()) {
+            diskFile.setWritable(true); // must clear read-only before delete
+            Files.deleteIfExists(filePath);
+        }
     }
 
-    public List<FileResponse> listAllFiles() {
-        return fileRepository.findAll()
-                .stream()
-                .map(fileMapper::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<FileResponse> listAllFiles(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return fileRepository.findAll(pageable).map(fileMapper::mapToResponse);
     }
 
-    public List<FileResponse> listFilesByDepartment(Long departmentId) {
-        Department department = departmentRepository.findById(departmentId).orElseThrow(() -> new ResourceNotFoundException("Department not found"));
-        return fileRepository.findByDepartment(department)
-                .stream()
-                .map(fileMapper::mapToResponse)
-                .collect(Collectors.toList());
-    }
+    public Page<FileResponse> listFilesByDepartment(Long departmentId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
+        return fileRepository.findByDepartmentId(departmentId, pageable).map(fileMapper::mapToResponse);
+    }
     public FileResponse getFileData(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
         return fileMapper.mapToResponse(file);
@@ -241,4 +257,66 @@ public class FileService {
         File updatedFile = fileRepository.save(file);
         return fileMapper.mapToResponse(updatedFile);
     }
+
+
+    public ResponseEntity<ByteArrayResource> downloadFilesBulk (List<Long> fileIds)  throws IOException {
+        List<File> files = fileRepository.findAllById(fileIds);
+        if(files.isEmpty()){
+            throw new ResourceNotFoundException("Files not found");
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Set<String> usedNames = new HashSet<>();
+
+        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+            for (File file : files) {
+
+                Path filePath = Paths.get(file.getPath());
+                byte[] encryptedBytes = Files.readAllBytes(filePath);
+
+                byte[] originalBytes ;
+                try{
+                    originalBytes = fileEncryptionService.decrypt(encryptedBytes);
+                }catch (Exception e){
+                    throw new IOException("Failed to decrypt and save file" + file.getName(), e);
+                }
+
+                String entryName = makeUniqueEntryName(file.getName(), usedNames);
+
+                zos.putNextEntry(new ZipEntry(entryName));
+                zos.write(originalBytes);
+                zos.closeEntry();
+            }
+        }
+
+        ByteArrayResource resource = new ByteArrayResource(baos.toByteArray());
+
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"files.zip\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+
+    private String makeUniqueEntryName(String originalName, Set<String> usedNames) {
+        if (usedNames.add(originalName)) {
+            return originalName;
+        }
+
+        String baseName = originalName;
+        String extension = "";
+        int dotIndex = originalName.lastIndexOf('.');
+        if (dotIndex > 0) {
+            baseName = originalName.substring(0, dotIndex);
+            extension = originalName.substring(dotIndex); // includes the dot
+        }
+
+        int counter = 1;
+        String candidate;
+        do {
+            candidate = baseName + " (" + counter + ")" + extension;
+            counter++;
+        } while (!usedNames.add(candidate));
+
+        return candidate;
+    }
+
 }
