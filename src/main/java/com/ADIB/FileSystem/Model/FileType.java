@@ -1,10 +1,7 @@
 package com.ADIB.FileSystem.Model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -21,5 +18,7 @@ public class FileType extends Audit {
     private String description;
 
     @OneToMany(mappedBy = "fileType")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<File> files;
 }

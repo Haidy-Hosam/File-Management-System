@@ -1,9 +1,6 @@
 package com.ADIB.FileSystem.Model;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -30,6 +27,8 @@ public class Department extends Audit{
 //    private List<File> files;
 
     @OneToMany(mappedBy = "department")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<User> users;
 
 
