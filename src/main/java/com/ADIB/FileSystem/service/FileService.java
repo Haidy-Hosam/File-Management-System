@@ -45,7 +45,7 @@ public class FileService {
     private final FileEncryptionService fileEncryptionService;
     private final FileTypeRepo fileTypeRepo;
     private static final Path UPLOAD_DIRECTORY = Paths.get(
-            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
+            "C:\\Users\\Speed\\OneDrive - MUST University\\Documents\\project_ADIB\\testfiles"
     );
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
@@ -65,7 +65,7 @@ public class FileService {
                 fileName.lastIndexOf(".") + 1
         );
 
-        Path uploadDirectory = Paths.get("C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads");
+        Path uploadDirectory = Paths.get("C:\\Users\\Speed\\OneDrive - MUST University\\Documents\\project_ADIB\\testfiles");
 
         Files.createDirectories(uploadDirectory);
 

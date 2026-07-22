@@ -55,15 +55,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex, HttpServletRequest request) {
+        ex.printStackTrace(); // TEMP: see full cause chain in console
+
+        Throwable rootCause = ex;
+        while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+            rootCause = rootCause.getCause();
+        }
+
         ErrorResponse error = ErrorResponse.builder()
-                .message(ex.getMessage())
+                .message(rootCause.getMessage() != null ? rootCause.getMessage() : ex.getMessage())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .timestamp(LocalDateTime.now())
                 .path(request.getRequestURI())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
