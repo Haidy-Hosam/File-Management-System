@@ -15,10 +15,14 @@ import com.ADIB.FileSystem.repository.FileRepo;
 import com.ADIB.FileSystem.repository.FileTypeRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
@@ -26,9 +30,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -82,6 +84,8 @@ public class FileService {
         }
 
         Files.write(filePath, encryptedBytes);
+
+        filePath.toFile().setReadOnly();
 
         File file = File.builder()
                 .name(fileName)
@@ -170,6 +174,7 @@ public class FileService {
         }
 
         Files.write(filePath, encryptedBytes);
+        filePath.toFile().setReadOnly();
 
         File file = File.builder()
                 .name(originalFileName)
@@ -191,28 +196,34 @@ public class FileService {
     }
 
 
-    public void deleteFile(Long fileId)  throws IOException {
-        File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
+    @Transactional
+    public void deleteFile(Long fileId) throws IOException {
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new ResourceNotFoundException("File not found"));
+
+        file.getDepartments().clear();
+        fileRepository.save(file);
+        fileRepository.delete(file);
+
         Path filePath = Paths.get(file.getPath());
-        Files.deleteIfExists(filePath);
-        fileRepository.deleteById(fileId);
+        java.io.File diskFile = filePath.toFile();
+        if (diskFile.exists()) {
+            diskFile.setWritable(true); // must clear read-only before delete
+            Files.deleteIfExists(filePath);
+        }
     }
 
-    public List<FileResponse> listAllFiles() {
-        return fileRepository.findAll()
-                .stream()
-                .map(fileMapper::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<FileResponse> listAllFiles(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return fileRepository.findAll(pageable).map(fileMapper::mapToResponse);
     }
 
-    public List<FileResponse> listFilesByDepartment(Long departmentId) {
+    public Page<FileResponse> listFilesByDepartment(Long departmentId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
-        return fileRepository.findByDepartmentId(departmentId)
-                .stream()
-                .map(fileMapper::mapToResponse)
-                .collect(Collectors.toList());
+        return fileRepository.findByDepartmentId(departmentId, pageable).map(fileMapper::mapToResponse);
     }
     public FileResponse getFileData(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
@@ -255,8 +266,11 @@ public class FileService {
         }
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Set<String> usedNames = new HashSet<>();
+
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
             for (File file : files) {
+
                 Path filePath = Paths.get(file.getPath());
                 byte[] encryptedBytes = Files.readAllBytes(filePath);
 
@@ -267,7 +281,8 @@ public class FileService {
                     throw new IOException("Failed to decrypt and save file" + file.getName(), e);
                 }
 
-                String entryName = "Arkive"+ "_" + file.getName();
+                String entryName = makeUniqueEntryName(file.getName(), usedNames);
+
                 zos.putNextEntry(new ZipEntry(entryName));
                 zos.write(originalBytes);
                 zos.closeEntry();
@@ -279,6 +294,29 @@ public class FileService {
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"files.zip\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
+    }
+
+    private String makeUniqueEntryName(String originalName, Set<String> usedNames) {
+        if (usedNames.add(originalName)) {
+            return originalName;
+        }
+
+        String baseName = originalName;
+        String extension = "";
+        int dotIndex = originalName.lastIndexOf('.');
+        if (dotIndex > 0) {
+            baseName = originalName.substring(0, dotIndex);
+            extension = originalName.substring(dotIndex); // includes the dot
+        }
+
+        int counter = 1;
+        String candidate;
+        do {
+            candidate = baseName + " (" + counter + ")" + extension;
+            counter++;
+        } while (!usedNames.add(candidate));
+
+        return candidate;
     }
 
 }
