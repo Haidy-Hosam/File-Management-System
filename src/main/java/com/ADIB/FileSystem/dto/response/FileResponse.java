@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -13,12 +15,9 @@ public class FileResponse {
     private Long id;
     private String name;
     private String extension;
-    private Long department_id;
-    private String departmentName;
+    private List<String> departmentNames;
     private String status;
     private String fileType;
     private Long size;
     private String modifiedDate;
-    private String groupId;
-
 }

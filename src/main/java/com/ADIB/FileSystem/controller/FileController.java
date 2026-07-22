@@ -8,6 +8,7 @@ import com.ADIB.FileSystem.service.FileService;
 import com.ADIB.FileSystem.service.PermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,16 +43,25 @@ public class FileController {
         return ResponseEntity.noContent().build();
     }
 
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @GetMapping("/all")
+//    public ResponseEntity<List<FileResponse>> getAllFiles() {
+//        return ResponseEntity.ok(fileService.listAllFiles());
+//    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
-    public ResponseEntity<List<FileResponse>> getAllFiles() {
-        return ResponseEntity.ok(fileService.listAllFiles());
+    public ResponseEntity<Page<FileResponse>> getAllFiles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(fileService.listAllFiles(page, size));
     }
 
-
     @GetMapping("/dept/{deptId}")
-    public ResponseEntity<List<FileResponse>> getAllFilesByDepartment(@PathVariable("deptId") Long deptId) {
-        return ResponseEntity.ok(fileService.listFilesByDepartment(deptId));
+    public ResponseEntity<Page<FileResponse>> getAllFilesByDepartment(@PathVariable("deptId") Long deptId,  @RequestParam(defaultValue = "0") int page,
+                                                                      @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(fileService.listFilesByDepartment(deptId, page, size));
     }
 
     @GetMapping("/{fileId}")
@@ -68,5 +78,9 @@ public class FileController {
     @PutMapping("/{fileId}/status")
     public ResponseEntity<FileResponse> updateFileStatus(@PathVariable("fileId") Long fileId, @RequestBody UpdateFileStatusRequest fileStatus) {
         return ResponseEntity.ok(fileService.updateFileStatus(fileId, fileStatus));
+    }
+    @PostMapping("/download-bulk")
+    public ResponseEntity<ByteArrayResource> downloadFilesBulk(@RequestBody List<Long> fileIds) throws IOException {
+        return fileService.downloadFilesBulk(fileIds);
     }
 }
