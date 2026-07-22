@@ -4,6 +4,7 @@ import com.ADIB.FileSystem.Model.Department;
 import com.ADIB.FileSystem.Model.Role;
 import com.ADIB.FileSystem.Model.User;
 import com.ADIB.FileSystem.dto.response.PageResponse;
+import com.ADIB.FileSystem.dto.response.UserRoleResponse;
 import com.ADIB.FileSystem.exception.ResourceAlreadyExistsException;
 import com.ADIB.FileSystem.exception.ResourceNotFoundException;
 import com.ADIB.FileSystem.mapper.UserMapper;
@@ -92,6 +93,11 @@ private final PasswordEncoder passwordEncoder;
 
     public List<PageResponse> getCurrentUserPages(){
         Authentication auth =  SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Authentication = " + auth);
+        System.out.println("Principal = " + auth.getPrincipal());
+        System.out.println("Name = " + auth.getName());
+        System.out.println("Authorities = " + auth.getAuthorities());
+
         String email = auth.getName();
         User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
         Role role = user.getRole();
@@ -103,6 +109,29 @@ private final PasswordEncoder passwordEncoder;
                         page.getRoute()
                 ))
                 .toList();
+    }
+
+    public UserRoleResponse getUserRole() {
+        Authentication auth =  SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
+        String userInitials = this.getInitials(user.getUsername());
+        return UserRoleResponse.builder()
+                 .name(user.getUsername())
+                 .role(user.getRole().getName())
+                .initials(userInitials.toUpperCase())
+                 .build();
+    }
+
+    private String getInitials(String name){
+        StringBuilder sb = new StringBuilder();
+        String trimmedName = name.trim();
+        for (int i = 0; i < trimmedName.length(); i++) {
+            if(i==0 || name.charAt(i-1)==' '){
+                sb.append(name.charAt(i));
+            }
+        }
+        return sb.toString();
     }
 
 }
