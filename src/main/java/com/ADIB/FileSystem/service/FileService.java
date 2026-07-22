@@ -251,11 +251,34 @@ public class FileService {
                 .body(byteArrayResource);
     }
 
-    public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request)  {
-        File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
-        file.setStatus(request.getStatus());
-        File updatedFile = fileRepository.save(file);
-        return fileMapper.mapToResponse(updatedFile);
+//    public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request)  {
+//        try{
+//            File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
+//            file.setStatus(request.getStatus());
+//            System.out.println("Before save");
+//            File updatedFile = fileRepository.save(file);
+//            System.out.println("After save");
+//            return fileMapper.mapToResponse(updatedFile);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//    }
+
+    public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request) {
+        try {
+            File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
+            file.setStatus(request.getStatus());
+            File updatedFile = fileRepository.save(file);
+            return fileMapper.mapToResponse(updatedFile);
+        } catch (Exception e) {
+            Throwable root = e;
+            while (root.getCause() != null) {
+                root = root.getCause();
+            }
+            root.printStackTrace(); // TEMP - see full cause
+            throw new RuntimeException(e);
+        }
     }
 
 

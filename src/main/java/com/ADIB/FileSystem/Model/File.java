@@ -2,10 +2,7 @@ package com.ADIB.FileSystem.Model;
 
 import com.ADIB.FileSystem.Enum.FILE_STATUS;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -15,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "files")
-public class File extends Audit{
+public class File extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,16 +22,14 @@ public class File extends Audit{
     private String path;
     private String extension;
 
-//    @ManyToOne
-//    @JoinColumn(name="department_id")
-//    private Department department;
-
     @ManyToMany
     @JoinTable(
             name = "file_departments",
             joinColumns = @JoinColumn(name = "file_id"),
             inverseJoinColumns = @JoinColumn(name = "department_id")
     )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Department> departments;
 
     @Enumerated(EnumType.STRING)
@@ -42,7 +37,7 @@ public class File extends Audit{
 
     @ManyToOne
     @JoinColumn(name = "file_type_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private FileType fileType;
-
-
 }

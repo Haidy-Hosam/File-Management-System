@@ -126,6 +126,11 @@ public class AuthService {
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getToken())
+                .name(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole().getName())
+                .departmentName(user.getDepartment().getName())
+                .isDeleted(false)
                 .build();
     }
     public void logout(RefreshTokenRequest request){
