@@ -78,7 +78,8 @@ public class AuthService {
 
         Long deptId = user.getDepartment() != null ? user.getDepartment().getId() : null;
 
-        boolean rememberMe = Boolean.TRUE.equals(request.isRememberMe());        String accessToken = jwtUtil.generateAccessToken(
+        boolean rememberMe = Boolean.TRUE.equals(request.isRememberMe());
+        String accessToken = jwtUtil.generateAccessToken(
                 user.getId(),
                 user.getEmail(),
                 user.getRole().getName(),

@@ -43,7 +43,7 @@ public class JWTUtil {
     }
 
     public String generateRefreshToken(String email, boolean rememberMe) {
-        long expiration = rememberMe?remeberMeExiration:accessExpiration;
+        long expiration = rememberMe?remeberMeExiration:refreshExpiration;
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date())
