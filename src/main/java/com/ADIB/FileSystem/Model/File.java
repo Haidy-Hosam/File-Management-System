@@ -6,14 +6,13 @@ import lombok.*;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "files")
-public class File extends Audit{
+public class File extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,6 +32,8 @@ public class File extends Audit{
             joinColumns = @JoinColumn(name = "file_id"),
             inverseJoinColumns = @JoinColumn(name = "department_id")
     )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Department> departments;
 
     @Enumerated(EnumType.STRING)
@@ -40,6 +41,8 @@ public class File extends Audit{
 
     @ManyToOne
     @JoinColumn(name = "file_type_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private FileType fileType;
 
     @Column(nullable=false,columnDefinition = "BOOLEAN DEFAULT FALSE")

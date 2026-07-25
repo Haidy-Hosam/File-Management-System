@@ -78,7 +78,8 @@ public class AuthService {
 
         Long deptId = user.getDepartment() != null ? user.getDepartment().getId() : null;
 
-        boolean rememberMe = Boolean.TRUE.equals(request.isRememberMe());        String accessToken = jwtUtil.generateAccessToken(
+        boolean rememberMe = Boolean.TRUE.equals(request.isRememberMe());
+        String accessToken = jwtUtil.generateAccessToken(
                 user.getId(),
                 user.getEmail(),
                 user.getRole().getName(),
@@ -126,6 +127,11 @@ public class AuthService {
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getToken())
+                .name(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole().getName())
+                .departmentName(user.getDepartment().getName())
+                .isDeleted(false)
                 .build();
     }
     public void logout(RefreshTokenRequest request){
