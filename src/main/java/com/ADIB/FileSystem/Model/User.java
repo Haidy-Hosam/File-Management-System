@@ -34,6 +34,12 @@ public class User extends Audit {
     @EqualsAndHashCode.Exclude
     private Department department;
 
+    @ManyToOne
+    @JoinColumn(name = "previous_department_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Department previousDepartment;
+
 }
 
 

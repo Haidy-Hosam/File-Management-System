@@ -21,4 +21,10 @@ public interface FileRepo extends JpaRepository<File, Long> {
     Page<File> findByDepartmentId(@Param("deptId") Long deptId, Pageable pageable);
 
 //    List<File> findByDepartment(Department dept);
+
+    @Query("SELECT COUNT(f) FROM File f JOIN f.departments d WHERE d.id = :deptId")
+    long countFilesByDepartment(@Param("deptId") Long deptId);
+
+    @Query("SELECT COALESCE(SUM(f.size),0) FROM File f JOIN f.departments d WHERE d.id = :deptId")
+    Long getTotalDepartmentStorage(@Param("deptId") Long deptId);
 }

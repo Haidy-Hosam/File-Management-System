@@ -33,6 +33,9 @@ private final RoleRepo roleRepo;
 private final DepartmentRepo departmentRepo;
 private final PasswordEncoder passwordEncoder;
 
+private static final Long MANAGER_ROLE_ID = 2L;
+
+
 
     public AuthResponse getUser(String name) {
         User user =userRepo.findByname(name);
@@ -56,6 +59,14 @@ private final PasswordEncoder passwordEncoder;
         }
         Role role = roleRepo.findById(request.getRoleId()).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         Department department = departmentRepo.findById(request.getDepartmentId()).orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+        if (MANAGER_ROLE_ID.equals(role.getId())) {
+            boolean managerExists = userRepo.findDepartmentManager(department.getId()).isPresent();
+            if (managerExists) {
+                throw new ResourceAlreadyExistsException(
+                        "Department '" + department.getName() + "' already has a manager");
+            }
+        }
+
         User newUser = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -74,12 +85,16 @@ private final PasswordEncoder passwordEncoder;
         User user =userRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("User not found"));
 
         Role role = roleRepo.findById(request.getRoleId()).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        Department department = departmentRepo.findById(request.getDepartmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+
 
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setUsername(request.getName());
         user.setName(request.getName());
         user.setDeleted(request.isDeleted());
+        user.setDepartment(department);
         user.setRole(role);
 
         return userMapper.mapToResponse(userRepo.save(user));
