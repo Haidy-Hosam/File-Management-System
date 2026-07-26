@@ -23,19 +23,22 @@ public class Role extends Audit {
     @OneToMany(mappedBy = "role",cascade = CascadeType.ALL)
     private List<User> users;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "role_pages",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name="page_id")
-    )
-    private Set<Page> pages;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "role_permissions",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name ="permission_id")
-    )
-    private Set<Permission> permissions = new HashSet<>();
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<RolePagePermission> rolePagePermissions = new java.util.ArrayList<>();
+//    @ManyToMany(fetch = FetchType.LAZY)
+//    @JoinTable(
+//            name = "role_pages",
+//            joinColumns = @JoinColumn(name = "role_id"),
+//            inverseJoinColumns = @JoinColumn(name="page_id")
+//    )
+//    private Set<Page> pages;
+//
+//    @ManyToMany(fetch = FetchType.EAGER)
+//    @JoinTable(
+//            name = "role_permissions",
+//            joinColumns = @JoinColumn(name = "role_id"),
+//            inverseJoinColumns = @JoinColumn(name ="permission_id")
+//    )
+//    private Set<Permission> permissions = new HashSet<>();
 }

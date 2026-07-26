@@ -121,25 +121,25 @@ public class UserService {
         userRepo.delete(user);
     }
 
-    public List<PageResponse> getCurrentUserPages(){
-        Authentication auth =  SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("Authentication = " + auth);
-        System.out.println("Principal = " + auth.getPrincipal());
-        System.out.println("Name = " + auth.getName());
-        System.out.println("Authorities = " + auth.getAuthorities());
-
-        String email = auth.getName();
-        User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
-        Role role = user.getRole();
-
-        return role.getPages()
-                .stream()
-                .map(page -> new PageResponse(
-                        page.getPageName(),
-                        page.getRoute()
-                ))
-                .toList();
-    }
+//    public List<PageResponse> getCurrentUserPages(){
+//        Authentication auth =  SecurityContextHolder.getContext().getAuthentication();
+//        System.out.println("Authentication = " + auth);
+//        System.out.println("Principal = " + auth.getPrincipal());
+//        System.out.println("Name = " + auth.getName());
+//        System.out.println("Authorities = " + auth.getAuthorities());
+//
+//        String email = auth.getName();
+//        User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
+//        Role role = user.getRole();
+//
+//        return role.getPages()
+//                .stream()
+//                .map(page -> new PageResponse(
+//                        page.getPageName(),
+//                        page.getRoute()
+//                ))
+//                .toList();
+//    }
 
     public UserRoleResponse getUserRole() {
         Authentication auth =  SecurityContextHolder.getContext().getAuthentication();

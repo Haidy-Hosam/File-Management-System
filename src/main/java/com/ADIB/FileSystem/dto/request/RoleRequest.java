@@ -1,14 +1,14 @@
 package com.ADIB.FileSystem.dto.request;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RoleRequest {
     private String name;
-    private List<Long> pageIds;
-    private List<Long> permissionIds;
+    private List<PagePermissionRequest> pagePermissions;
 }

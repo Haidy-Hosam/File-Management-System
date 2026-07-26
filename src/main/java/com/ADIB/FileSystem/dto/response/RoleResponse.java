@@ -15,6 +15,6 @@ public class RoleResponse {
 
     private Long id;
     private String name;
-    private List<PageResponse> pages;
-    private List<PermissionResponse> permissions;
+    private List<PagePermissionResponse> pagePermissions;
+
 }

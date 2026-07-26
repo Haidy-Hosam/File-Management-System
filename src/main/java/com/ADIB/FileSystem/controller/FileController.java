@@ -5,7 +5,6 @@ import com.ADIB.FileSystem.dto.request.FileRequest;
 import com.ADIB.FileSystem.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.dto.response.FileResponse;
 import com.ADIB.FileSystem.service.FileService;
-import com.ADIB.FileSystem.service.PermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -21,7 +20,7 @@ import java.util.List;
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
-@PreAuthorize("@permissionService.hasPage('Files')")
+@PreAuthorize("@pagePermissionService.hasPage('Files')")
 public class FileController {
 //nourtest
     private final FileService fileService;

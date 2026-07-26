@@ -13,6 +13,7 @@ import com.ADIB.FileSystem.mapper.FileMapper;
 import com.ADIB.FileSystem.repository.DepartmentRepo;
 import com.ADIB.FileSystem.repository.FileRepo;
 import com.ADIB.FileSystem.repository.FileTypeRepo;
+import com.ADIB.FileSystem.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -233,6 +236,19 @@ public class FileService {
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
         return fileRepository.findByDepartmentId(departmentId, pageable).map(fileMapper::mapToResponse);
+    }
+    public Page<FileResponse> listMyFiles(int page, int size) {
+        Long userId = getCurrentUserId();
+        Pageable pageable = PageRequest.of(page, size);
+        return fileRepository.findByCreatedByIdAndIsDeletedFalse(userId, pageable)
+                .map(fileMapper::mapToResponse);
+    }
+
+    private Long getCurrentUserId() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails principal = (CustomUserDetails) auth.getPrincipal();
+        return principal.getId();
     }
 
     public FileResponse getFileData(Long fileId) throws IOException {

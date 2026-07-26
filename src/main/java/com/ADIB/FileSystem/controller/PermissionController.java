@@ -19,16 +19,4 @@ public class PermissionController {
     public ResponseEntity<List<Permission>> getAllPermissions() {
         return ResponseEntity.ok(permissionRepo.findAll());
     }
-
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public  createPermission(@RequestBody Permission permission) {
-        return permissionRepo.save(permission);
-    }
-
-    @DeleteMapping("/{permissionId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePermission(@PathVariable Long permissionId) {
-        permissionRepo.deleteById(permissionId);
-    }
 }
