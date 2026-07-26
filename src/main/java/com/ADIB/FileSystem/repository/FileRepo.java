@@ -14,17 +14,39 @@ import java.util.List;
 
 public interface FileRepo extends JpaRepository<File, Long> {
     @Modifying
-    @Query(nativeQuery= true , value = "DELETE FROM files WHERE id = :fileId")
+    @Query(nativeQuery = true, value = "DELETE FROM files WHERE id = :fileId")
     void deleteById(@Param("fileId") Long fileId);
 
-    @Query("SELECT f FROM File f JOIN f.departments d WHERE d.id = :deptId")
-    Page<File> findByDepartmentId(@Param("deptId") Long deptId, Pageable pageable);
+    @Query("""
+            SELECT f
+            FROM File f
+            JOIN f.departments d
+            WHERE d.id = :deptId
+            AND f.isDeleted = false
+            """)
+    Page<File> findByDepartmentId(
+            @Param("deptId") Long deptId,
+            Pageable pageable
+    );
 
-//    List<File> findByDepartment(Department dept);
+    @Query("""
+            SELECT f
+            FROM File f 
+            WHERE f.isDeleted = true
+            
+            """)
+    Page<File> findDeletedFiles(
+            Pageable pageable
+    );
+
 
     @Query("SELECT COUNT(f) FROM File f JOIN f.departments d WHERE d.id = :deptId")
     long countFilesByDepartment(@Param("deptId") Long deptId);
 
     @Query("SELECT COALESCE(SUM(f.size),0) FROM File f JOIN f.departments d WHERE d.id = :deptId")
     Long getTotalDepartmentStorage(@Param("deptId") Long deptId);
+
+
+    //    List<File> findByDepartment(Department dept);
+    //            WHERE f.isDeleted = true
 }
