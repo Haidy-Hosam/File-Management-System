@@ -38,6 +38,7 @@ public class FileMapper {
                 .fileType(file.getFileType().getName())
                 .modifiedDate(file.getUpdatedAt().toLocalDate().toString())
                 .size(file.getSize())
+                .ownerName(file.getCreatedBy() != null ? file.getCreatedBy().getName() : "Unknown")
                 .build();
     }
 }
