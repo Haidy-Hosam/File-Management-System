@@ -1,15 +1,68 @@
 package com.ADIB.FileSystem.mapper;
 
 import com.ADIB.FileSystem.Model.Department;
+import com.ADIB.FileSystem.Model.File;
+import com.ADIB.FileSystem.Model.User;
 import com.ADIB.FileSystem.dto.response.DepartmentResponse;
+import com.ADIB.FileSystem.dto.response.FileResponse;
+import com.ADIB.FileSystem.dto.response.UserResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
+@RequiredArgsConstructor
 public class DepartmentMapper {
+    private final FileMapper fileMapper;
+
     public DepartmentResponse MapToDepartmentResponse(Department department){
         return DepartmentResponse.builder()
-                .name(department.getName())
                 .id(department.getId())
+                .name(department.getName())
                 .build();
     }
+
+    public DepartmentResponse MapToSummaryResponse(Department department,
+                                                   String managerName,
+                                                   long employeeCount,
+                                                   long fileCount,
+                                                   long storageUsed){
+        return DepartmentResponse.builder()
+                .id(department.getId())
+                .name(department.getName())
+                .managerName(managerName)
+                .isActive(department.getIsActive())
+                .employeeCount((int) employeeCount)
+                .fileCount(fileCount)
+                .storageUsed(storageUsed)
+                .build();
+
+    }
+
+    public DepartmentResponse MapToDetailResponse (Department department,
+                                                       String managerName,
+                                                       List<User> employees,
+                                                       long fileCount,
+                                                       long storageUsed,
+                                                       List<File> files){
+        List<UserResponse> employeeResponses = employees.stream()
+                .map(UserMapper::mapToUserResponse)
+                .toList();
+        List<FileResponse> fileResponses = files.stream().map(fileMapper::mapToResponse).toList();
+
+        return DepartmentResponse.builder()
+                .id(department.getId())
+                .name(department.getName())
+                .managerName(managerName)
+                .isActive(department.getIsActive())
+                .employeeCount(employeeResponses.size())
+                .fileCount(fileCount)
+                .employees(employeeResponses)
+                .storageUsed(storageUsed)
+                .files(fileResponses)
+                .build();
+
+    }
+
 }

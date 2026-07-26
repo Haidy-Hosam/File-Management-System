@@ -31,40 +31,40 @@ public class AuthService {
     private final RefreshTokenRepo refreshTokenRepo;
     private final PageRepo  pageRepo;  //will be deletet!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
-//    public AuthResponse register(RegisterRequest request) {
-//        if (userRepository.existsByEmail(request.getEmail())) {
-//            throw new ResourceAlreadyExistsException("Email already exists");
-//        }
-//
-//        Role role = roleRepository.findById(request.getRoleId())
-//                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + request.getRoleId()));
-//
-//        Department department = null;
-//        if (request.getDepartmentId() != null) {
-//            department = departmentRepository.findById(request.getDepartmentId())
-//                    .orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + request.getDepartmentId()));
-//        }
-//
-//        User user = User.builder()
-//                .name(request.getName())
-//                .username(request.getUsername())
-//                .email(request.getEmail())
-//                .password(passwordEncoder.encode(request.getPassword()))
-//                .role(role)
-//                .department(department)
-//                .deleted(request.isDeleted())
-//                .build();
-//
-//        userRepository.save(user);
-//
-//        return AuthResponse.builder()
-//                .name(user.getUsername())
-//                .email(user.getEmail())
-//                .role(user.getRole().getName())
-//                .departmentName(user.getDepartment().getName())
-//                .isDeleted(false)
-//                .build();
-//    }
+    public AuthResponse register(RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new ResourceAlreadyExistsException("Email already exists");
+        }
+
+        Role role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + request.getRoleId()));
+
+        Department department = null;
+        if (request.getDepartmentId() != null) {
+            department = departmentRepository.findById(request.getDepartmentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + request.getDepartmentId()));
+        }
+
+        User user = User.builder()
+                .name(request.getName())
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(role)
+                .department(department)
+                .deleted(request.isDeleted())
+                .build();
+
+        userRepository.save(user);
+
+        return AuthResponse.builder()
+                .name(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole().getName())
+                .departmentName(user.getDepartment().getName())
+                .isDeleted(false)
+                .build();
+    }
 
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
@@ -78,7 +78,8 @@ public class AuthService {
 
         Long deptId = user.getDepartment() != null ? user.getDepartment().getId() : null;
 
-        boolean rememberMe = Boolean.TRUE.equals(request.isRememberMe());        String accessToken = jwtUtil.generateAccessToken(
+        boolean rememberMe = Boolean.TRUE.equals(request.isRememberMe());
+        String accessToken = jwtUtil.generateAccessToken(
                 user.getId(),
                 user.getEmail(),
                 user.getRole().getName(),
@@ -144,17 +145,17 @@ public class AuthService {
     }
 
     //will be deleted !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//    public PageResponse addPage (PageRequest request){
-//        Page page = Page.builder()
-//                .pageName(request.getPageName())
-//                .route(request.getRoute())
-//                .build();
-//
-//        pageRepo.save(page);
-//
-//        return PageResponse.builder()
-//                .name(page.getPageName())
-//                .route(page.getRoute())
-//                .build();
-//    }
+    public PageResponse addPage (PageRequest request){
+        Page page = Page.builder()
+                .pageName(request.getPageName())
+                .route(request.getRoute())
+                .build();
+
+        pageRepo.save(page);
+
+        return PageResponse.builder()
+                .name(page.getPageName())
+                .route(page.getRoute())
+                .build();
+    }
 }

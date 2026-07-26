@@ -15,9 +15,6 @@ public class Page {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String pageName;
     private String route;
-
-
 }

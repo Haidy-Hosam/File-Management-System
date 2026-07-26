@@ -22,6 +22,10 @@ public class File extends Audit {
     private String path;
     private String extension;
 
+//    @ManyToOne
+//    @JoinColumn(name="department_id")
+//    private Department department;
+
     @ManyToMany
     @JoinTable(
             name = "file_departments",
@@ -40,4 +44,7 @@ public class File extends Audit {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private FileType fileType;
+
+    @Column(nullable=false,columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isDeleted  ;
 }

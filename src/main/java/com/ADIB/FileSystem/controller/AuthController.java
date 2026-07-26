@@ -3,6 +3,7 @@ package com.ADIB.FileSystem.controller;
 import com.ADIB.FileSystem.dto.request.LoginRequest;
 import com.ADIB.FileSystem.dto.request.PageRequest;
 import com.ADIB.FileSystem.dto.request.RefreshTokenRequest;
+import com.ADIB.FileSystem.dto.request.RegisterRequest;
 import com.ADIB.FileSystem.dto.response.AuthResponse;
 import com.ADIB.FileSystem.dto.response.PageResponse;
 import com.ADIB.FileSystem.service.AuthService;
@@ -19,10 +20,10 @@ import org.springframework.web.bind.annotation.*;
 //@PreAuthorize("@permissionService.hasPage('Login')")
 public class AuthController {
     private final AuthService authService;
-//    @PostMapping("/register")
-//    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest Request) {
-//        return ResponseEntity.ok(authService.register(Request));
-//    }
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest Request) {
+        return ResponseEntity.ok(authService.register(Request));
+    }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest Request) {
@@ -41,8 +42,8 @@ public class AuthController {
     }
 
     //will be deleted !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-//    @PostMapping("/pages")
-//    public ResponseEntity<PageResponse> addPage(@RequestBody PageRequest Request) {
-//        return ResponseEntity.ok((authService.addPage(Request)));
-//    }
+    @PostMapping("/pages")
+    public ResponseEntity<PageResponse> addPage(@RequestBody PageRequest Request) {
+        return ResponseEntity.ok((authService.addPage(Request)));
+    }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 @Repository
 public interface UserRepo extends JpaRepository<User, Long> {
@@ -18,5 +19,9 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Query(value = "SELECT username FROM users WHERE id = :1 and name=:2", nativeQuery = true)
     String returnName(@Param("i") Long id, @Param("2") String name);
 
+    List<User> findByDepartmentId(Long id);
+    long countByDepartmentId(Long id);
+    @Query("SELECT u FROM users u WHERE u.department.id = :deptId AND u.role.id = 2")
+    Optional<User> findDepartmentManager(@Param("deptId") Long deptId);
 
 }
