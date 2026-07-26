@@ -13,6 +13,7 @@ import com.ADIB.FileSystem.mapper.FileMapper;
 import com.ADIB.FileSystem.repository.DepartmentRepo;
 import com.ADIB.FileSystem.repository.FileRepo;
 import com.ADIB.FileSystem.repository.FileTypeRepo;
+import com.ADIB.FileSystem.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,8 +48,10 @@ public class FileService {
     private final FileEncryptionService fileEncryptionService;
     private final FileTypeRepo fileTypeRepo;
     private static final Path UPLOAD_DIRECTORY = Paths.get(
-            "C:\\Users\\Speed\\OneDrive - MUST University\\Documents\\project_ADIB\\testfiles"
+            "C:\\Users\\Speed\\OneDrive - MUST University\\Documents\\project_ADIB\\uploads"
     );
+
+    private static final Path TRASH_DIRECTORY = Paths.get("C:\\Users\\Speed\\OneDrive - MUST University\\Documents\\project_ADIB\\trash");
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
 
@@ -65,7 +70,7 @@ public class FileService {
                 fileName.lastIndexOf(".") + 1
         );
 
-        Path uploadDirectory = Paths.get("C:\\Users\\Speed\\OneDrive - MUST University\\Documents\\project_ADIB\\testfiles");
+        Path uploadDirectory = Paths.get("C:\\Users\\Speed\\OneDrive - MUST University\\Documents\\project_ADIB\\uploads");
 
         Files.createDirectories(uploadDirectory);
 
@@ -78,7 +83,7 @@ public class FileService {
         byte[] fileBytes = request.getFile().getBytes();
         byte[] encryptedBytes;
         try{
-        encryptedBytes = fileEncryptionService.encrypt(fileBytes);
+            encryptedBytes = fileEncryptionService.encrypt(fileBytes);
         }catch(Exception e){
             throw new IOException("Failed to encrypt and save file", e);
         }
@@ -95,6 +100,7 @@ public class FileService {
                 .status(FILE_STATUS.PENDING)
                 .departments(departments)
                 .fileType(fileType)
+                .isDeleted(false)
                 .build();
 
         File savedFile = fileRepository.save(file);
@@ -184,7 +190,9 @@ public class FileService {
                 .status(FILE_STATUS.PENDING)
                 .departments(departments) // CHANGED — one row, many departments
                 .fileType(fileType)
+                .isDeleted(false)
                 .build();
+
 
         File savedFile = fileRepository.save(file);
         return fileMapper.mapToResponse(savedFile);
@@ -196,21 +204,26 @@ public class FileService {
     }
 
 
-    @Transactional
     public void deleteFile(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new ResourceNotFoundException("File not found"));
 
-        file.getDepartments().clear();
-        fileRepository.save(file);
-        fileRepository.delete(file);
-
+        Files.createDirectories(TRASH_DIRECTORY);
         Path filePath = Paths.get(file.getPath());
-        java.io.File diskFile = filePath.toFile();
-        if (diskFile.exists()) {
-            diskFile.setWritable(true); // must clear read-only before delete
-            Files.deleteIfExists(filePath);
-        }
+        Path targetPath = TRASH_DIRECTORY.resolve(filePath.getFileName());
+//        filePath.toFile().setWritable(true);
+        Files.move(filePath,targetPath);
+        file.setPath(targetPath.toString());
+        file.setIsDeleted(true);
+        file.setStatus(FILE_STATUS.REJECTED);
+        fileRepository.save(file);
+    }
+
+
+    public Page<FileResponse> listAllDeletedFiles(int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return fileRepository.findDeletedFiles(pageable)
+                .map(fileMapper::mapToResponse);
     }
 
     public Page<FileResponse> listAllFiles(int page, int size) {
@@ -225,6 +238,21 @@ public class FileService {
 
         return fileRepository.findByDepartmentId(departmentId, pageable).map(fileMapper::mapToResponse);
     }
+
+    public Page<FileResponse> listMyFiles(int page, int size) {
+        Long userId = getCurrentUserId();
+        Pageable pageable = PageRequest.of(page, size);
+        return fileRepository.findByCreatedByIdAndIsDeletedFalse(userId, pageable)
+                .map(fileMapper::mapToResponse);
+    }
+
+    private Long getCurrentUserId() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails principal = (CustomUserDetails) auth.getPrincipal();
+        return principal.getId();
+    }
+
     public FileResponse getFileData(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
         return fileMapper.mapToResponse(file);

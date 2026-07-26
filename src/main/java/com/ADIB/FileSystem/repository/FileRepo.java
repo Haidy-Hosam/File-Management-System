@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface FileRepo extends JpaRepository<File, Long> {
+    long countByCreatedByIdAndIsDeletedFalse(Long userId);
     @Modifying
     @Query(nativeQuery = true, value = "DELETE FROM files WHERE id = :fileId")
     void deleteById(@Param("fileId") Long fileId);
@@ -46,7 +47,7 @@ public interface FileRepo extends JpaRepository<File, Long> {
     @Query("SELECT COALESCE(SUM(f.size),0) FROM File f JOIN f.departments d WHERE d.id = :deptId")
     Long getTotalDepartmentStorage(@Param("deptId") Long deptId);
 
-
+    Page<File> findByCreatedByIdAndIsDeletedFalse(Long userId, Pageable pageable);
     //    List<File> findByDepartment(Department dept);
     //            WHERE f.isDeleted = true
 }

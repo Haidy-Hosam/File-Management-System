@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FileResponse {
+    private String ownerName;
     private Long id;
     private String name;
     private String extension;

@@ -1,5 +1,7 @@
 package com.ADIB.FileSystem.controller;
+
 import com.ADIB.FileSystem.dto.request.RegisterRequest;
+import com.ADIB.FileSystem.dto.request.UpdateUserRequest;
 import com.ADIB.FileSystem.dto.response.AuthResponse;
 import com.ADIB.FileSystem.dto.response.PageResponse;
 import com.ADIB.FileSystem.dto.response.UserRoleResponse;
@@ -34,6 +36,14 @@ public class UserController {
     }
 
     @PreAuthorize("@permissionService.hasPage('Users')")
+    @GetMapping("/search")
+    public ResponseEntity<List<AuthResponse>> searchUsers(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long roleId){
+        return ResponseEntity.ok(userService.searchUsers(search, roleId));
+    }
+
+    @PreAuthorize("@permissionService.hasPage('Users')")
     @PostMapping
     public ResponseEntity<AuthResponse> createUser(@RequestBody RegisterRequest request){
         if(request.getName() == null){
@@ -44,11 +54,20 @@ public class UserController {
 
     @PreAuthorize("@permissionService.hasPage('Users')")
     @PutMapping("/{id}")
-    public ResponseEntity<AuthResponse> updateUser(@PathVariable Long id, @RequestBody RegisterRequest request){
-        if(id== null){
+    public ResponseEntity<AuthResponse> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request){
+        if(id == null){
             throw new RuntimeException("User id is required");
         }
-        return ResponseEntity.ok(userService.updateUser(id,request));
+        return ResponseEntity.ok(userService.updateUser(id, request));
+    }
+
+    @PreAuthorize("@permissionService.hasPage('Users')")
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<AuthResponse> toggleStatus(@PathVariable Long id){
+        if(id == null){
+            throw new RuntimeException("User id is required");
+        }
+        return ResponseEntity.ok(userService.toggleUserStatus(id));
     }
 
     @PreAuthorize("@permissionService.hasPage('Users')")
@@ -59,6 +78,11 @@ public class UserController {
         }
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<AuthResponse> getMyProfile() {
+        return ResponseEntity.ok(userService.getCurrentUserProfile());
     }
 
     @GetMapping("/pages")

@@ -33,11 +33,11 @@ public class FileMapper {
                 .id(file.getId())
                 .name(file.getName())
                 .extension(file.getExtension())
-                .departmentNames(departmentNames) // CHANGED — list, not single dept
+                .departmentNames(departmentNames)
                 .status(file.getStatus().name())
                 .fileType(file.getFileType().getName())
                 .modifiedDate(file.getUpdatedAt().toLocalDate().toString())
                 .size(file.getSize())
+                .ownerName(file.getCreatedBy() != null ? file.getCreatedBy().getUsername() : "Unknown")
                 .build();
-    }
-}
+}}

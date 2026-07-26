@@ -93,4 +93,10 @@ public class FileController {
     ) {
         return ResponseEntity.ok(fileService.listAllDeletedFiles(page, size));
     }
+    @GetMapping("/my")
+    public ResponseEntity<Page<FileResponse>> getMyFiles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(fileService.listMyFiles(page, size));
+    }
 }
