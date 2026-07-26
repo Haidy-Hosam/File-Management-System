@@ -48,7 +48,7 @@ public class FileService {
             "D:\\ADIB\\ADIB Project\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
     );
 
-    private static final Path TRASH_DIRECTORY = Paths.get("D:\\ADIB\\ADIB Project\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash");
+    private static final Path TRASH_DIRECTORY = Paths.get("C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash");
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
 
@@ -187,6 +187,7 @@ public class FileService {
                 .status(FILE_STATUS.PENDING)
                 .departments(departments) // CHANGED — one row, many departments
                 .fileType(fileType)
+                .isDeleted(false)
                 .build();
 
         File savedFile = fileRepository.save(file);
