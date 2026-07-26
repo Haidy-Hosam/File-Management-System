@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DepartmentMapper {
     private final FileMapper fileMapper;
+    private final UserMapper userMapper;
 
     public DepartmentResponse MapToDepartmentResponse(Department department){
         return DepartmentResponse.builder()
@@ -39,15 +40,16 @@ public class DepartmentMapper {
                 .build();
 
     }
+    
 
     public DepartmentResponse MapToDetailResponse (Department department,
-                                                       String managerName,
-                                                       List<User> employees,
-                                                       long fileCount,
-                                                       long storageUsed,
-                                                       List<File> files){
+                                                   String managerName,
+                                                   List<User> employees,
+                                                   long fileCount,
+                                                   long storageUsed,
+                                                   List<File> files){
         List<UserResponse> employeeResponses = employees.stream()
-                .map(UserMapper::mapToUserResponse)
+                .map(userMapper::mapToUserResponse)
                 .toList();
         List<FileResponse> fileResponses = files.stream().map(fileMapper::mapToResponse).toList();
 
@@ -64,5 +66,4 @@ public class DepartmentMapper {
                 .build();
 
     }
-
 }

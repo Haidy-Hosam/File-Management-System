@@ -22,7 +22,6 @@ public class Audit {
     @CreatedDate
     @CreationTimestamp
     private LocalDateTime createdAt;
-
     @CreatedBy
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
@@ -31,7 +30,6 @@ public class Audit {
     @LastModifiedDate
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
     @LastModifiedBy
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by")

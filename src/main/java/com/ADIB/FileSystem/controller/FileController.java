@@ -23,7 +23,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 @PreAuthorize("@permissionService.hasPage('Files')")
 public class FileController {
-
+//nourtest
     private final FileService fileService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -92,5 +92,11 @@ public class FileController {
             @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(fileService.listAllDeletedFiles(page, size));
+    }
+    @GetMapping("/my")
+    public ResponseEntity<Page<FileResponse>> getMyFiles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(fileService.listMyFiles(page, size));
     }
 }

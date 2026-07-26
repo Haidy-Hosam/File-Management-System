@@ -27,13 +27,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-private final UserRepo userRepo;
-private final UserMapper userMapper;
-private final RoleRepo roleRepo;
-private final DepartmentRepo departmentRepo;
-private final PasswordEncoder passwordEncoder;
+    private final UserRepo userRepo;
+    private final UserMapper userMapper;
+    private final RoleRepo roleRepo;
+    private final DepartmentRepo departmentRepo;
+    private final PasswordEncoder passwordEncoder;
 
-private static final Long MANAGER_ROLE_ID = 2L;
+    private static final Long MANAGER_ROLE_ID = 2L;
 
 
 
@@ -52,10 +52,21 @@ private static final Long MANAGER_ROLE_ID = 2L;
         return users.stream().map(user -> userMapper.mapToResponse(user)).collect(Collectors.toList());
     }
 
+    public List<AuthResponse> searchUsers(String search, Long roleId) {
+        List<User> users = userRepo.findAll();
+        return users.stream()
+                .filter(u -> roleId == null || (u.getRole() != null && u.getRole().getId().equals(roleId)))
+                .filter(u -> search == null || search.isBlank()
+                        || u.getName().toLowerCase().contains(search.toLowerCase())
+                        || u.getEmail().toLowerCase().contains(search.toLowerCase()))
+                .map(userMapper::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
     public AuthResponse createUser(RegisterRequest request) {
         User user = userRepo.findByUsername(request.getName());
         if(user!=null){
-           throw new ResourceAlreadyExistsException("Username exist");
+            throw new ResourceAlreadyExistsException("Username exist");
         }
         Role role = roleRepo.findById(request.getRoleId()).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         Department department = departmentRepo.findById(request.getDepartmentId()).orElseThrow(() -> new ResourceNotFoundException("Department not found"));
@@ -80,23 +91,27 @@ private static final Long MANAGER_ROLE_ID = 2L;
         return userMapper.mapToResponse(userRepo.save(newUser));
     }
 
-    public AuthResponse updateUser(Long id, RegisterRequest request) {
-//        User user = userRepo.findByname(request.getName());
-        User user =userRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+    public AuthResponse updateUser(Long id, UpdateUserRequest request) {
+        User user = userRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("User not found"));
 
         Role role = roleRepo.findById(request.getRoleId()).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         Department department = departmentRepo.findById(request.getDepartmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
-
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
-        user.setUsername(request.getName());
+        user.setUsername(request.getUsername());
         user.setName(request.getName());
         user.setDeleted(request.isDeleted());
         user.setDepartment(department);
         user.setRole(role);
+        // password intentionally left untouched here
 
+        return userMapper.mapToResponse(userRepo.save(user));
+    }
+
+    public AuthResponse toggleUserStatus(Long id) {
+        User user = userRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setDeleted(!Boolean.TRUE.equals(user.getDeleted()));
         return userMapper.mapToResponse(userRepo.save(user));
     }
 
@@ -132,12 +147,27 @@ private static final Long MANAGER_ROLE_ID = 2L;
         User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
         String userInitials = this.getInitials(user.getUsername());
         return UserRoleResponse.builder()
-                 .name(user.getUsername())
-                 .role(user.getRole().getName())
+                .name(user.getUsername())
+                .role(user.getRole().getName())
                 .initials(userInitials.toUpperCase())
-                 .build();
+                .build();
     }
 
+    public AuthResponse getCurrentUserProfile() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return AuthResponse.builder()
+                .u_id(user.getId())
+                .name(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole().getName())
+                .departmentName(user.getDepartment() != null ? user.getDepartment().getName() : null)
+                .isDeleted(user.getDeleted())
+                .build();
+    }
     private String getInitials(String name){
         StringBuilder sb = new StringBuilder();
         String trimmedName = name.trim();
@@ -150,5 +180,3 @@ private static final Long MANAGER_ROLE_ID = 2L;
     }
 
 }
-
-

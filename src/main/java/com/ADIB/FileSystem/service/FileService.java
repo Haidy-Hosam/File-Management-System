@@ -45,7 +45,7 @@ public class FileService {
     private final FileEncryptionService fileEncryptionService;
     private final FileTypeRepo fileTypeRepo;
     private static final Path UPLOAD_DIRECTORY = Paths.get(
-            "D:\\ADIB\\ADIB Project\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
+            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
     );
 
     private static final Path TRASH_DIRECTORY = Paths.get("C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash");

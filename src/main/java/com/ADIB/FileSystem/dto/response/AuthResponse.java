@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -19,4 +21,6 @@ public class AuthResponse {
     private String role;
     private String departmentName;
     private boolean isDeleted;
+    private Long filesCount;
+    private LocalDateTime lastLogin;
 }

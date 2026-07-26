@@ -16,7 +16,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import java.time.LocalDateTime;
 
 @Service
@@ -72,9 +73,15 @@ public class AuthService {
                         request.getEmail(),
                         request.getPassword()));
 
-
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (Boolean.TRUE.equals(user.getDeleted())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This account has been deactivated. Contact an administrator.");
+        }
+
+        user.setLastLogin(LocalDateTime.now());
+        userRepository.save(user);
 
         Long deptId = user.getDepartment() != null ? user.getDepartment().getId() : null;
 
