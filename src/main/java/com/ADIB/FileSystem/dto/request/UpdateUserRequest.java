@@ -22,5 +22,5 @@ public class UpdateUserRequest {
 
     private Long roleId;
     private Long departmentId;
-    private boolean isDeleted;
+    private Boolean isDeleted;
 }

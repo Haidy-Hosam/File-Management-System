@@ -239,7 +239,11 @@ public class FileService {
         Pageable pageable = PageRequest.of(page, size);
         return fileRepository.findAll(pageable).map(fileMapper::mapToResponse);
     }
-
+    public Page<FileResponse> listFilesByUser(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return fileRepository.findByCreatedByIdAndIsDeletedFalse(userId, pageable)
+                .map(fileMapper::mapToResponse);
+    }
     public Page<FileResponse> listFilesByDepartment(Long departmentId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         departmentRepository.findById(departmentId)

@@ -53,7 +53,7 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
                 .department(department)
-                .deleted(request.isDeleted())
+                .deleted(request.getIsDeleted())
                 .build();
 
         userRepository.save(user);

@@ -29,6 +29,6 @@ public class RegisterRequest {
     private String password;
     private Long   roleId;
     private Long departmentId;
-    private boolean isDeleted;
+    private Boolean isDeleted;
 
 }
