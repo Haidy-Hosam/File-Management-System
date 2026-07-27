@@ -23,7 +23,7 @@ public class UserController {
     private final PagePermissionService pagePermissionService; // add to constructor
 
 
-    @PreAuthorize("@pagePermissionService.hasPage('Users')")
+    @PreAuthorize("@pagePermissionService.hasPermission('Users','READ')")
     @GetMapping("/{name}")
     public ResponseEntity<AuthResponse> getUser(@PathVariable String name){
         if(name == null){
@@ -32,13 +32,13 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(name));
     }
 
-    @PreAuthorize("@pagePermissionService.hasPage('Users')")
+    @PreAuthorize("@pagePermissionService.hasPermission('Users','READ')")
     @GetMapping
     public ResponseEntity<List<AuthResponse>> getAllUsers(){
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @PreAuthorize("@pagePermissionService.hasPage('Users')")
+    @PreAuthorize("@pagePermissionService.hasPermission('Users','READ')")
     @GetMapping("/search")
     public ResponseEntity<List<AuthResponse>> searchUsers(
             @RequestParam(required = false) String search,
@@ -46,7 +46,7 @@ public class UserController {
         return ResponseEntity.ok(userService.searchUsers(search, roleId));
     }
 
-    @PreAuthorize("@pagePermissionService.hasPage('Users')")
+    @PreAuthorize("@pagePermissionService.hasPermission('Users','CREATE')")
     @PostMapping
     public ResponseEntity<AuthResponse> createUser(@RequestBody RegisterRequest request){
         if(request.getName() == null){
@@ -55,7 +55,7 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(request));
     }
 
-    @PreAuthorize("@pagePermissionService.hasPage('Users')")
+    @PreAuthorize("@pagePermissionService.hasPermission('Users','UPDATE')")
     @PutMapping("/{id}")
     public ResponseEntity<AuthResponse> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request){
         if(id == null){
@@ -64,7 +64,7 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
-    @PreAuthorize("@pagePermissionService.hasPage('Users')")
+    @PreAuthorize("@pagePermissionService.hasPermission('Users','UPDATE')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<AuthResponse> toggleStatus(@PathVariable Long id){
         if(id == null){
@@ -73,7 +73,7 @@ public class UserController {
         return ResponseEntity.ok(userService.toggleUserStatus(id));
     }
 
-    @PreAuthorize("@pagePermissionService.hasPage('Users')")
+    @PreAuthorize("@pagePermissionService.hasPermission('Users','DELETE')")
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id){
         if(id== null){
@@ -87,11 +87,6 @@ public class UserController {
     public ResponseEntity<AuthResponse> getMyProfile() {
         return ResponseEntity.ok(userService.getCurrentUserProfile());
     }
-
-//    @GetMapping("/pages")
-//    public ResponseEntity<List<PageResponse>> getMyPages(){
-//        return ResponseEntity.ok(userService.getCurrentUserPages());
-//    }
 
     @GetMapping("/pages")
     public ResponseEntity<List<PageResponse>> getMyPages(){

@@ -20,22 +20,24 @@ import java.util.List;
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
-@PreAuthorize("@pagePermissionService.hasPage('Files')")
+//@PreAuthorize("@pagePermissionService.hasPage('Files')")
 public class FileController {
 //nourtest
     private final FileService fileService;
 
+    @PreAuthorize("@pagePermissionService.hasPermission('Files','CREATE')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FileResponse> createFile(@ModelAttribute FileRequest request) throws IOException {
         return ResponseEntity.ok(fileService.uploadFile(request));
     }
 
+    @PreAuthorize("@pagePermissionService.hasPermission('Files','CREATE')")
     @PostMapping(value = "/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<FileResponse>> createFilesBulk(@ModelAttribute BulkFileUploadRequest request) throws IOException {
         return ResponseEntity.ok(fileService.uploadFilesBulk(request));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("@pagePermissionService.hasPermission('Files','DELETE')")
     @DeleteMapping("/{fileId}")
     public ResponseEntity<Void> deleteFile(@PathVariable("fileId") Long fileId) throws IOException {
         fileService.deleteFile(fileId);
@@ -48,7 +50,7 @@ public class FileController {
 //        return ResponseEntity.ok(fileService.listAllFiles());
 //    }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@pagePermissionService.hasPermission('Files','DELETE')")
     @GetMapping("/all")
     public ResponseEntity<Page<FileResponse>> getAllFiles(
             @RequestParam(defaultValue = "0") int page,
@@ -57,12 +59,14 @@ public class FileController {
         return ResponseEntity.ok(fileService.listAllFiles(page, size));
     }
 
+    @PreAuthorize("@pagePermissionService.hasPermission('Files','READ')")
     @GetMapping("/dept/{deptId}")
     public ResponseEntity<Page<FileResponse>> getAllFilesByDepartment(@PathVariable("deptId") Long deptId, @RequestParam(defaultValue = "0") int page,
                                                                       @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(fileService.listFilesByDepartment(deptId, page, size));
     }
 
+    @PreAuthorize("@pagePermissionService.hasPermission('Files','READ')")
     @GetMapping("/{fileId}")
     public ResponseEntity<FileResponse> getFileData(@PathVariable("fileId") Long fileId) throws IOException {
         return ResponseEntity.ok(fileService.getFileData(fileId));
@@ -73,7 +77,7 @@ public class FileController {
         return fileService.downloadFile(fileId);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @PreAuthorize("@pagePermissionService.hasPermission('Files','UPDATE')")
     @PutMapping("/{fileId}/status")
     public ResponseEntity<FileResponse> updateFileStatus(@PathVariable("fileId") Long fileId, @RequestBody UpdateFileStatusRequest fileStatus) {
         return ResponseEntity.ok(fileService.updateFileStatus(fileId, fileStatus));
@@ -84,7 +88,7 @@ public class FileController {
         return fileService.downloadFilesBulk(fileIds);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@pagePermissionService.hasPermission('Files','DELETE')")
     @GetMapping("/trash")
     public ResponseEntity<Page<FileResponse>> listDeletedFiles(
             @RequestParam(defaultValue = "0") int page,
@@ -92,6 +96,8 @@ public class FileController {
     ) {
         return ResponseEntity.ok(fileService.listAllDeletedFiles(page, size));
     }
+
+    @PreAuthorize("@pagePermissionService.hasPermission('Files','READ')")
     @GetMapping("/my")
     public ResponseEntity<Page<FileResponse>> getMyFiles(
             @RequestParam(defaultValue = "0") int page,
