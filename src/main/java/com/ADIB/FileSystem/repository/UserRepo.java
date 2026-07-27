@@ -1,11 +1,13 @@
 package com.ADIB.FileSystem.repository;
 
+import com.ADIB.FileSystem.Model.Department;
 import com.ADIB.FileSystem.Model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 @Repository
@@ -23,5 +25,8 @@ public interface UserRepo extends JpaRepository<User, Long> {
     long countByDepartmentId(Long id);
     @Query("SELECT u FROM users u WHERE u.department.id = :deptId AND u.role.id = 2")
     Optional<User> findDepartmentManager(@Param("deptId") Long deptId);
+
+    List<User> findByDepartmentInAndIdNot(Collection<Department> departments, Long excludedUserId);
+
 
 }

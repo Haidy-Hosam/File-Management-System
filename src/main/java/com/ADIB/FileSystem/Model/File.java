@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -22,10 +23,6 @@ public class File extends Audit {
     private String path;
     private String extension;
 
-//    @ManyToOne
-//    @JoinColumn(name="department_id")
-//    private Department department;
-
     @ManyToMany
     @JoinTable(
             name = "file_departments",
@@ -34,7 +31,7 @@ public class File extends Audit {
     )
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private List<Department> departments;
+    private Set<Department> departments;
 
     @Enumerated(EnumType.STRING)
     private FILE_STATUS status;

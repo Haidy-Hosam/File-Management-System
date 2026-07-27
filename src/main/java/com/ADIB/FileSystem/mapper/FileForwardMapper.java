@@ -20,6 +20,7 @@ public class FileForwardMapper {
                 .isRead(Boolean.TRUE.equals(fileForward.getIsRead()))
                 .forwardedAt(fileForward.getForwardedAt())
                 .readAt(fileForward.getReadAt())
+                .type(fileForward.getType())
                 .build();
     }
 }

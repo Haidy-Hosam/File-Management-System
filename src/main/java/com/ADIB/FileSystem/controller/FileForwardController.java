@@ -4,9 +4,11 @@ import com.ADIB.FileSystem.dto.request.ForwardFileRequest;
 import com.ADIB.FileSystem.dto.response.FileForwardResponse;
 import com.ADIB.FileSystem.service.FileForwardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,8 @@ public class FileForwardController {
     private final FileForwardService fileForwardService;
     @PostMapping("{fileId}/forward")
     public ResponseEntity<List<FileForwardResponse>> forwardFile(@PathVariable Long fileId, @RequestBody ForwardFileRequest request){
+        System.out.println("did i got here in controller ?");
+
         return ResponseEntity.ok(fileForwardService.forwardFile(fileId, request));
     }
 
@@ -42,4 +46,10 @@ public class FileForwardController {
     public ResponseEntity<FileForwardResponse> openForwardedFile(@PathVariable Long forwardId ){
         return ResponseEntity.ok(fileForwardService.openForwardedFile(forwardId));
     }
+
+    @GetMapping("/forwarded/received")
+    public ResponseEntity<List<FileForwardResponse>> getReceivedForwards(){
+        return ResponseEntity.ok(fileForwardService.getFilesForwardedToMe());
+    }
+
 }

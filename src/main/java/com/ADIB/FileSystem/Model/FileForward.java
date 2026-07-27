@@ -1,5 +1,6 @@
 package com.ADIB.FileSystem.Model;
 
+import com.ADIB.FileSystem.Enum.NOTIFICATIONTYPE;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,6 +37,12 @@ public class FileForward {
     @Builder.Default
     @Column(nullable = false)
     private Boolean isRead = false;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private NOTIFICATIONTYPE type = NOTIFICATIONTYPE.MANUAL_FORWARD;
+
 
     private LocalDateTime readAt;
 

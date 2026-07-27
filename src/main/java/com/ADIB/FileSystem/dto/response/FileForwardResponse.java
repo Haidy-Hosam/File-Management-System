@@ -1,5 +1,6 @@
 package com.ADIB.FileSystem.dto.response;
 
+import com.ADIB.FileSystem.Enum.NOTIFICATIONTYPE;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,4 +29,5 @@ public class FileForwardResponse {
     private boolean isRead;
     private LocalDateTime forwardedAt;
     private LocalDateTime readAt;
+    private NOTIFICATIONTYPE type;
 }

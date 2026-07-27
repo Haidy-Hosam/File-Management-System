@@ -4,17 +4,21 @@ import com.ADIB.FileSystem.Enum.FILE_STATUS;
 import com.ADIB.FileSystem.Model.Department;
 import com.ADIB.FileSystem.Model.File;
 import com.ADIB.FileSystem.Model.FileType;
+import com.ADIB.FileSystem.Model.User;
 import com.ADIB.FileSystem.dto.request.BulkFileUploadRequest;
 import com.ADIB.FileSystem.dto.request.FileRequest;
 import com.ADIB.FileSystem.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.dto.response.FileResponse;
+import com.ADIB.FileSystem.event.FileUploadedEvent;
 import com.ADIB.FileSystem.exception.ResourceNotFoundException;
 import com.ADIB.FileSystem.mapper.FileMapper;
 import com.ADIB.FileSystem.repository.DepartmentRepo;
 import com.ADIB.FileSystem.repository.FileRepo;
 import com.ADIB.FileSystem.repository.FileTypeRepo;
+import com.ADIB.FileSystem.security.CurrentUserProvider;
 import com.ADIB.FileSystem.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
@@ -34,7 +37,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -47,49 +49,47 @@ public class FileService {
     private final DepartmentRepo departmentRepository;
     private final FileEncryptionService fileEncryptionService;
     private final FileTypeRepo fileTypeRepo;
+    private final ApplicationEventPublisher eventPublisher;
+    private final CurrentUserProvider currentUserProvider;
+
     private static final Path UPLOAD_DIRECTORY = Paths.get(
             "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
     );
 
-    private static final Path TRASH_DIRECTORY = Paths.get("C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash");
+    private static final Path TRASH_DIRECTORY = Paths.get(
+            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash"
+    );
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
 
-        List<Department> departments = departmentRepository.findAllById(request.getDepartment_ids());
+        // CHANGED — Department is now a Set on the entity, so wrap the List
+        // that findAllById() returns.
+        Set<Department> departments = new HashSet<>(
+                departmentRepository.findAllById(request.getDepartment_ids())
+        );
         if (departments.isEmpty()) {
             throw new ResourceNotFoundException("No valid departments found");
         }
 
         FileType fileType = fileTypeRepo.findById(request.getFileType_id())
-                .orElseThrow(
-                        () -> new ResourceNotFoundException("File type not found")
-                );
+                .orElseThrow(() -> new ResourceNotFoundException("File type not found"));
+
         String fileName = request.getFile().getOriginalFilename();
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
-        String extension = fileName.substring(
-                fileName.lastIndexOf(".") + 1
-        );
-
-        Path uploadDirectory = Paths.get("C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads");
-
+        Path uploadDirectory = UPLOAD_DIRECTORY;
         Files.createDirectories(uploadDirectory);
-
         Path filePath = uploadDirectory.resolve(fileName);
-//    store normal file-------------------
-//        Files.copy(
-//                request.getFile().getInputStream(),
-//                filePath
-//        );
+
         byte[] fileBytes = request.getFile().getBytes();
         byte[] encryptedBytes;
-        try{
-        encryptedBytes = fileEncryptionService.encrypt(fileBytes);
-        }catch(Exception e){
+        try {
+            encryptedBytes = fileEncryptionService.encrypt(fileBytes);
+        } catch (Exception e) {
             throw new IOException("Failed to encrypt and save file", e);
         }
 
         Files.write(filePath, encryptedBytes);
-
         filePath.toFile().setReadOnly();
 
         File file = File.builder()
@@ -105,11 +105,14 @@ public class FileService {
 
         File savedFile = fileRepository.save(file);
 
+        User uploader = currentUserProvider.getCurrentUser();
+        eventPublisher.publishEvent(new FileUploadedEvent(this, savedFile, uploader));
+
         return fileMapper.mapToResponse(savedFile);
     }
 
     // Multiple files (each with its own file type) sent to one or more departments.
-    // Produces one File row per (file, department) combination.
+    // Produces one File row per file, linked to all selected departments.
     public List<FileResponse> uploadFilesBulk(BulkFileUploadRequest request) throws IOException {
 
         List<MultipartFile> files = request.getFiles();
@@ -121,19 +124,22 @@ public class FileService {
         }
         if (fileTypeIds == null || fileTypeIds.size() != files.size()) {
             throw new IllegalArgumentException("Each file must have a matching file type");
-       }
+        }
         if (departmentIds == null || departmentIds.isEmpty()) {
             throw new IllegalArgumentException("At least one department must be selected");
         }
 
         // Resolve all departments up front so we fail fast on a bad id
         // before writing anything to disk.
-        List<Department> departments = new ArrayList<>();
+        // CHANGED — Set instead of List (LinkedHashSet keeps selection order,
+        // just for nicer/consistent iteration — not required for correctness).
+        Set<Department> departments = new LinkedHashSet<>();
         for (Long deptId : departmentIds) {
             departments.add(departmentRepository.findById(deptId)
                     .orElseThrow(() -> new ResourceNotFoundException("Department not found: " + deptId)));
         }
 
+        User uploader = currentUserProvider.getCurrentUser();
         List<FileResponse> results = new ArrayList<>();
 
         for (int i = 0; i < files.size(); i++) {
@@ -147,9 +153,8 @@ public class FileService {
             String extension = extractExtension(fileName);
             byte[] fileBytes = multipartFile.getBytes();
 
-            // ONE record per file, linked to ALL selected departments at once
             FileResponse response = storeSingleFile(
-                    fileName, extension, fileBytes, multipartFile.getSize(), departments, fileType
+                    fileName, extension, fileBytes, multipartFile.getSize(), departments, fileType, uploader
             );
             results.add(response);
         }
@@ -162,9 +167,9 @@ public class FileService {
             String extension,
             byte[] fileBytes,
             long size,
-            List<Department> departments, // CHANGED — list, not single department
-            FileType fileType
-
+            Set<Department> departments, // CHANGED — Set, not List
+            FileType fileType,
+            User uploader // ADDED — needed for the upload notification event
     ) throws IOException {
 
         Files.createDirectories(UPLOAD_DIRECTORY);
@@ -188,20 +193,22 @@ public class FileService {
                 .size(size)
                 .extension(extension)
                 .status(FILE_STATUS.PENDING)
-                .departments(departments) // CHANGED — one row, many departments
+                .departments(departments)
                 .fileType(fileType)
                 .isDeleted(false)
                 .build();
 
         File savedFile = fileRepository.save(file);
+
+        // FIXED — was referencing undefined `saved` and `currentUser`
+        eventPublisher.publishEvent(new FileUploadedEvent(this, savedFile, uploader));
+
         return fileMapper.mapToResponse(savedFile);
     }
-
 
     private String extractExtension(String fileName) {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
-
 
     public void deleteFile(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId)
@@ -210,19 +217,16 @@ public class FileService {
         Files.createDirectories(TRASH_DIRECTORY);
         Path filePath = Paths.get(file.getPath());
         Path targetPath = TRASH_DIRECTORY.resolve(filePath.getFileName());
-//        filePath.toFile().setWritable(true);
-        Files.move(filePath,targetPath);
+        Files.move(filePath, targetPath);
         file.setPath(targetPath.toString());
         file.setIsDeleted(true);
         file.setStatus(FILE_STATUS.REJECTED);
         fileRepository.save(file);
     }
 
-
-    public Page<FileResponse> listAllDeletedFiles(int page, int size){
+    public Page<FileResponse> listAllDeletedFiles(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return fileRepository.findDeletedFiles(pageable)
-                .map(fileMapper::mapToResponse);
+        return fileRepository.findDeletedFiles(pageable).map(fileMapper::mapToResponse);
     }
 
     public Page<FileResponse> listAllFiles(int page, int size) {
@@ -237,6 +241,7 @@ public class FileService {
 
         return fileRepository.findByDepartmentId(departmentId, pageable).map(fileMapper::mapToResponse);
     }
+
     public Page<FileResponse> listMyFiles(int page, int size) {
         Long userId = getCurrentUserId();
         Pageable pageable = PageRequest.of(page, size);
@@ -245,7 +250,6 @@ public class FileService {
     }
 
     private Long getCurrentUserId() {
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails principal = (CustomUserDetails) auth.getPrincipal();
         return principal.getId();
@@ -260,36 +264,19 @@ public class FileService {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
 
         Path filePath = Paths.get(file.getPath());
-        byte[] encryptedBytes  = Files.readAllBytes(filePath);
+        byte[] encryptedBytes = Files.readAllBytes(filePath);
         ByteArrayResource byteArrayResource;
-        try{
+        try {
             byte[] originalBytes = fileEncryptionService.decrypt(encryptedBytes);
-            byteArrayResource =new ByteArrayResource(originalBytes);
-        }catch(Exception e){
+            byteArrayResource = new ByteArrayResource(originalBytes);
+        } catch (Exception e) {
             throw new IOException("Failed to decrypt and save file", e);
         }
         return ResponseEntity.ok()
-                .header(
-                        HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + file.getName() + "\""
-                )
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(byteArrayResource);
     }
-
-//    public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request)  {
-//        try{
-//            File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
-//            file.setStatus(request.getStatus());
-//            System.out.println("Before save");
-//            File updatedFile = fileRepository.save(file);
-//            System.out.println("After save");
-//            return fileMapper.mapToResponse(updatedFile);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//    }
 
     public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request) {
         try {
@@ -302,15 +289,14 @@ public class FileService {
             while (root.getCause() != null) {
                 root = root.getCause();
             }
-            root.printStackTrace(); // TEMP - see full cause
+            root.printStackTrace();
             throw new RuntimeException(e);
         }
     }
 
-
-    public ResponseEntity<ByteArrayResource> downloadFilesBulk (List<Long> fileIds)  throws IOException {
+    public ResponseEntity<ByteArrayResource> downloadFilesBulk(List<Long> fileIds) throws IOException {
         List<File> files = fileRepository.findAllById(fileIds);
-        if(files.isEmpty()){
+        if (files.isEmpty()) {
             throw new ResourceNotFoundException("Files not found");
         }
 
@@ -319,14 +305,13 @@ public class FileService {
 
         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
             for (File file : files) {
-
                 Path filePath = Paths.get(file.getPath());
                 byte[] encryptedBytes = Files.readAllBytes(filePath);
 
-                byte[] originalBytes ;
-                try{
+                byte[] originalBytes;
+                try {
                     originalBytes = fileEncryptionService.decrypt(encryptedBytes);
-                }catch (Exception e){
+                } catch (Exception e) {
                     throw new IOException("Failed to decrypt and save file" + file.getName(), e);
                 }
 
@@ -340,7 +325,7 @@ public class FileService {
 
         ByteArrayResource resource = new ByteArrayResource(baos.toByteArray());
 
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"files.zip\"")
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"files.zip\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
@@ -355,7 +340,7 @@ public class FileService {
         int dotIndex = originalName.lastIndexOf('.');
         if (dotIndex > 0) {
             baseName = originalName.substring(0, dotIndex);
-            extension = originalName.substring(dotIndex); // includes the dot
+            extension = originalName.substring(dotIndex);
         }
 
         int counter = 1;
@@ -367,5 +352,4 @@ public class FileService {
 
         return candidate;
     }
-
 }

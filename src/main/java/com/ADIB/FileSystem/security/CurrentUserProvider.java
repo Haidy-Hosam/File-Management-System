@@ -19,8 +19,8 @@ public class CurrentUserProvider {
         if(authentication == null || !authentication.isAuthenticated()) {
             throw new ResourceNotFoundException("No authenticated user found");
         }
-        String username = authentication.getName();
-        User user = userRepo.findByUsername(username);
+        String email = authentication.getName();
+        User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         if(user == null) {
             throw new ResourceNotFoundException("User not found");
         }
