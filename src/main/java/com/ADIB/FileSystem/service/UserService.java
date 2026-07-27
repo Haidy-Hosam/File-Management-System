@@ -51,6 +51,19 @@ public class UserService {
         }
         return users.stream().map(user -> userMapper.mapToResponse(user)).collect(Collectors.toList());
     }
+    public AuthResponse getUserById(Long id) {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return AuthResponse.builder()
+                .u_id(user.getId())
+                .name(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole().getName())
+                .departmentName(user.getDepartment() != null ? user.getDepartment().getName() : null)
+                .isDeleted(user.getDeleted())
+                .build();
+    }
 
     public List<AuthResponse> searchUsers(String search, Long roleId) {
         List<User> users = userRepo.findAll();
@@ -101,10 +114,11 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setUsername(request.getUsername());
         user.setName(request.getName());
-        user.setDeleted(request.isDeleted());
+        if (request.getIsDeleted() != null) {
+            user.setDeleted(request.getIsDeleted());
+        }
         user.setDepartment(department);
         user.setRole(role);
-        // password intentionally left untouched here
 
         return userMapper.mapToResponse(userRepo.save(user));
     }

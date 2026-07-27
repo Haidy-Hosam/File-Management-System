@@ -98,4 +98,13 @@ public class FileController {
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(fileService.listMyFiles(page, size));
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<FileResponse>> getFilesByUser(
+            @PathVariable("userId") Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(fileService.listFilesByUser(userId, page, size));
+    }
 }

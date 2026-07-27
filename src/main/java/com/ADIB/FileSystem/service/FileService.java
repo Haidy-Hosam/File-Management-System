@@ -47,11 +47,9 @@ public class FileService {
     private final DepartmentRepo departmentRepository;
     private final FileEncryptionService fileEncryptionService;
     private final FileTypeRepo fileTypeRepo;
-    private static final Path UPLOAD_DIRECTORY = Paths.get(
-            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
-    );
+    private static final Path UPLOAD_DIRECTORY = Paths.get("C:\\Users\\Speed\\OneDrive - MUST University\\Documents\\project_ADIB\\uploads");
 
-    private static final Path TRASH_DIRECTORY = Paths.get("C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash");
+    private static final Path TRASH_DIRECTORY = Paths.get("C:\\Users\\Speed\\OneDrive - MUST University\\Documents\\project_ADIB\\trash");
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
 
@@ -70,7 +68,7 @@ public class FileService {
                 fileName.lastIndexOf(".") + 1
         );
 
-        Path uploadDirectory = Paths.get("C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads");
+        Path uploadDirectory = Paths.get("C:\\Users\\Speed\\OneDrive - MUST University\\Documents\\project_ADIB\\uploads");
 
         Files.createDirectories(uploadDirectory);
 
@@ -229,7 +227,11 @@ public class FileService {
         Pageable pageable = PageRequest.of(page, size);
         return fileRepository.findAll(pageable).map(fileMapper::mapToResponse);
     }
-
+    public Page<FileResponse> listFilesByUser(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return fileRepository.findByCreatedByIdAndIsDeletedFalse(userId, pageable)
+                .map(fileMapper::mapToResponse);
+    }
     public Page<FileResponse> listFilesByDepartment(Long departmentId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         departmentRepository.findById(departmentId)
