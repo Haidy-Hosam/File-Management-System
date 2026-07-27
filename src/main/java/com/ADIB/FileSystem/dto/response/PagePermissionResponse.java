@@ -5,12 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageResponse {
-    private Long pageId;
-    private String pageName;
-    private String route;
+public class PagePermissionResponse {
+    private PageResponse page;
+    private List<PermissionResponse> permissions;
 }

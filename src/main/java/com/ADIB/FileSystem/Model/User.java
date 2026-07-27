@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.sql.results.graph.Fetch;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +24,7 @@ public class User extends Audit {
     private String password;
     private String username;
     private Boolean deleted = false;
+    private LocalDateTime lastLogin;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
@@ -34,6 +36,8 @@ public class User extends Audit {
     @EqualsAndHashCode.Exclude
     private Department department;
 
+
+
     @ManyToOne
     @JoinColumn(name = "previous_department_id")
     @ToString.Exclude
@@ -41,5 +45,6 @@ public class User extends Audit {
     private Department previousDepartment;
 
 }
+
 
 

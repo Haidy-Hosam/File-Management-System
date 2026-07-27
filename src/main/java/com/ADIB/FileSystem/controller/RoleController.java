@@ -1,11 +1,13 @@
 package com.ADIB.FileSystem.controller;
 
+import com.ADIB.FileSystem.dto.request.PagePermissionRequest;
 import com.ADIB.FileSystem.dto.request.RoleRequest;
 import com.ADIB.FileSystem.dto.response.RoleResponse;
-import com.ADIB.FileSystem.service.PermissionService;
+import com.ADIB.FileSystem.service.PagePermissionService;
 import com.ADIB.FileSystem.service.RoleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,45 +16,44 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/roles")
 @RequiredArgsConstructor
-@PreAuthorize("@permissionService.hasPage('Roles')")
+@PreAuthorize("@pagePermissionService.hasPage('Roles')")
 @CrossOrigin(origins = "http://localhost:4200")
 public class RoleController {
 
     private final RoleService roleService;
-    private final PermissionService permissionService;
+    private final PagePermissionService permissionService;
 
 
 
     @GetMapping
-    public List<RoleResponse> getAllRoles() {
-//        if(!permissionService.hasPage("Roles")){
-//            throw new AccessDeniedException("Access denied");
-//        }
-        return roleService.getAllRoles();
+    public ResponseEntity<List<RoleResponse>> getAllRoles() {
+        return ResponseEntity.ok(roleService.getAllRoles());
+    }
+
+    @GetMapping("/{roleId}")
+    public ResponseEntity<RoleResponse> getRole(@PathVariable Long roleId) {
+        return ResponseEntity.ok(roleService.getRoleById(roleId));
     }
 
     @PostMapping
-    public RoleResponse addRole(@RequestBody RoleRequest request) {
-
-        return roleService.addRole(request);
+    public ResponseEntity<RoleResponse> createRole(@RequestBody RoleRequest dto) {
+        return ResponseEntity.ok(roleService.createRole(dto));
     }
 
-    @GetMapping("/{id}")
-    public RoleResponse getRoleById(@PathVariable Long id) {
-
-        return roleService.getRoleById(id);
+    @PutMapping("/{roleId}")
+    public ResponseEntity<RoleResponse> updateRole(@PathVariable Long roleId, @RequestBody RoleRequest dto) {
+        return ResponseEntity.ok(roleService.updateRole(roleId, dto));
     }
 
-    @PutMapping("/{id}")
-    public RoleResponse updateRole(@PathVariable Long id,
-                                   @RequestBody RoleRequest request) {
-
-        return roleService.updateRole(id, request);
+    @DeleteMapping("/{roleId}")
+    public ResponseEntity<Void> deleteRole(@PathVariable Long roleId) {
+        roleService.deleteRole(roleId);
+        return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
-    public String deleteRole(@PathVariable Long id) {
-
-        return roleService.deleteRole(id);
+    @PutMapping("/{roleId}/pages")
+    public ResponseEntity<RoleResponse> assignPages(@PathVariable Long roleId,  @RequestBody List<PagePermissionRequest> pagePermissions) {
+        return ResponseEntity.ok(roleService.assignPagePermissions(roleId, pagePermissions));
     }
+
 }

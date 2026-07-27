@@ -1,4 +1,4 @@
-package com.ADIB.FileSystem.dto.response;
+package com.ADIB.FileSystem.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageResponse {
-    private Long pageId;
-    private String pageName;
-    private String route;
+public class PermissionRequest {
+    private String permissionName;
 }

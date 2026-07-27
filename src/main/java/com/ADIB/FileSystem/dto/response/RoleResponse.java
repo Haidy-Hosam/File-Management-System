@@ -1,12 +1,20 @@
 package com.ADIB.FileSystem.dto.response;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.ADIB.FileSystem.Model.Permission;
+import com.ADIB.FileSystem.Model.Page;
 
-@Getter
-@Setter
+import lombok.*;
+
+import java.util.List;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RoleResponse {
 
     private Long id;
     private String name;
+    private List<PagePermissionResponse> pagePermissions;
+
 }

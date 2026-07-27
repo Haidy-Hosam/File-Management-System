@@ -13,6 +13,7 @@ import com.ADIB.FileSystem.mapper.FileMapper;
 import com.ADIB.FileSystem.repository.DepartmentRepo;
 import com.ADIB.FileSystem.repository.FileRepo;
 import com.ADIB.FileSystem.repository.FileTypeRepo;
+import com.ADIB.FileSystem.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,10 +46,10 @@ public class FileService {
     private final FileEncryptionService fileEncryptionService;
     private final FileTypeRepo fileTypeRepo;
     private static final Path UPLOAD_DIRECTORY = Paths.get(
-            "D:\\ADIB\\ADIB Project\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
+            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
     );
 
-    private static final Path TRASH_DIRECTORY = Paths.get("D:\\ADIB\\ADIB Project\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash");
+    private static final Path TRASH_DIRECTORY = Paths.get("C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash");
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
 
@@ -185,6 +188,7 @@ public class FileService {
                 .status(FILE_STATUS.PENDING)
                 .departments(departments) // CHANGED — one row, many departments
                 .fileType(fileType)
+                .isDeleted(false)
                 .build();
 
         File savedFile = fileRepository.save(file);
@@ -230,6 +234,19 @@ public class FileService {
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
         return fileRepository.findByDepartmentId(departmentId, pageable).map(fileMapper::mapToResponse);
+    }
+    public Page<FileResponse> listMyFiles(int page, int size) {
+        Long userId = getCurrentUserId();
+        Pageable pageable = PageRequest.of(page, size);
+        return fileRepository.findByCreatedByIdAndIsDeletedFalse(userId, pageable)
+                .map(fileMapper::mapToResponse);
+    }
+
+    private Long getCurrentUserId() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails principal = (CustomUserDetails) auth.getPrincipal();
+        return principal.getId();
     }
 
     public FileResponse getFileData(Long fileId) throws IOException {

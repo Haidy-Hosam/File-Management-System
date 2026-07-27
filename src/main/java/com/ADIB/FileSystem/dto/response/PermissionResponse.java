@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageResponse {
-    private Long pageId;
-    private String pageName;
-    private String route;
+public class PermissionResponse {
+    private Long permissionId;
+    private String permissionName;
 }

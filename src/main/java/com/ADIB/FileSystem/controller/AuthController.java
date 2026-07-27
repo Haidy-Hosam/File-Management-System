@@ -42,8 +42,8 @@ public class AuthController {
     }
 
     //will be deleted !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-    @PostMapping("/pages")
-    public ResponseEntity<PageResponse> addPage(@RequestBody PageRequest Request) {
-        return ResponseEntity.ok((authService.addPage(Request)));
-    }
+//    @PostMapping("/pages")
+//    public ResponseEntity<PageResponse> addPage(@RequestBody PageRequest Request) {
+//        return ResponseEntity.ok((authService.addPage(Request)));
+//    }
 }

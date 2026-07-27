@@ -5,7 +5,6 @@ import com.ADIB.FileSystem.dto.request.FileRequest;
 import com.ADIB.FileSystem.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.dto.response.FileResponse;
 import com.ADIB.FileSystem.service.FileService;
-import com.ADIB.FileSystem.service.PermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -21,9 +20,9 @@ import java.util.List;
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
-@PreAuthorize("@permissionService.hasPage('Files')")
+@PreAuthorize("@pagePermissionService.hasPage('Files')")
 public class FileController {
-
+//nourtest
     private final FileService fileService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -92,5 +91,11 @@ public class FileController {
             @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(fileService.listAllDeletedFiles(page, size));
+    }
+    @GetMapping("/my")
+    public ResponseEntity<Page<FileResponse>> getMyFiles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(fileService.listMyFiles(page, size));
     }
 }
