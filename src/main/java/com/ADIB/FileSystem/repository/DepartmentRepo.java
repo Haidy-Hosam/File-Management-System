@@ -9,5 +9,8 @@ import java.util.Optional;
 @Repository
 public interface DepartmentRepo extends JpaRepository<Department, Long> {
     boolean existsByNameIgnoreCase(String name);
+
     Optional<Department> findByNameIgnoreCase(String name);
+
+    long countByIsActiveTrue();
 }

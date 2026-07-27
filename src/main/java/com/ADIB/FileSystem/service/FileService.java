@@ -29,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
@@ -37,6 +38,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -90,6 +92,7 @@ public class FileService {
         }
 
         Files.write(filePath, encryptedBytes);
+
         filePath.toFile().setReadOnly();
 
         File file = File.builder()
@@ -153,6 +156,7 @@ public class FileService {
             String extension = extractExtension(fileName);
             byte[] fileBytes = multipartFile.getBytes();
 
+            // ONE record per file, linked to ALL selected departments at once
             FileResponse response = storeSingleFile(
                     fileName, extension, fileBytes, multipartFile.getSize(), departments, fileType, uploader
             );
@@ -206,9 +210,11 @@ public class FileService {
         return fileMapper.mapToResponse(savedFile);
     }
 
+
     private String extractExtension(String fileName) {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
+
 
     public void deleteFile(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId)
@@ -250,6 +256,7 @@ public class FileService {
     }
 
     private Long getCurrentUserId() {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails principal = (CustomUserDetails) auth.getPrincipal();
         return principal.getId();
@@ -352,4 +359,5 @@ public class FileService {
 
         return candidate;
     }
+
 }
