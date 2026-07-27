@@ -1,8 +1,8 @@
 package com.ADIB.FileSystem.repository;
 
+import com.ADIB.FileSystem.Enum.FILE_STATUS;
 import com.ADIB.FileSystem.Model.Department;
 import com.ADIB.FileSystem.Model.File;
-import com.ADIB.FileSystem.dto.response.FileResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,10 +10,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-
 public interface FileRepo extends JpaRepository<File, Long> {
     long countByCreatedByIdAndIsDeletedFalse(Long userId);
+
     @Modifying
     @Query(nativeQuery = true, value = "DELETE FROM files WHERE id = :fileId")
     void deleteById(@Param("fileId") Long fileId);
@@ -50,4 +49,18 @@ public interface FileRepo extends JpaRepository<File, Long> {
     Page<File> findByCreatedByIdAndIsDeletedFalse(Long userId, Pageable pageable);
     //    List<File> findByDepartment(Department dept);
     //            WHERE f.isDeleted = true
+
+
+    // Admin
+    long count();
+
+    long countByStatus(FILE_STATUS status);
+
+    // Employee
+    long countByDepartmentsContains(Department department);
+
+    long countByDepartmentsContainsAndStatus(
+            Department department,
+            FILE_STATUS status
+    );
 }
