@@ -24,12 +24,12 @@ public class UserController {
 
 
     @PreAuthorize("@pagePermissionService.hasPermission('Users','READ')")
-    @GetMapping("/{name}")
-    public ResponseEntity<AuthResponse> getUser(@PathVariable String name){
-        if(name == null){
-            throw new RuntimeException("Username is required");
+    @GetMapping("/{id}")
+    public ResponseEntity<AuthResponse> getUserById(@PathVariable Long id){
+        if(id == null){
+            throw new RuntimeException("User id is required");
         }
-        return ResponseEntity.ok(userService.getUser(name));
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PreAuthorize("@pagePermissionService.hasPermission('Users','READ')")

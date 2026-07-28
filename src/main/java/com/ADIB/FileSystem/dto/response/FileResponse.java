@@ -20,6 +20,7 @@ public class FileResponse {
     private String fileType;
     private Long size;
     private String modifiedDate;
+    private String createdDate;
     private String ownerName;
 
 }

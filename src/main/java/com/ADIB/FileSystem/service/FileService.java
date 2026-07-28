@@ -1,20 +1,17 @@
 package com.ADIB.FileSystem.service;
 
 import com.ADIB.FileSystem.Enum.FILE_STATUS;
-import com.ADIB.FileSystem.Model.Department;
-import com.ADIB.FileSystem.Model.File;
-import com.ADIB.FileSystem.Model.FileType;
-import com.ADIB.FileSystem.Model.User;
+import com.ADIB.FileSystem.Enum.NOTIFICATIONTYPE;
+import com.ADIB.FileSystem.Model.*;
 import com.ADIB.FileSystem.dto.request.BulkFileUploadRequest;
 import com.ADIB.FileSystem.dto.request.FileRequest;
 import com.ADIB.FileSystem.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.dto.response.FileResponse;
+import com.ADIB.FileSystem.event.FileForwardedEvent;
 import com.ADIB.FileSystem.event.FileUploadedEvent;
 import com.ADIB.FileSystem.exception.ResourceNotFoundException;
 import com.ADIB.FileSystem.mapper.FileMapper;
-import com.ADIB.FileSystem.repository.DepartmentRepo;
-import com.ADIB.FileSystem.repository.FileRepo;
-import com.ADIB.FileSystem.repository.FileTypeRepo;
+import com.ADIB.FileSystem.repository.*;
 import com.ADIB.FileSystem.security.CurrentUserProvider;
 import com.ADIB.FileSystem.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
@@ -38,7 +34,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -53,6 +48,8 @@ public class FileService {
     private final FileTypeRepo fileTypeRepo;
     private final ApplicationEventPublisher eventPublisher;
     private final CurrentUserProvider currentUserProvider;
+    private final UserRepo  userRepo;
+    private final FileForwardRepo fileForwardRepo;
 
     private static final Path UPLOAD_DIRECTORY = Paths.get(
             "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
@@ -362,6 +359,29 @@ public class FileService {
         } while (!usedNames.add(candidate));
 
         return candidate;
+    }
+
+    public void notifyDepartmentsOnUpload(File file, User uploader){
+        Set<Department> departments = file.getDepartments();
+        if(departments == null || departments.isEmpty()){
+            return;
+        }
+
+        List<User> recipients = userRepo.findByDepartmentInAndIdNot(departments, uploader.getId());
+
+        String message = "New file uploaded: " + file.getName();
+        for(User recipient : recipients){
+            FileForward notification = FileForward.builder()
+                    .file(file)
+                    .sender(uploader)
+                    .recipient(recipient)
+                    .message(message)
+                    .type(NOTIFICATIONTYPE.DEPARTMENT_UPLOAD)
+                    .isRead(false)
+                    .build();
+            FileForward saved = fileForwardRepo.save(notification);
+            eventPublisher.publishEvent(new FileForwardedEvent(this, saved));
+        }
     }
 
 }

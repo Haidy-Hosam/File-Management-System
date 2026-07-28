@@ -5,6 +5,7 @@ import com.ADIB.FileSystem.event.FileForwardedEvent;
 import com.ADIB.FileSystem.event.FileUploadedEvent;
 import com.ADIB.FileSystem.mapper.FileForwardMapper;
 import com.ADIB.FileSystem.service.FileForwardService;
+import com.ADIB.FileSystem.service.FileService;
 import com.ADIB.FileSystem.service.NotificationSseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ public class FileForwardNotificationListener {
     private final NotificationSseService sseService;
     private final FileForwardService fileForwardService;
     private final FileForwardMapper fileForwardMapper;
+    private final FileService fileService;
 
     @EventListener
     public void onFileForwarded(FileForwardedEvent event){
@@ -29,12 +31,10 @@ public class FileForwardNotificationListener {
                 forward.getType());
 
         sseService.push(forward.getRecipient().getId(), fileForwardMapper.mapToResponse(forward));
-
-
     }
 
     @EventListener
     public void onFileUploaded(FileUploadedEvent event){
-        fileForwardService.notifyDepartmentsOnUpload(event.getFile(), event.getUploader());
+        fileService.notifyDepartmentsOnUpload(event.getFile(), event.getUploader());
     }
 }
