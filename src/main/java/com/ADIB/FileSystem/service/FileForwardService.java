@@ -35,11 +35,7 @@ public class FileForwardService {
     private final ApplicationEventPublisher eventPublisher;
 
     public List<FileForwardResponse> forwardFile(long fileId, ForwardFileRequest request){
-        System.out.println("did i got here 0 ?");
-
         User sender = currentUserProvider.getCurrentUser();
-        System.out.println("did i got here 1 ?");
-
 
         File file = fileRepo.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
         if(request.getRecipientIds() == null|| request.getRecipientIds().isEmpty()){
@@ -47,8 +43,6 @@ public class FileForwardService {
         }
 
         List<FileForwardResponse> responses =new ArrayList<>();
-
-        System.out.println("did i got here 2?");
 
         for(Long recipientId : request.getRecipientIds()) {
             if(recipientId.equals(sender.getId())){
@@ -116,26 +110,4 @@ public class FileForwardService {
         return fileForwardMapper.mapToResponse(forward);
     }
 
-    public void notifyDepartmentsOnUpload(File file, User uploader){
-        Set<Department> departments = file.getDepartments();
-        if(departments == null || departments.isEmpty()){
-            return;
-        }
-
-        List<User> recipients = userRepo.findByDepartmentInAndIdNot(departments, uploader.getId());
-
-        String message = "New file uploaded: " + file.getName();
-        for(User recipient : recipients){
-            FileForward notification = FileForward.builder()
-                    .file(file)
-                    .sender(uploader)
-                    .recipient(recipient)
-                    .message(message)
-                    .type(NOTIFICATIONTYPE.DEPARTMENT_UPLOAD)
-                    .isRead(false)
-                    .build();
-            FileForward saved = fileForwardRepo.save(notification);
-            eventPublisher.publishEvent(new FileForwardedEvent(this, saved));
-        }
-    }
 }

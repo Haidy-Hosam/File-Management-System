@@ -1,26 +1,18 @@
 package com.ADIB.FileSystem.service;
 
-import com.ADIB.FileSystem.Model.User;
-import com.ADIB.FileSystem.exception.ResourceNotFoundException;
-import com.ADIB.FileSystem.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 @RequiredArgsConstructor
 public class NotificationSseService {
-    private final UserRepo userRepo;
 
     private final Map<Long, List<SseEmitter>> emitterByUser = new ConcurrentHashMap<>();
 
@@ -55,10 +47,5 @@ public class NotificationSseService {
             emitters.remove(emitter);
         }
     }
-    public User currentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        return userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-    }
+
 }

@@ -22,8 +22,6 @@ public class FileForwardController {
     private final FileForwardService fileForwardService;
     @PostMapping("{fileId}/forward")
     public ResponseEntity<List<FileForwardResponse>> forwardFile(@PathVariable Long fileId, @RequestBody ForwardFileRequest request){
-        System.out.println("did i got here in controller ?");
-
         return ResponseEntity.ok(fileForwardService.forwardFile(fileId, request));
     }
 
