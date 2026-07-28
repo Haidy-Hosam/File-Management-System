@@ -1,7 +1,9 @@
 package com.ADIB.FileSystem.controller;
 
+import com.ADIB.FileSystem.Model.File;
 import com.ADIB.FileSystem.dto.request.BulkFileUploadRequest;
 import com.ADIB.FileSystem.dto.request.FileRequest;
+import com.ADIB.FileSystem.dto.request.FileSearchRequest;
 import com.ADIB.FileSystem.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.dto.response.FileResponse;
 import com.ADIB.FileSystem.service.FileService;
@@ -22,8 +24,18 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 //@PreAuthorize("@pagePermissionService.hasPage('Files')")
 public class FileController {
-//nourtest
+    //nourtest
     private final FileService fileService;
+
+    @PostMapping("/search")
+    public ResponseEntity<List<File>> search(
+            @RequestBody FileSearchRequest request
+    ) {
+
+        return ResponseEntity.ok(
+                fileService.search(request)
+        );
+    }
 
     @PreAuthorize("@pagePermissionService.hasPermission('Files','CREATE')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -37,18 +49,18 @@ public class FileController {
         return ResponseEntity.ok(fileService.uploadFilesBulk(request));
     }
 
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @GetMapping("/all")
+//    public ResponseEntity<List<FileResponse>> getAllFiles() {
+//        return ResponseEntity.ok(fileService.listAllFiles());
+//    }
+
     @PreAuthorize("@pagePermissionService.hasPermission('Files','DELETE')")
     @DeleteMapping("/{fileId}")
     public ResponseEntity<Void> deleteFile(@PathVariable("fileId") Long fileId) throws IOException {
         fileService.deleteFile(fileId);
         return ResponseEntity.noContent().build();
     }
-
-//    @PreAuthorize("hasRole('ADMIN')")
-//    @GetMapping("/all")
-//    public ResponseEntity<List<FileResponse>> getAllFiles() {
-//        return ResponseEntity.ok(fileService.listAllFiles());
-//    }
 
     @PreAuthorize("@pagePermissionService.hasPermission('Files','DELETE')")
     @GetMapping("/all")

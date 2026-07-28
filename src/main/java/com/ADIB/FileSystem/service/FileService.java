@@ -5,6 +5,7 @@ import com.ADIB.FileSystem.Enum.NOTIFICATIONTYPE;
 import com.ADIB.FileSystem.Model.*;
 import com.ADIB.FileSystem.dto.request.BulkFileUploadRequest;
 import com.ADIB.FileSystem.dto.request.FileRequest;
+import com.ADIB.FileSystem.dto.request.FileSearchRequest;
 import com.ADIB.FileSystem.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.dto.response.FileResponse;
 import com.ADIB.FileSystem.event.FileForwardedEvent;
@@ -14,6 +15,7 @@ import com.ADIB.FileSystem.mapper.FileMapper;
 import com.ADIB.FileSystem.repository.*;
 import com.ADIB.FileSystem.security.CurrentUserProvider;
 import com.ADIB.FileSystem.security.CustomUserDetails;
+import com.ADIB.FileSystem.specification.FileSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ByteArrayResource;
@@ -41,6 +43,12 @@ import java.util.zip.ZipOutputStream;
 @RequiredArgsConstructor
 public class FileService {
 
+    private static final Path UPLOAD_DIRECTORY = Paths.get(
+            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
+    );
+    private static final Path TRASH_DIRECTORY = Paths.get(
+            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash"
+    );
     private final FileRepo fileRepository;
     private final FileMapper fileMapper;
     private final DepartmentRepo departmentRepository;
@@ -48,16 +56,8 @@ public class FileService {
     private final FileTypeRepo fileTypeRepo;
     private final ApplicationEventPublisher eventPublisher;
     private final CurrentUserProvider currentUserProvider;
-    private final UserRepo  userRepo;
+    private final UserRepo userRepo;
     private final FileForwardRepo fileForwardRepo;
-
-    private static final Path UPLOAD_DIRECTORY = Paths.get(
-            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
-    );
-
-    private static final Path TRASH_DIRECTORY = Paths.get(
-            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash"
-    );
 
     public FileResponse uploadFile(FileRequest request) throws IOException {
 
@@ -236,11 +236,13 @@ public class FileService {
         Pageable pageable = PageRequest.of(page, size);
         return fileRepository.findAll(pageable).map(fileMapper::mapToResponse);
     }
+
     public Page<FileResponse> listFilesByUser(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return fileRepository.findByCreatedByIdAndIsDeletedFalse(userId, pageable)
                 .map(fileMapper::mapToResponse);
     }
+
     public Page<FileResponse> listFilesByDepartment(Long departmentId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         departmentRepository.findById(departmentId)
@@ -361,16 +363,16 @@ public class FileService {
         return candidate;
     }
 
-    public void notifyDepartmentsOnUpload(File file, User uploader){
+    public void notifyDepartmentsOnUpload(File file, User uploader) {
         Set<Department> departments = file.getDepartments();
-        if(departments == null || departments.isEmpty()){
+        if (departments == null || departments.isEmpty()) {
             return;
         }
 
         List<User> recipients = userRepo.findByDepartmentInAndIdNot(departments, uploader.getId());
 
         String message = "New file uploaded: " + file.getName();
-        for(User recipient : recipients){
+        for (User recipient : recipients) {
             FileForward notification = FileForward.builder()
                     .file(file)
                     .sender(uploader)
@@ -384,4 +386,9 @@ public class FileService {
         }
     }
 
+    public List<File> search(FileSearchRequest request) {
+        return fileRepository.findAll(
+                FileSpecification.search(request)
+        );
+    }
 }
