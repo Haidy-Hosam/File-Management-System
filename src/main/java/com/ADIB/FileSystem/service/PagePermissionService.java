@@ -20,7 +20,7 @@ public class PagePermissionService {
     private final UserRepo userRepo;
 
     @Transactional(readOnly = true)
-    public boolean hasPage(String pageName){
+    public boolean hasPage(String pageName) {
         User auth = currentUser();
         String email = auth.getName();
         User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -28,8 +28,9 @@ public class PagePermissionService {
         return user.getRole()
                 .getRolePagePermissions()
                 .stream()
-                .anyMatch( rpp -> rpp.getPage().getPageName().equalsIgnoreCase(pageName));
+                .anyMatch(rpp -> rpp.getPage().getPageName().equalsIgnoreCase(pageName));
     }
+
     @Transactional(readOnly = true)
     public List<PageResponse> getMyPages() {
         User user = currentUser();
@@ -41,14 +42,23 @@ public class PagePermissionService {
                 .map(p -> new PageResponse(p.getId(), p.getPageName(), p.getRoute()))
                 .collect(Collectors.toList());
     }
+
     @Transactional(readOnly = true)
-    public boolean hasPermission(String pageName,String permissionName){
+    public boolean hasPermission(String pageName, String permissionName) {
         User user = currentUser();
         return user.getRole()
                 .getRolePagePermissions()
                 .stream()
                 .anyMatch(rpp -> rpp.getPage().getPageName().equalsIgnoreCase(pageName)
                         && rpp.getPermission().getPermissionName().equalsIgnoreCase(permissionName));
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isAdmin() {
+        User user = currentUser();
+        return user.getRole() != null
+                && user.getRole().getName() != null
+                && user.getRole().getName().equalsIgnoreCase("ADMIN");
     }
 
     private User currentUser() {

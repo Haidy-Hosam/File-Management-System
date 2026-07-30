@@ -89,7 +89,7 @@ public class FileController {
         return fileService.downloadFile(fileId);
     }
 
-    @PreAuthorize("@pagePermissionService.hasPermission('Files','UPDATE')")
+    @PreAuthorize("@pagePermissionService.isAdmin()")
     @PutMapping("/{fileId}/status")
     public ResponseEntity<FileResponse> updateFileStatus(@PathVariable("fileId") Long fileId, @RequestBody UpdateFileStatusRequest fileStatus) {
         return ResponseEntity.ok(fileService.updateFileStatus(fileId, fileStatus));

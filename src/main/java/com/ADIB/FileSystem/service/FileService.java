@@ -25,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -289,19 +290,17 @@ public class FileService {
     }
 
     public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request) {
-        try {
-            File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
-            file.setStatus(request.getStatus());
-            File updatedFile = fileRepository.save(file);
-            return fileMapper.mapToResponse(updatedFile);
-        } catch (Exception e) {
-            Throwable root = e;
-            while (root.getCause() != null) {
-                root = root.getCause();
-            }
-            root.printStackTrace();
-            throw new RuntimeException(e);
+        User currentUser = currentUserProvider.getCurrentUser();
+        if (currentUser.getRole() == null
+                || currentUser.getRole().getName() == null
+                || !currentUser.getRole().getName().equalsIgnoreCase("ADMIN")) {
+            throw new AccessDeniedException("Only admins can update file status");
         }
+
+        File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
+        file.setStatus(request.getStatus());
+        File updatedFile = fileRepository.save(file);
+        return fileMapper.mapToResponse(updatedFile);
     }
 
     public ResponseEntity<ByteArrayResource> downloadFilesBulk(List<Long> fileIds) throws IOException {
