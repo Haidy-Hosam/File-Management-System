@@ -18,6 +18,7 @@ public class FileSpecification {
     public static Specification<File> search(FileSearchRequest request) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
+            boolean needsDistinct = false;
 
             if (request.getOwner() != null && !request.getOwner().isBlank()) {
                 Join<File, User> ownerJoin = root.join("createdBy");
@@ -36,6 +37,8 @@ public class FileSpecification {
                                 request.getDepartment()
                         )
                 );
+                needsDistinct = true;
+
             }
             if (request.getStatus() != null) {
                 predicates.add(
@@ -55,6 +58,7 @@ public class FileSpecification {
                         )
                 );
             }
+
             if (request.getFromDate() != null && request.getToDate() != null) {
                 LocalDateTime from = request.getFromDate().atStartOfDay();
                 LocalDateTime to = request.getToDate().atTime(LocalTime.MAX);
@@ -64,6 +68,16 @@ public class FileSpecification {
                                 from,
                                 to
                         )
+                );
+            }
+            if (request.getFromDate() != null) {
+                predicates.add(
+                        criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), request.getFromDate().atStartOfDay())
+                );
+            }
+            if (request.getToDate() != null) {
+                predicates.add(
+                        criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), request.getToDate().atTime(LocalTime.MAX))
                 );
             }
 
@@ -81,9 +95,10 @@ public class FileSpecification {
                         )
                 );
             }
+            if (needsDistinct) {
+                query.distinct(true);
+            }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        }
-
-                ;
+        };
     }
 }

@@ -17,11 +17,13 @@ import com.ADIB.FileSystem.security.CurrentUserProvider;
 import com.ADIB.FileSystem.security.CustomUserDetails;
 import com.ADIB.FileSystem.specification.FileSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +44,12 @@ import java.util.zip.ZipOutputStream;
 @Service
 @RequiredArgsConstructor
 public class FileService {
+
+    @Value("${upload-file}")
+    private String uploadDir;
+
+    @Value("${trash-file}")
+    private String trashDir;
 
     private static final Path UPLOAD_DIRECTORY = Paths.get(
             "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
@@ -386,9 +394,55 @@ public class FileService {
         }
     }
 
-    public List<File> search(FileSearchRequest request) {
-        return fileRepository.findAll(
-                FileSpecification.search(request)
-        );
+    public Page<FileResponse> search(FileSearchRequest request) {
+        int pageNumber = request.getPage() != null ? request.getPage() : 0;
+        int pageSize = request.getSize() != null ? request.getSize() : 10;
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Specification<File> spec = FileSpecification.search(request);
+        Page<File> results = fileRepository.findAll(spec, pageable);
+
+        return results.map(fileMapper::mapToResponse);
+    }
+
+    public ResponseEntity<ByteArrayResource> exportSearchResults(FileSearchRequest request) throws IOException {
+        Specification<File> spec = FileSpecification.search(request);
+        List<File> files = fileRepository.findAll(spec);
+
+        StringBuilder csv = new StringBuilder();
+        csv.append("ID,Name,Extension,Departments,Status,FileType,Size,Owner,CreatedDate,ModifiedDate\n");
+        for (File f : files) {
+            csv.append(f.getId()).append(",")
+                    .append(escapeCsv(f.getName())).append(",")
+                    .append(f.getExtension()).append(",")
+                    .append(escapeCsv(departmentNames(f))).append(",")
+                    .append(f.getStatus()).append(",")
+                    .append(f.getFileType() != null ? f.getFileType().getName() : "").append(",")
+                    .append(f.getSize()).append(",")
+                    .append(f.getCreatedBy() != null ? escapeCsv(f.getCreatedBy().getName()) : "").append(",")
+                    .append(f.getCreatedAt()).append(",")
+                    .append(f.getUpdatedAt()).append(",")
+                    .append("\n");
+        }
+
+        byte[] bytes = csv.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"search-results.csv\"")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(new ByteArrayResource(bytes));
+    }
+
+    private String departmentNames(File f) {
+        if(f.getDepartments() == null) return "";
+        return  f.getDepartments().stream().map(Department::getName)
+                .collect(java.util.stream.Collectors.joining("; "));
+    }
+
+    private String escapeCsv(String value) {
+        if(value == null) return "";
+        if(value.contains(",") || value.contains("\"") || value.contains("\n")){
+            return "\"" + value.replace("\"","\"\"")+ "\"";
+        }
+        return value;
     }
 }

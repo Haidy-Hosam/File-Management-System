@@ -15,16 +15,14 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class FileSearchRequest {
     private String owner;
-
     private String department;
-
     private String category;
-
     private FILE_STATUS status;
 
     private LocalDate fromDate;
-
     private LocalDate toDate;
-
     private LocalDate modifiedDate;
+
+    private Integer page;
+    private Integer size;
 }

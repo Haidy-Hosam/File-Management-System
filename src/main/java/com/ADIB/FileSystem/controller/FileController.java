@@ -7,6 +7,7 @@ import com.ADIB.FileSystem.dto.request.FileSearchRequest;
 import com.ADIB.FileSystem.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.dto.response.FileResponse;
 import com.ADIB.FileSystem.service.FileService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -27,14 +28,16 @@ public class FileController {
     //nourtest
     private final FileService fileService;
 
+    @PreAuthorize("@pagePermissionService.hasPermission('Files','READ')")
     @PostMapping("/search")
-    public ResponseEntity<List<File>> search(
-            @RequestBody FileSearchRequest request
-    ) {
+    public ResponseEntity<Page<FileResponse>> search(@Valid @RequestBody FileSearchRequest request) {
+        return ResponseEntity.ok(fileService.search(request));
+    }
 
-        return ResponseEntity.ok(
-                fileService.search(request)
-        );
+    @PreAuthorize("@pagePermissionService.hasPermission('Files','READ')")
+    @PostMapping("/search/export")
+    public ResponseEntity<ByteArrayResource> exportSearch(@Valid @RequestBody FileSearchRequest request) throws IOException {
+        return fileService.exportSearchResults(request);
     }
 
     @PreAuthorize("@pagePermissionService.hasPermission('Files','CREATE')")
