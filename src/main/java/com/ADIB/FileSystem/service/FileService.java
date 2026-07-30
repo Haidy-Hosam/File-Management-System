@@ -44,10 +44,10 @@ import java.util.zip.ZipOutputStream;
 public class FileService {
 
     private static final Path UPLOAD_DIRECTORY = Paths.get(
-            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
+            "D:\\ADIB\\ADIB Project\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\uploads"
     );
     private static final Path TRASH_DIRECTORY = Paths.get(
-            "C:\\Users\\ganna\\Downloads\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash"
+            "D:\\ADIB\\ADIB Project\\FileSystem\\src\\main\\java\\com\\ADIB\\FileSystem\\Trash"
     );
     private final FileRepo fileRepository;
     private final FileMapper fileMapper;
