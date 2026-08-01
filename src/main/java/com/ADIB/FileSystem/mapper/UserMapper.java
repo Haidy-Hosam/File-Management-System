@@ -1,9 +1,9 @@
 package com.ADIB.FileSystem.mapper;
 
-import com.ADIB.FileSystem.dto.response.AuthResponse;
-import com.ADIB.FileSystem.Model.User;
-import com.ADIB.FileSystem.dto.response.UserResponse;
-import com.ADIB.FileSystem.repository.FileRepo;
+import com.ADIB.FileSystem.Business.dto.response.AuthResponse;
+import com.ADIB.FileSystem.Business.Model.User;
+import com.ADIB.FileSystem.Business.dto.response.UserResponse;
+import com.ADIB.FileSystem.DataAccess.repository.FileRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

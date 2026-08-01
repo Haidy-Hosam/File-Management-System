@@ -1,14 +1,13 @@
 package com.ADIB.FileSystem.mapper;
 
-import com.ADIB.FileSystem.Model.Permission;
-import com.ADIB.FileSystem.Model.Role;
-import com.ADIB.FileSystem.Model.Page;
-import com.ADIB.FileSystem.Model.RolePagePermission;
-import com.ADIB.FileSystem.dto.request.RoleRequest;
-import com.ADIB.FileSystem.dto.response.PagePermissionResponse;
-import com.ADIB.FileSystem.dto.response.PageResponse;
-import com.ADIB.FileSystem.dto.response.PermissionResponse;
-import com.ADIB.FileSystem.dto.response.RoleResponse;
+import com.ADIB.FileSystem.Business.Model.Role;
+import com.ADIB.FileSystem.Business.Model.Page;
+import com.ADIB.FileSystem.Business.Model.RolePagePermission;
+import com.ADIB.FileSystem.Business.dto.request.RoleRequest;
+import com.ADIB.FileSystem.Business.dto.response.PagePermissionResponse;
+import com.ADIB.FileSystem.Business.dto.response.PageResponse;
+import com.ADIB.FileSystem.Business.dto.response.PermissionResponse;
+import com.ADIB.FileSystem.Business.dto.response.RoleResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -1,9 +1,9 @@
 package com.ADIB.FileSystem.mapper;
 
-import com.ADIB.FileSystem.Model.Department;
-import com.ADIB.FileSystem.Model.File;
-import com.ADIB.FileSystem.dto.request.FileRequest;
-import com.ADIB.FileSystem.dto.response.FileResponse;
+import com.ADIB.FileSystem.Business.Model.Department;
+import com.ADIB.FileSystem.Business.Model.File;
+import com.ADIB.FileSystem.Business.dto.request.FileRequest;
+import com.ADIB.FileSystem.Business.dto.response.FileResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

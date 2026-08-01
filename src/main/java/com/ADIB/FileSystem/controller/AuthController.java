@@ -1,16 +1,14 @@
 package com.ADIB.FileSystem.controller;
 
-import com.ADIB.FileSystem.dto.request.LoginRequest;
-import com.ADIB.FileSystem.dto.request.PageRequest;
-import com.ADIB.FileSystem.dto.request.RefreshTokenRequest;
-import com.ADIB.FileSystem.dto.request.RegisterRequest;
-import com.ADIB.FileSystem.dto.response.AuthResponse;
-import com.ADIB.FileSystem.dto.response.PageResponse;
-import com.ADIB.FileSystem.service.AuthService;
+import com.ADIB.FileSystem.Business.dto.request.LoginRequest;
+import com.ADIB.FileSystem.Business.dto.request.RefreshTokenRequest;
+import com.ADIB.FileSystem.Business.dto.request.RegisterRequest;
+import com.ADIB.FileSystem.Business.dto.response.AuthResponse;
+import com.ADIB.FileSystem.Business.service.AuthService;
+import com.ADIB.FileSystem.Business.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,14 +17,15 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
     private final AuthService authService;
+    private final UserService userService;
+
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest Request) {
-        return ResponseEntity.ok(authService.register(Request));
+        return ResponseEntity.ok(userService.createUser(Request));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest Request) {
-
         return ResponseEntity.ok(authService.login(Request));
     }
 
@@ -34,15 +33,11 @@ public class AuthController {
     public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshTokenRequest Request) {
         return ResponseEntity.ok(authService.refreshToken(Request));
     }
+
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest Request) {
         authService.logout(Request);
         return ResponseEntity.noContent().build();
     }
 
-    //will be deleted !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-//    @PostMapping("/pages")
-//    public ResponseEntity<PageResponse> addPage(@RequestBody PageRequest Request) {
-//        return ResponseEntity.ok((authService.addPage(Request)));
-//    }
 }

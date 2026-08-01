@@ -1,8 +1,9 @@
 package com.ADIB.FileSystem.service;
 
-import com.ADIB.FileSystem.dto.request.FileSearchRequest;
+import com.ADIB.FileSystem.Business.dto.request.FileSearchRequest;
 import com.ADIB.FileSystem.mapper.FileMapper;
-import com.ADIB.FileSystem.repository.FileRepo;
+import com.ADIB.FileSystem.DataAccess.repository.FileRepo;
+import com.ADIB.FileSystem.Business.service.file.FileService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,10 +18,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
-
-
-
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 public class SearchServiceTest {

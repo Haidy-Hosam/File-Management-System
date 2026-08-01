@@ -1,10 +1,9 @@
 package com.ADIB.FileSystem.controller;
 
-import com.ADIB.FileSystem.Model.Page;
-import com.ADIB.FileSystem.repository.PageRepo;
+import com.ADIB.FileSystem.Business.Model.Page;
+import com.ADIB.FileSystem.DataAccess.repository.PageRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/Pages")
 @RequiredArgsConstructor
-//@PreAuthorize("@permissionService.hasPage('Pages')")
 @CrossOrigin(origins = "http://localhost:4200")
 public class PageController {
     private final PageRepo pageRepo;

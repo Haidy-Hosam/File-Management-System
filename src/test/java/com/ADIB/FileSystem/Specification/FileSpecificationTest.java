@@ -1,14 +1,14 @@
 package com.ADIB.FileSystem.Specification;
 
-import com.ADIB.FileSystem.Enum.FILE_STATUS;
-import com.ADIB.FileSystem.Model.File;
-import com.ADIB.FileSystem.Model.FileType;
-import com.ADIB.FileSystem.Model.Role;
-import com.ADIB.FileSystem.Model.User;
-import com.ADIB.FileSystem.dto.request.FileSearchRequest;
-import com.ADIB.FileSystem.repository.FileRepo;
+import com.ADIB.FileSystem.Business.Enum.FILE_STATUS;
+import com.ADIB.FileSystem.Business.Model.File;
+import com.ADIB.FileSystem.Business.Model.FileType;
+import com.ADIB.FileSystem.Business.Model.Role;
+import com.ADIB.FileSystem.Business.Model.User;
+import com.ADIB.FileSystem.Business.dto.request.FileSearchRequest;
+import com.ADIB.FileSystem.DataAccess.repository.FileRepo;
 import com.ADIB.FileSystem.security.JpaAuditConfig;
-import com.ADIB.FileSystem.specification.FileSpecification;
+import com.ADIB.FileSystem.DataAccess.specification.FileSpecification;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;

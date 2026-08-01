@@ -1,7 +1,7 @@
 package com.ADIB.FileSystem.mapper;
 
-import com.ADIB.FileSystem.Model.FileForward;
-import com.ADIB.FileSystem.dto.response.FileForwardResponse;
+import com.ADIB.FileSystem.Business.Model.FileForward;
+import com.ADIB.FileSystem.Business.dto.response.FileForwardResponse;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,7 +17,7 @@ public class FileForwardMapper {
                 .recipientId(fileForward.getRecipient().getId())
                 .recipientName(fileForward.getRecipient().getName())
                 .message(fileForward.getMessage())
-                .isRead(Boolean.TRUE.equals(fileForward.getIsRead()))
+                .isRead(fileForward.getIsRead())
                 .forwardedAt(fileForward.getForwardedAt())
                 .readAt(fileForward.getReadAt())
                 .type(fileForward.getType())

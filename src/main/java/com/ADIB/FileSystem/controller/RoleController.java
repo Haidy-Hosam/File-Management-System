@@ -1,12 +1,11 @@
 package com.ADIB.FileSystem.controller;
 
-import com.ADIB.FileSystem.dto.request.PagePermissionRequest;
-import com.ADIB.FileSystem.dto.request.RoleRequest;
-import com.ADIB.FileSystem.dto.response.RoleResponse;
-import com.ADIB.FileSystem.service.PagePermissionService;
-import com.ADIB.FileSystem.service.RoleService;
+import com.ADIB.FileSystem.Business.dto.request.PagePermissionRequest;
+import com.ADIB.FileSystem.Business.dto.request.RoleRequest;
+import com.ADIB.FileSystem.Business.dto.response.RoleResponse;
+import com.ADIB.FileSystem.Business.service.Permissions.PagePermissionService;
+import com.ADIB.FileSystem.Business.service.RoleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,14 +15,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/roles")
 @RequiredArgsConstructor
-//@PreAuthorize("@pagePermissionService.hasPage('Roles')")
 @CrossOrigin(origins = "http://localhost:4200")
 public class RoleController {
 
     private final RoleService roleService;
-    private final PagePermissionService permissionService;
-
-
 
     @PreAuthorize("@pagePermissionService.hasPermission('Roles','READ')")
     @GetMapping

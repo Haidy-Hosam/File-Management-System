@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
@@ -23,7 +26,7 @@ public class JWTUtil {
     private long refreshExpiration;
 
     @Value("${jwt.remember-me-expiration}")
-    private long remeberMeExiration;
+    private long rememberMeExpiration;
 
     private SecretKey getSigningKey(){
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
@@ -43,7 +46,7 @@ public class JWTUtil {
     }
 
     public String generateRefreshToken(String email, boolean rememberMe) {
-        long expiration = rememberMe?remeberMeExiration:refreshExpiration;
+        long expiration = rememberMe?rememberMeExpiration:refreshExpiration;
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date())
@@ -67,6 +70,19 @@ public class JWTUtil {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    private String hashToken(String token){
+        try{
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hash);
+        }catch (NoSuchAlgorithmException e){
+            throw new IllegalStateException("SHA-256 algorithm not found",e);
+        }
+    }
+    public String hashRefreshToken(String rawToken){
+        return hashToken(rawToken);
     }
 
 }

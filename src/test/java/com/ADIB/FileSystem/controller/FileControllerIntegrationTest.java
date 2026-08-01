@@ -1,7 +1,6 @@
 package com.ADIB.FileSystem.controller;
 
-import com.ADIB.FileSystem.dto.request.FileSearchRequest;
-import com.ADIB.FileSystem.repository.FileRepo;
+import com.ADIB.FileSystem.Business.dto.request.FileSearchRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

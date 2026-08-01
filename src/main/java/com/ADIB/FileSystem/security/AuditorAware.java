@@ -1,7 +1,6 @@
 package com.ADIB.FileSystem.security;
-import com.ADIB.FileSystem.Model.User;
-import com.ADIB.FileSystem.repository.UserRepo;
-import com.ADIB.FileSystem.service.CustomUserDetailsService;
+import com.ADIB.FileSystem.Business.Model.User;
+import com.ADIB.FileSystem.Business.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -9,10 +8,10 @@ import java.util.Optional;
 
 public class AuditorAware implements org.springframework.data.domain.AuditorAware<User> {
 
-    private final UserRepo userRepository;
+    private final UserService userService;
 
-    public AuditorAware(UserRepo userRepository) {
-        this.userRepository = userRepository;
+    public AuditorAware(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
@@ -26,7 +25,7 @@ public class AuditorAware implements org.springframework.data.domain.AuditorAwar
         }
 
         Long userId = ((CustomUserDetails) authentication.getPrincipal()).getId();
-        // getReferenceById never hits the DB immediately - it's a lazy proxy, no query, no auto-flush
-        return Optional.of(userRepository.getReferenceById(userId));   // adjust to findByUsername(...) if that's your actual lookup field
+
+        return Optional.ofNullable(userService.getUserByid(userId));
     }
 }
