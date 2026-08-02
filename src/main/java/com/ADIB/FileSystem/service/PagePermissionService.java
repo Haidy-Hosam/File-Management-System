@@ -20,8 +20,10 @@ public class PagePermissionService {
     private final UserRepo userRepo;
 
     @Transactional(readOnly = true)
+    // has access to page ?
     public boolean hasPage(String pageName) {
         User auth = currentUser();
+        // not required
         String email = auth.getName();
         User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -30,7 +32,9 @@ public class PagePermissionService {
                 .stream()
                 .anyMatch(rpp -> rpp.getPage().getPageName().equalsIgnoreCase(pageName));
     }
+// __________________________________________________________________________________
 
+    // give me all pages user can see
     @Transactional(readOnly = true)
     public List<PageResponse> getMyPages() {
         User user = currentUser();
@@ -42,7 +46,10 @@ public class PagePermissionService {
                 .map(p -> new PageResponse(p.getId(), p.getPageName(), p.getRoute()))
                 .collect(Collectors.toList());
     }
+// __________________________________________________________________________________
 
+    // give me all permissions user can do in page
+    // طالما دخل صفحة Files... هل يقدر يعمل Delete؟
     @Transactional(readOnly = true)
     public boolean hasPermission(String pageName, String permissionName) {
         User user = currentUser();
@@ -52,6 +59,7 @@ public class PagePermissionService {
                 .anyMatch(rpp -> rpp.getPage().getPageName().equalsIgnoreCase(pageName)
                         && rpp.getPermission().getPermissionName().equalsIgnoreCase(permissionName));
     }
+// __________________________________________________________________________________
 
     @Transactional(readOnly = true)
     public boolean isAdmin() {
@@ -60,6 +68,7 @@ public class PagePermissionService {
                 && user.getRole().getName() != null
                 && user.getRole().getName().equalsIgnoreCase("ADMIN");
     }
+// __________________________________________________________________________________
 
     private User currentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
