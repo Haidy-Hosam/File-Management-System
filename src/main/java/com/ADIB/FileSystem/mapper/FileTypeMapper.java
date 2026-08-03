@@ -1,7 +1,7 @@
 package com.ADIB.FileSystem.mapper;
 
-import com.ADIB.FileSystem.Model.FileType;
-import com.ADIB.FileSystem.dto.response.FileTypeResponse;
+import com.ADIB.FileSystem.Business.Model.FileType;
+import com.ADIB.FileSystem.Business.dto.response.FileTypeResponse;
 import org.springframework.stereotype.Component;
 
 @Component

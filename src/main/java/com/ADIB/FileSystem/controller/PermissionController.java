@@ -1,9 +1,8 @@
 package com.ADIB.FileSystem.controller;
 
-import com.ADIB.FileSystem.Model.Permission;
-import com.ADIB.FileSystem.repository.PermissionRepo;
+import com.ADIB.FileSystem.Business.Model.Permission;
+import com.ADIB.FileSystem.DataAccess.repository.PermissionRepo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

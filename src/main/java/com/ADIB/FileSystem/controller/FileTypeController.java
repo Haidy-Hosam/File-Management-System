@@ -1,8 +1,8 @@
 package com.ADIB.FileSystem.controller;
 
-import com.ADIB.FileSystem.dto.request.FileTypeRequest;
-import com.ADIB.FileSystem.dto.response.FileTypeResponse;
-import com.ADIB.FileSystem.service.FileTypeService;
+import com.ADIB.FileSystem.Business.dto.request.FileTypeRequest;
+import com.ADIB.FileSystem.Business.dto.response.FileTypeResponse;
+import com.ADIB.FileSystem.Business.service.file.FileTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,7 +14,6 @@ import java.util.List;
 @RequestMapping("/api/file-types")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
-@PreAuthorize("@pagePermissionService.hasPage('FileTypes')")
 public class FileTypeController {
     private final FileTypeService fileTypeService;
 

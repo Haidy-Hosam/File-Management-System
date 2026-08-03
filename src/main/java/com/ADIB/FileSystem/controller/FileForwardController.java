@@ -1,14 +1,11 @@
 package com.ADIB.FileSystem.controller;
 
-import com.ADIB.FileSystem.dto.request.ForwardFileRequest;
-import com.ADIB.FileSystem.dto.response.FileForwardResponse;
-import com.ADIB.FileSystem.service.FileForwardService;
+import com.ADIB.FileSystem.Business.dto.request.ForwardFileRequest;
+import com.ADIB.FileSystem.Business.dto.response.FileForwardResponse;
+import com.ADIB.FileSystem.Business.service.file.FileForwardService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +14,6 @@ import java.util.Map;
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
-//@PreAuthorize("@permissionService.hasPage('FileForward')")
 public class FileForwardController {
     private final FileForwardService fileForwardService;
     @PostMapping("{fileId}/forward")
@@ -26,8 +22,8 @@ public class FileForwardController {
     }
 
     @GetMapping("/forwarded/sent")
-    public ResponseEntity<List<FileForwardResponse>> getSentForwards(){
-        return ResponseEntity.ok(fileForwardService.getFilesForwardedByMe());
+    public ResponseEntity<List<FileForwardResponse>> getSentForwards(@RequestParam(required = false) Long userId){
+        return ResponseEntity.ok(fileForwardService.getSentForwards(userId));
     }
 
     @GetMapping("/forwarded/notifications")
@@ -46,8 +42,8 @@ public class FileForwardController {
     }
 
     @GetMapping("/forwarded/received")
-    public ResponseEntity<List<FileForwardResponse>> getReceivedForwards(){
-        return ResponseEntity.ok(fileForwardService.getFilesForwardedToMe());
+    public ResponseEntity<List<FileForwardResponse>> getReceivedForwards(@RequestParam(required = false) Long userId){
+        return ResponseEntity.ok(fileForwardService.getReceivedForwards(userId));
     }
 
 }

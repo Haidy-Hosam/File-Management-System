@@ -1,9 +1,8 @@
 package com.ADIB.FileSystem.security;
 
-import com.ADIB.FileSystem.Model.User;
-import com.ADIB.FileSystem.exception.ResourceNotFoundException;
-import com.ADIB.FileSystem.mapper.FileForwardMapper;
-import com.ADIB.FileSystem.repository.UserRepo;
+import com.ADIB.FileSystem.Business.Model.User;
+import com.ADIB.FileSystem.Business.Exceptions.ResourceNotFoundException;
+import com.ADIB.FileSystem.DataAccess.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,14 +15,11 @@ public class CurrentUserProvider {
 
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             throw new ResourceNotFoundException("No authenticated user found");
         }
         String email = authentication.getName();
-        User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        if(user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
-        return user;
+        return userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }

@@ -1,11 +1,11 @@
 package com.ADIB.FileSystem.controller;
 
-import com.ADIB.FileSystem.dto.response.DepartmentResponse;
-import com.ADIB.FileSystem.dto.response.FileTypeResponse;
-import com.ADIB.FileSystem.dto.response.RoleResponse;
-import com.ADIB.FileSystem.service.DepartmentService;
-import com.ADIB.FileSystem.service.FileTypeService;
-import com.ADIB.FileSystem.service.RoleService;
+import com.ADIB.FileSystem.Business.dto.response.DepartmentResponse;
+import com.ADIB.FileSystem.Business.dto.response.FileTypeResponse;
+import com.ADIB.FileSystem.Business.dto.response.RoleResponse;
+import com.ADIB.FileSystem.Business.service.DepartmentService;
+import com.ADIB.FileSystem.Business.service.file.FileTypeService;
+import com.ADIB.FileSystem.Business.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

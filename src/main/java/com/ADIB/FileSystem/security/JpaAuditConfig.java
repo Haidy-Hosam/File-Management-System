@@ -1,7 +1,8 @@
 package com.ADIB.FileSystem.security;
 
-import com.ADIB.FileSystem.Model.User;
-import com.ADIB.FileSystem.repository.UserRepo;
+import com.ADIB.FileSystem.Business.Model.User;
+import com.ADIB.FileSystem.Business.service.UserService;
+import com.ADIB.FileSystem.DataAccess.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,9 +12,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 @RequiredArgsConstructor
 public class JpaAuditConfig {
-private final UserRepo userRepo;
     @Bean
-    public org.springframework.data.domain.AuditorAware<User> auditorAware(UserRepo userRepository) {
-        return new AuditorAware(userRepository);
+    public org.springframework.data.domain.AuditorAware<User> auditorAware(UserService userService) {
+        return new AuditorAware(userService);
     }
 }

@@ -1,8 +1,8 @@
 package com.ADIB.FileSystem.controller;
 
-import com.ADIB.FileSystem.Model.User;
+import com.ADIB.FileSystem.Business.Model.User;
 import com.ADIB.FileSystem.security.CurrentUserProvider;
-import com.ADIB.FileSystem.service.NotificationSseService;
+import com.ADIB.FileSystem.Business.service.NotificationSseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;

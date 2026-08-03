@@ -1,11 +1,11 @@
 package com.ADIB.FileSystem.mapper;
 
-import com.ADIB.FileSystem.Model.Department;
-import com.ADIB.FileSystem.Model.File;
-import com.ADIB.FileSystem.Model.User;
-import com.ADIB.FileSystem.dto.response.DepartmentResponse;
-import com.ADIB.FileSystem.dto.response.FileResponse;
-import com.ADIB.FileSystem.dto.response.UserResponse;
+import com.ADIB.FileSystem.Business.Model.Department;
+import com.ADIB.FileSystem.Business.Model.File;
+import com.ADIB.FileSystem.Business.Model.User;
+import com.ADIB.FileSystem.Business.dto.response.DepartmentResponse;
+import com.ADIB.FileSystem.Business.dto.response.FileResponse;
+import com.ADIB.FileSystem.Business.dto.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
