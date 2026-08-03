@@ -19,22 +19,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .message(ex.getMessage())
-                .status(HttpStatus.OK.value())
+                .status(HttpStatus.NOT_FOUND.value())
                 .timestamp(LocalDateTime.now())
                 .path(request.getRequestURI())
                 .build();
-        return  ResponseEntity.ok(error);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleAlreadyExists(ResourceAlreadyExistsException ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .message(ex.getMessage())
-                .status(HttpStatus.OK.value())
+                .status(HttpStatus.CONFLICT.value())
                 .timestamp(LocalDateTime.now())
                 .path(request.getRequestURI())
                 .build();
-        return  ResponseEntity.ok(error);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
@@ -81,11 +81,11 @@ public class GlobalExceptionHandler {
 
         ErrorResponse error = ErrorResponse.builder()
                 .message(ex.getMessage())
-                .status(HttpStatus.OK.value())
+                .status(HttpStatus.GONE.value())
                 .timestamp(LocalDateTime.now())
                 .path(request.getRequestURI())
                 .build();
 
-        return ResponseEntity.ok(error);
+        return new ResponseEntity<>(error, HttpStatus.GONE);
     }
 }

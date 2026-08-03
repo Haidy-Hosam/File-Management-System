@@ -60,6 +60,9 @@ public class PagePermissionService {
     @Transactional(readOnly = true)
     public boolean hasPermission(String pageName,String permissionName){
         User user = currentUserProvider.getCurrentUser();
+        if (user.getRole() != null && "ADMIN".equalsIgnoreCase(user.getRole().getName().replace("ROLE_", ""))) {
+            return true;
+        }
         return user.getRole()
                 .getRolePagePermissions()
                 .stream()
