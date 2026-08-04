@@ -22,6 +22,7 @@ public class FileResponse {
     private String modifiedDate;
     private String createdDate;
     private String ownerName;
+    private Boolean expired;
 
     private List<String> departmentNames;
 

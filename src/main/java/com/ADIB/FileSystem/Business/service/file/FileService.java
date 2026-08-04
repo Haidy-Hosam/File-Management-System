@@ -192,6 +192,8 @@ public class FileService {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new ResourceNotFoundException("File not found"));
 
+        ensureNotExpired(file);
+
         Path filePath = Paths.get(file.getPath());
         Path targetPath = storageProperties.trashPath().resolve(filePath.getFileName());
         Files.move(filePath, targetPath);
@@ -260,7 +262,6 @@ public class FileService {
     public FileResponse getFileData(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
 
-
         if (Boolean.TRUE.equals(file.getExpired())) {
             throw new FileExpiredException("File has expired.");
         }
@@ -269,6 +270,7 @@ public class FileService {
 
     public ResponseEntity<ByteArrayResource> downloadFile(Long fileId) throws IOException {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
+        ensureNotExpired(file);
 
         Path filePath = Paths.get(file.getPath());
         byte[] encryptedBytes = Files.readAllBytes(filePath);
@@ -322,6 +324,7 @@ public class FileService {
 
     public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request) {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
+        ensureNotExpired(file);
         file.setStatus(request.getStatus());
         return fileMapper.mapToResponse(fileRepository.save(file));
     }
@@ -450,5 +453,11 @@ public class FileService {
         }
         Department dept = currentUserProvider.getCurrentUser().getDepartment();
         request.setDepartments(dept != null ? List.of(dept.getName()) : List.of("__NO_DEPARTMENT__"));
+    }
+
+    private void ensureNotExpired(File file) {
+        if (Boolean.TRUE.equals(file.getExpired())) {
+            throw new FileExpiredException("File has expired.");
+        }
     }
 }
