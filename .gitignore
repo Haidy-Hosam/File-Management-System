@@ -31,6 +31,6 @@ build/
 
 .env
 *.env
-
+application-config.properties
 ### VS Code ###
 .vscode/

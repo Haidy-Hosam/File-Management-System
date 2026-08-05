@@ -40,6 +40,7 @@ public class FileMapper {
                 .createdDate(file.getCreatedAt().toLocalDate().toString())
                 .size(file.getSize())
                 .ownerName(file.getCreatedBy() != null ? file.getCreatedBy().getName() : "Unknown")
+                .expired(file.getExpired())
                 .build();
     }
 }
