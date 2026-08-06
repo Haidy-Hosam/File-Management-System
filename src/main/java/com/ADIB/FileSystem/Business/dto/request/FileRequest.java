@@ -16,5 +16,6 @@ import java.util.List;
 public class FileRequest {
     private MultipartFile file;
     private List<Long> department_ids;
+    private String security_level;
     private Long fileType_id;
 }

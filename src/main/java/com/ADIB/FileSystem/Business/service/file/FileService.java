@@ -4,6 +4,7 @@ import com.ADIB.FileSystem.Business.Enum.FILE_STATUS;
 import com.ADIB.FileSystem.Business.Enum.NOTIFICATIONTYPE;
 import com.ADIB.FileSystem.Business.Exceptions.FileExpiredException;
 import com.ADIB.FileSystem.Business.Model.*;
+import com.ADIB.FileSystem.Business.dto.response.SecurityLevelResponse;
 import com.ADIB.FileSystem.Business.service.Permissions.PagePermissionService;
 import com.ADIB.FileSystem.DataAccess.repository.*;
 import com.ADIB.FileSystem.Business.dto.request.BulkFileUploadRequest;
@@ -17,11 +18,9 @@ import com.ADIB.FileSystem.Business.Exceptions.ResourceNotFoundException;
 import com.ADIB.FileSystem.config.FileStorageProperties;
 import com.ADIB.FileSystem.mapper.FileMapper;
 import com.ADIB.FileSystem.security.CurrentUserProvider;
-import com.ADIB.FileSystem.security.CustomUserDetails;
 import com.ADIB.FileSystem.DataAccess.specification.FileSpecification;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -32,8 +31,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,6 +53,7 @@ public class FileService {
     private final FileTypeRepo fileTypeRepo;
     private final FileForwardRepo fileForwardRepo;
     private final DepartmentRepo departmentRepository;
+    private final FileDepartmentApprovalRepo fileDepartmentApprovalRepo;
     private final UserRepo userRepo;
     private final CurrentUserProvider currentUserProvider;
     private final FileMapper fileMapper;
@@ -166,6 +164,15 @@ public class FileService {
                 .build();
 
         File savedFile = fileRepository.save(file);
+
+        List<FileDepartmentApproval> approvals = departments.stream()
+                        .map(dept -> FileDepartmentApproval.builder()
+                                .file(savedFile)
+                                .department(dept)
+                                .status(FILE_STATUS.PENDING)
+                                .build())
+                                .toList();
+        fileDepartmentApprovalRepo.saveAll(approvals);
 
         eventPublisher.publishEvent(new FileUploadedEvent(this, savedFile, uploader));
 
@@ -321,12 +328,44 @@ public class FileService {
                 .body(resource);
     }
 
-
     public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request) {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
         ensureNotExpired(file);
-        file.setStatus(request.getStatus());
+        User currentUser = currentUserProvider.getCurrentUser();
+        Department managerDepartment =currentUser.getDepartment();
+
+        if(managerDepartment == null) {
+            throw new IllegalStateException("USer has no department; cannot approve files");
+        }
+
+        FileDepartmentApproval approval = fileDepartmentApprovalRepo.findByFileIdAndDepartmentId(fileId,managerDepartment.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("This file is not routed to your department"));
+
+        approval.setStatus(request.getStatus());
+        approval.setManager(currentUser);
+        approval.setDecidedAt(java.time.LocalDateTime.now());
+        fileDepartmentApprovalRepo.save(approval);
+
+        recomputeFileStatus(file);
+//        file.setStatus(request.getStatus());
         return fileMapper.mapToResponse(fileRepository.save(file));
+    }
+
+    private void recomputeFileStatus(File file) {
+        List<FileDepartmentApproval> approvals = fileDepartmentApprovalRepo.findByFileId(file.getId());
+
+        boolean anyRejected = approvals.stream()
+                .anyMatch(a -> a.getStatus() == FILE_STATUS.REJECTED);
+        boolean allApproved = approvals.stream()
+                .allMatch(a -> a.getStatus() == FILE_STATUS.APPROVED);
+
+        if(anyRejected){
+            file.setStatus(FILE_STATUS.REJECTED);
+        }else if (allApproved && !approvals.isEmpty()){
+            file.setStatus(FILE_STATUS.APPROVED);
+        }else {
+            file.setStatus(FILE_STATUS.PENDING);
+        }
     }
 
 
@@ -422,6 +461,24 @@ public class FileService {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"search-results.csv\"")
                 .contentType(MediaType.parseMediaType("text/csv"))
                 .body(new ByteArrayResource(bytes));
+    }
+
+    public List<SecurityLevelResponse> getAllowedSecurityLevels(List<Long> departmentIds){
+        if(departmentIds == null || departmentIds.isEmpty()){
+            throw new IllegalArgumentException("At least one department must be selected");
+        }
+
+        List<Department> departments = departmentRepository.findAllById(departmentIds);
+        if(departments.size() != departmentIds.size()){
+            throw new ResourceNotFoundException("One or more departments is not found");
+        }
+
+        return  departments.stream()
+                .map(Department::getSecurityLevels)
+                .filter(Objects::nonNull)
+                .distinct()
+                .map(sl -> new SecurityLevelResponse(sl.getId(), sl.getName()))
+                .toList();
     }
 
     private String mapSortField(String field) {
