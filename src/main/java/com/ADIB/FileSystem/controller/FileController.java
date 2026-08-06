@@ -123,8 +123,8 @@ public class FileController {
     }
 
     @GetMapping("/securityLevel")
-    public ResponseEntity<List<SecurityLevelResponse>> getAllowedSecurityLevels(@RequestParam List<Long> departmentIds) {
-        return ResponseEntity.ok(fileService.getAllowedSecurityLevels(departmentIds));
+    public ResponseEntity<List<SecurityLevelResponse>> getSecurityLevels() {
+        return ResponseEntity.ok(fileService.getSecurityLevels());
     }
 
 }

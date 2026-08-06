@@ -17,6 +17,7 @@ import com.ADIB.FileSystem.Business.event.FileUploadedEvent;
 import com.ADIB.FileSystem.Business.Exceptions.ResourceNotFoundException;
 import com.ADIB.FileSystem.config.FileStorageProperties;
 import com.ADIB.FileSystem.mapper.FileMapper;
+import com.ADIB.FileSystem.mapper.SecurityLevelMapper;
 import com.ADIB.FileSystem.security.CurrentUserProvider;
 import com.ADIB.FileSystem.DataAccess.specification.FileSpecification;
 import jakarta.annotation.PostConstruct;
@@ -54,9 +55,11 @@ public class FileService {
     private final FileForwardRepo fileForwardRepo;
     private final DepartmentRepo departmentRepository;
     private final FileDepartmentApprovalRepo fileDepartmentApprovalRepo;
+    private final SecurityLevelRepo securityLevelRepo;
     private final UserRepo userRepo;
     private final CurrentUserProvider currentUserProvider;
     private final FileMapper fileMapper;
+    private final SecurityLevelMapper  securityLevelMapper;
     private final FileEncryptionService fileEncryptionService;
     private final ApplicationEventPublisher eventPublisher;
     private final PagePermissionService pagePermissionService;
@@ -463,22 +466,9 @@ public class FileService {
                 .body(new ByteArrayResource(bytes));
     }
 
-    public List<SecurityLevelResponse> getAllowedSecurityLevels(List<Long> departmentIds){
-        if(departmentIds == null || departmentIds.isEmpty()){
-            throw new IllegalArgumentException("At least one department must be selected");
-        }
-
-        List<Department> departments = departmentRepository.findAllById(departmentIds);
-        if(departments.size() != departmentIds.size()){
-            throw new ResourceNotFoundException("One or more departments is not found");
-        }
-
-        return  departments.stream()
-                .map(Department::getSecurityLevels)
-                .filter(Objects::nonNull)
-                .distinct()
-                .map(sl -> new SecurityLevelResponse(sl.getId(), sl.getName()))
-                .toList();
+    public List<SecurityLevelResponse> getSecurityLevels(){
+        List<SecurityLevel> securityLevels = securityLevelRepo.findAll();
+        return  securityLevels.stream().map(securityLevelMapper::mapToResponse).toList();
     }
 
     private String mapSortField(String field) {
