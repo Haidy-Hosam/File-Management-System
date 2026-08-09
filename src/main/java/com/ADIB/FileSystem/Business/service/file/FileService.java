@@ -12,10 +12,12 @@ import com.ADIB.FileSystem.Business.dto.request.FileRequest;
 import com.ADIB.FileSystem.Business.dto.request.FileSearchRequest;
 import com.ADIB.FileSystem.Business.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.Business.dto.response.FileResponse;
+import com.ADIB.FileSystem.Business.dto.response.FileApprovalStepsResponse;
 import com.ADIB.FileSystem.Business.event.FileForwardedEvent;
 import com.ADIB.FileSystem.Business.event.FileUploadedEvent;
 import com.ADIB.FileSystem.Business.Exceptions.ResourceNotFoundException;
 import com.ADIB.FileSystem.config.FileStorageProperties;
+import com.ADIB.FileSystem.mapper.FileApprovalStepsMapper;
 import com.ADIB.FileSystem.mapper.FileMapper;
 import com.ADIB.FileSystem.mapper.SecurityLevelMapper;
 import com.ADIB.FileSystem.security.CurrentUserProvider;
@@ -60,6 +62,7 @@ public class FileService {
     private final CurrentUserProvider currentUserProvider;
     private final FileMapper fileMapper;
     private final SecurityLevelMapper  securityLevelMapper;
+    private final FileApprovalStepsMapper fileApprovalStepsMapper;
     private final FileEncryptionService fileEncryptionService;
     private final ApplicationEventPublisher eventPublisher;
     private final PagePermissionService pagePermissionService;
@@ -506,5 +509,10 @@ public class FileService {
         if (Boolean.TRUE.equals(file.getExpired())) {
             throw new FileExpiredException("File has expired.");
         }
+    }
+
+    public List<FileApprovalStepsResponse> GetFileApprovalSteps(Long fileId) {
+        List<FileDepartmentApproval> FileApprovalSteps = fileDepartmentApprovalRepo.findByFileId(fileId);
+        return  FileApprovalSteps.stream().map(fileApprovalStepsMapper::mapToResponse).toList();
     }
 }

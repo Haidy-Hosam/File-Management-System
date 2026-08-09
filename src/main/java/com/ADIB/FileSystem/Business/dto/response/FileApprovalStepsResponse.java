@@ -1,25 +1,21 @@
-package com.ADIB.FileSystem.Business.Model;
+package com.ADIB.FileSystem.Business.dto.response;
 
 import com.ADIB.FileSystem.Business.Enum.FILE_STATUS;
+import com.ADIB.FileSystem.Business.Model.Department;
+import com.ADIB.FileSystem.Business.Model.File;
+import com.ADIB.FileSystem.Business.Model.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Data
-@Entity
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-public class FileDepartmentApproval {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "file_id", nullable = false)
-    private File file;
+@Data
+@Builder
+@AllArgsConstructor
+public class FileApprovalStepsResponse {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = false)
@@ -34,5 +30,4 @@ public class FileDepartmentApproval {
     private FILE_STATUS status = FILE_STATUS.PENDING;
 
     private LocalDateTime decidedAt;
-
 }
