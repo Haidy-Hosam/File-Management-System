@@ -34,6 +34,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -512,7 +513,9 @@ public class FileService {
     }
 
     public List<FileApprovalStepsResponse> GetFileApprovalSteps(Long fileId) {
-        List<FileDepartmentApproval> FileApprovalSteps = fileDepartmentApprovalRepo.findByFileId(fileId);
-        return  FileApprovalSteps.stream().map(fileApprovalStepsMapper::mapToResponse).toList();
+        List<FileDepartmentApproval> fileApprovalSteps = fileDepartmentApprovalRepo.findByFileId(fileId);
+        return fileApprovalSteps.stream()
+                .map(fileApprovalStepsMapper::mapToResponse)
+                .toList();
     }
 }
