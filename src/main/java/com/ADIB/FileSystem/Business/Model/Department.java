@@ -24,9 +24,10 @@ public class Department extends Audit{
     private Boolean isActive;
 
     @OneToMany(mappedBy = "department")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private List<User> users;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "SLevel_id")
+    private SecurityLevel securityLevels;
 
 }

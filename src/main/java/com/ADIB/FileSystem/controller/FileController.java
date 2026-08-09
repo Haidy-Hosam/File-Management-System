@@ -5,6 +5,8 @@ import com.ADIB.FileSystem.Business.dto.request.FileRequest;
 import com.ADIB.FileSystem.Business.dto.request.FileSearchRequest;
 import com.ADIB.FileSystem.Business.dto.request.UpdateFileStatusRequest;
 import com.ADIB.FileSystem.Business.dto.response.FileResponse;
+import com.ADIB.FileSystem.Business.dto.response.FileApprovalStepsResponse;
+import com.ADIB.FileSystem.Business.dto.response.SecurityLevelResponse;
 import com.ADIB.FileSystem.Business.service.file.FileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -82,7 +84,8 @@ public class FileController {
 
     @PreAuthorize("@pagePermissionService.canRead('Files')")
     @GetMapping("/dept/{deptId}")
-    public ResponseEntity<Page<FileResponse>> getAllFilesByDepartment(@PathVariable("deptId") Long deptId, @RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<Page<FileResponse>> getAllFilesByDepartment(@PathVariable("deptId") Long deptId,
+                                                                      @RequestParam(defaultValue = "0") int page,
                                                                       @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(fileService.listFilesByDepartment(deptId, page, size));
     }
@@ -119,4 +122,15 @@ public class FileController {
     public ResponseEntity<ByteArrayResource> downloadFilesBulk(@RequestBody List<Long> fileIds) throws IOException {
         return fileService.downloadFilesBulk(fileIds);
     }
+
+    @GetMapping("/securityLevel")
+    public ResponseEntity<List<SecurityLevelResponse>> getSecurityLevels() {
+        return ResponseEntity.ok(fileService.getSecurityLevels());
+    }
+
+    @GetMapping("/fileApprovalStatusSteps")
+    public ResponseEntity<List<FileApprovalStepsResponse>> GetFileApprovalStatusSteps(@PathVariable("fileId") Long fileId) throws IOException {
+        return ResponseEntity.ok(fileService.GetFileApprovalSteps(fileId));
+    }
+
 }
