@@ -176,6 +176,7 @@ public class FileService {
                         .map(dept -> FileDepartmentApproval.builder()
                                 .file(savedFile)
                                 .department(dept)
+                                .manager(userRepo.findDepartmentManager(dept.getId()).orElseThrow(() -> new ResourceNotFoundException("Department manager not found: " + dept.getId())))
                                 .status(FILE_STATUS.PENDING)
                                 .build())
                                 .toList();
