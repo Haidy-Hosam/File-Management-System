@@ -52,10 +52,12 @@ public class AuthService {
     }
 
     public AuthResponse refreshToken(RefreshTokenRequest request) {
+        if (request.getRefreshToken() == null || request.getRefreshToken().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "RefreshToken not provided");
+        }
         String tokenHash = jwtUtil.hashRefreshToken(request.getRefreshToken());
-
         RefreshToken refreshToken = refreshTokenRepo.findByTokenHash(tokenHash)
-                .orElseThrow(() -> new ResourceNotFoundException("RefreshToken not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "RefreshToken not found"));
 
         if(refreshToken.getExpiryDate().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token has expired");
@@ -66,7 +68,7 @@ public class AuthService {
 
         String accessToken = generateAccessToken(user);
 
-        return authMapper.MapToResponse(user, accessToken, refreshToken.getTokenHash());
+        return authMapper.MapToResponse(user, accessToken, request.getRefreshToken());
     }
 
     public void logout(RefreshTokenRequest request){

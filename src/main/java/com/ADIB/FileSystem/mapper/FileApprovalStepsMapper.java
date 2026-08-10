@@ -1,6 +1,5 @@
 package com.ADIB.FileSystem.mapper;
 
-import com.ADIB.FileSystem.Business.Enum.FILE_STATUS;
 import com.ADIB.FileSystem.Business.Model.FileDepartmentApproval;
 import com.ADIB.FileSystem.Business.dto.response.FileApprovalStepsResponse;
 import org.springframework.stereotype.Component;
@@ -8,12 +7,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class FileApprovalStepsMapper {
 
-    public FileApprovalStepsResponse mapToResponse(FileDepartmentApproval fileApprovalsSteps) {
+    public FileApprovalStepsResponse mapToResponse(FileDepartmentApproval fileApprovalStep) {
         return FileApprovalStepsResponse.builder()
-                .department(fileApprovalsSteps.getDepartment()) // CHANGED — list, not single dept
-                .status(FILE_STATUS.valueOf(fileApprovalsSteps.getStatus().name()))
-                .manager(fileApprovalsSteps.getManager())
-                .decidedAt(fileApprovalsSteps.getDecidedAt())
+                .departmentId(fileApprovalStep.getDepartment().getId())
+                .departmentName(fileApprovalStep.getDepartment().getName())
+                .status(fileApprovalStep.getStatus().name())
+                .managerName(fileApprovalStep.getManager().getName())
+                .decidedAt(fileApprovalStep.getDecidedAt())
                 .build();
     }
 }
