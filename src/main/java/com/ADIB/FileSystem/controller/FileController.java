@@ -128,7 +128,7 @@ public class FileController {
         return ResponseEntity.ok(fileService.getSecurityLevels());
     }
 
-    @GetMapping("/fileApprovalStatusSteps")
+    @GetMapping("/fileApprovalStatusSteps/{fileId}")
     public ResponseEntity<List<FileApprovalStepsResponse>> GetFileApprovalStatusSteps(@PathVariable("fileId") Long fileId) throws IOException {
         return ResponseEntity.ok(fileService.GetFileApprovalSteps(fileId));
     }
