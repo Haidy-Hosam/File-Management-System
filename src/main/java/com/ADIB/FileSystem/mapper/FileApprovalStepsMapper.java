@@ -9,9 +9,10 @@ public class FileApprovalStepsMapper {
 
     public FileApprovalStepsResponse mapToResponse(FileDepartmentApproval fileApprovalStep) {
         return FileApprovalStepsResponse.builder()
-                .department(fileApprovalStep.getDepartment())
-                .status(fileApprovalStep.getStatus())
-                .manager(fileApprovalStep.getManager())
+                .departmentId(fileApprovalStep.getDepartment().getId())
+                .departmentName(fileApprovalStep.getDepartment().getName())
+                .status(fileApprovalStep.getStatus().name())
+                .managerName(fileApprovalStep.getManager().getName())
                 .decidedAt(fileApprovalStep.getDecidedAt())
                 .build();
     }

@@ -16,18 +16,13 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 public class FileApprovalStepsResponse {
+    private Long departmentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id", nullable = false)
-    private Department department;
+    private String departmentName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "manager_id")
-    private User manager;
+    private String managerName;
 
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private FILE_STATUS status = FILE_STATUS.PENDING;
+    private String status;
 
     private LocalDateTime decidedAt;
 }

@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 public class FileDepartmentApproval {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
