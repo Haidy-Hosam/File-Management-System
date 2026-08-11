@@ -219,7 +219,7 @@ public class FileService {
     public Page<FileResponse> listFiles(int page, int size, String sortBy, String sortDir) {
         Sort sort = sortBy != null && !sortBy.isBlank()
                 ? Sort.by("desc".equalsIgnoreCase(sortDir) ? Sort.Direction.DESC : Sort.Direction.ASC, mapSortField(sortBy))
-                : Sort.unsorted();
+                : Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(page, size, sort);
 
         if (pagePermissionService.hasFullReadAccess("Files")) {
@@ -252,13 +252,13 @@ public class FileService {
     }
 
     public Page<FileResponse> listFilesByUser(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return fileRepository.findByCreatedByIdAndIsDeletedFalse(userId, pageable)
                 .map(fileMapper::mapToResponse);
     }
 
     public Page<FileResponse> listFilesByDepartment(Long departmentId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
@@ -427,13 +427,13 @@ public class FileService {
         int pageNumber = request.getPage() != null ? request.getPage() : 0;
         int pageSize = request.getSize() != null ? request.getSize() : 10;
 
-        Sort sort = Sort.unsorted();
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         if(request.getSortBy() != null &&  !request.getSortBy().isBlank()) {
             Sort.Direction direction = "desc".equalsIgnoreCase(request.getSortDir()) ? Sort.Direction.DESC : Sort.Direction.ASC;
             sort = Sort.by(direction,  mapSortField(request.getSortBy()));
         }
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-
+        //        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Specification<File> spec = FileSpecification.search(request);
         Page<File> results = fileRepository.findAll(spec, pageable);
 
