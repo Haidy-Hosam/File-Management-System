@@ -1,5 +1,6 @@
 package com.ADIB.FileSystem.DataAccess.repository;
 
+import com.ADIB.FileSystem.Business.Enum.FILE_STATUS;
 import com.ADIB.FileSystem.Business.Model.FileDepartmentApproval;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -11,4 +12,9 @@ import java.util.Optional;
 public interface FileDepartmentApprovalRepo extends JpaRepository<FileDepartmentApproval, Long> {
     List<FileDepartmentApproval> findByFileId(Long fileId);
     Optional<FileDepartmentApproval> findByFileIdAndDepartmentId(Long fileId, Long departmentId);
+
+    long countByFileId(Long fileId);
+
+    Optional<FileDepartmentApproval> findByFileIdAndCurrentApprovalOrder(Long fileId, Long currentApprovalOrder);
+    List<FileDepartmentApproval> findByDepartmentIdAndCurrentApprovalOrderAndStatus(Long departmentId, Long currentApprovalOrder, FILE_STATUS status);
 }

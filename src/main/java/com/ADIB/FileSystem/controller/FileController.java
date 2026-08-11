@@ -26,11 +26,12 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 public class FileController {
     private final FileService fileService;
-    @PreAuthorize("@pagePermissionService.hasPermission('Files','CREATE')")
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<FileResponse> createFile(@ModelAttribute FileRequest request) throws IOException {
-        return ResponseEntity.ok(fileService.uploadFile(request));
-    }
+
+//    @PreAuthorize("@pagePermissionService.hasPermission('Files','CREATE')")
+//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<FileResponse> createFile(@ModelAttribute FileRequest request) throws IOException {
+//        return ResponseEntity.ok(fileService.uploadFile(request));
+//    }
 
     @PreAuthorize("@pagePermissionService.hasPermission('Files','CREATE')")
     @PostMapping(value = "/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -50,6 +51,14 @@ public class FileController {
             @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(fileService.listAllDeletedFiles(page, size));
+    }
+
+    @PreAuthorize("@pagePermissionService.canRead('Files')")
+    @GetMapping("/pending-my-approval")
+    public ResponseEntity<Page<FileResponse>> getFilesPendingMyApproval(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(fileService.listFilesPendingMyApproval(page, size));
     }
 
     @PreAuthorize("@pagePermissionService.hasPermission('Files','DELETE')")

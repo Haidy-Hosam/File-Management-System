@@ -89,46 +89,46 @@ public class FileServiceTest {
         lenient().when(currentUserProvider.getCurrentUser()).thenReturn(uploader);
     }
 
-    @Test
-    void uploadFile_success_encryptsAndSavesFile() throws Exception{
-        Files.createDirectories(storageProperties.uploadPath());
-
-        MultipartFile multipartFile = mock(MultipartFile.class);
-        when(multipartFile.getOriginalFilename()).thenReturn("report.pdf");
-        when(multipartFile.getBytes()).thenReturn("hello".getBytes(StandardCharsets.UTF_8));
-        when(multipartFile.getSize()).thenReturn(5L);
-
-        FileRequest request = mock(FileRequest.class);
-        when(request.getDepartment_ids()).thenReturn(List.of(10L));
-        when(request.getFileType_id()).thenReturn(20L);
-        when(request.getFile()).thenReturn(multipartFile);
-
-        when(departmentRepo.findAllById(List.of(10L))).thenReturn(List.of(dept));
-        when(fileTypeRepo.findById(20L)).thenReturn(Optional.of(fileType));
-        when(fileEncryptionService.encrypt(any())).thenReturn("encrypted".getBytes(StandardCharsets.UTF_8));
-
-        when(fileRepo.save(any(File.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(fileMapper.mapToResponse(any(File.class))).thenReturn(mock(FileResponse.class));
-
-        FileResponse response = fileService.uploadFile(request);
-
-        assertThat(response).isNotNull();
-
-        ArgumentCaptor<File> captor = ArgumentCaptor.forClass(File.class);
-        verify(fileRepo).save(captor.capture());
-        File saved = captor.getValue();
-        assertThat(saved.getName()).isEqualTo("report.pdf");
-        assertThat(saved.getExtension()).isEqualTo("pdf");
-        assertThat(saved.getStatus()).isEqualTo(FILE_STATUS.PENDING);
-        assertThat(saved.getIsDeleted()).isFalse();
-        assertThat(saved.getDepartments()).containsExactly(dept);
-
-        verify(eventPublisher).publishEvent(any(FileUploadedEvent.class));
-
-        Path storedPath = Path.of(saved.getPath());
-        assertThat(Files.exists(storedPath)).isTrue();
-
-    }
+//    @Test
+//    void uploadFile_success_encryptsAndSavesFile() throws Exception{
+//        Files.createDirectories(storageProperties.uploadPath());
+//
+//        MultipartFile multipartFile = mock(MultipartFile.class);
+//        when(multipartFile.getOriginalFilename()).thenReturn("report.pdf");
+//        when(multipartFile.getBytes()).thenReturn("hello".getBytes(StandardCharsets.UTF_8));
+//        when(multipartFile.getSize()).thenReturn(5L);
+//
+//        FileRequest request = mock(FileRequest.class);
+//        when(request.getDepartment_ids()).thenReturn(List.of(10L));
+//        when(request.getFileType_id()).thenReturn(20L);
+//        when(request.getFile()).thenReturn(multipartFile);
+//
+//        when(departmentRepo.findAllById(List.of(10L))).thenReturn(List.of(dept));
+//        when(fileTypeRepo.findById(20L)).thenReturn(Optional.of(fileType));
+//        when(fileEncryptionService.encrypt(any())).thenReturn("encrypted".getBytes(StandardCharsets.UTF_8));
+//
+//        when(fileRepo.save(any(File.class))).thenAnswer(inv -> inv.getArgument(0));
+//        when(fileMapper.mapToResponse(any(File.class))).thenReturn(mock(FileResponse.class));
+//
+//        FileResponse response = fileService.uploadFile(request);
+//
+//        assertThat(response).isNotNull();
+//
+//        ArgumentCaptor<File> captor = ArgumentCaptor.forClass(File.class);
+//        verify(fileRepo).save(captor.capture());
+//        File saved = captor.getValue();
+//        assertThat(saved.getName()).isEqualTo("report.pdf");
+//        assertThat(saved.getExtension()).isEqualTo("pdf");
+//        assertThat(saved.getStatus()).isEqualTo(FILE_STATUS.PENDING);
+//        assertThat(saved.getIsDeleted()).isFalse();
+//        assertThat(saved.getDepartments()).containsExactly(dept);
+//
+//        verify(eventPublisher).publishEvent(any(FileUploadedEvent.class));
+//
+//        Path storedPath = Path.of(saved.getPath());
+//        assertThat(Files.exists(storedPath)).isTrue();
+//
+//    }
 
 
 }

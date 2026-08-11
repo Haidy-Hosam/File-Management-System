@@ -51,5 +51,8 @@ public class File extends Audit {
     @Column(name = "expired")
     private Boolean expired;
 
+    @Builder.Default
+    private Long currentApprovalOrder = 0L;
+
 
 }

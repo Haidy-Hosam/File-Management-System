@@ -3,6 +3,7 @@ package com.ADIB.FileSystem.Business.listener;
 import com.ADIB.FileSystem.Business.Model.FileForward;
 import com.ADIB.FileSystem.Business.event.FileForwardedEvent;
 import com.ADIB.FileSystem.Business.event.FileUploadedEvent;
+import com.ADIB.FileSystem.Business.service.file.Notifications.Notifiy;
 import com.ADIB.FileSystem.mapper.FileForwardMapper;
 import com.ADIB.FileSystem.Business.service.file.FileService;
 import com.ADIB.FileSystem.Business.service.NotificationSseService;
@@ -18,7 +19,7 @@ public class FileForwardNotificationListener {
     private final NotificationSseService sseService;
 
     private final FileForwardMapper fileForwardMapper;
-    private final FileService fileService;
+    private final Notifiy notifiy;
 
     @EventListener
     public void onFileForwarded(FileForwardedEvent event){
@@ -34,6 +35,6 @@ public class FileForwardNotificationListener {
 
     @EventListener
     public void onFileUploaded(FileUploadedEvent event){
-        fileService.notifyDepartmentsOnUpload(event.getFile(), event.getUploader());
+        notifiy.notifyDepartmentsOnUpload(event.getFile(), event.getUploader());
     }
 }

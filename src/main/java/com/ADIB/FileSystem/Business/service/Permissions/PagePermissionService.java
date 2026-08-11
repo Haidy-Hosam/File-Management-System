@@ -76,6 +76,11 @@ public class PagePermissionService {
     }
 
     @Transactional(readOnly = true)
+    public boolean hasScoppedReadAccess(String pageName){
+        return hasPermission(pageName, "READ_SCOPED");
+    }
+
+    @Transactional(readOnly = true)
     public boolean canRead(String pageName){
         return hasPermission(pageName, "READ_ALL") || hasPermission(pageName, "READ_SCOPED");
     }

@@ -34,4 +34,8 @@ public class FileDepartmentApproval {
 
     private LocalDateTime decidedAt;
 
+    @Builder.Default
+    private Long currentApprovalOrder = 0L;
+
+
 }

@@ -36,4 +36,33 @@ public interface FileRepo extends JpaRepository<File, Long>, JpaSpecificationExe
     long countByStatus(FILE_STATUS status);
     long countByDepartmentsContains(Department department);
     long countByDepartmentsContainsAndStatus(Department department, FILE_STATUS status);
+
+    @Query("SELECT DISTINCT f FROM File f JOIN f.departments d WHERE d.id = :deptId AND f.status = :status AND f.isDeleted = false")
+    Page<File> findByDepartmentIdAndStatusAndNotDeleted(@Param("deptId") Long deptId,
+                                                        @Param("status") FILE_STATUS status,
+                                                        Pageable pageable);
+
+    @Query("""
+            SELECT DISTINCT f FROM File f
+            JOIN FileDepartmentApproval a ON a.file = f
+            WHERE a.department.id = :deptId
+              AND a.currentApprovalOrder = f.currentApprovalOrder
+              AND f.status = com.ADIB.FileSystem.Business.Enum.FILE_STATUS.PENDING
+              AND f.isDeleted = false
+    """)
+    Page<File> findPendingApprovalForDepartment(@Param("deptId") Long deptId, Pageable pageable);
+    @Query("""
+SELECT DISTINCT f FROM File f
+JOIN f.departments d
+LEFT JOIN FileDepartmentApproval a ON a.file = f AND a.department.id = :deptId
+WHERE f.isDeleted = false
+  AND d.id = :deptId
+  AND (
+       f.status = com.ADIB.FileSystem.Business.Enum.FILE_STATUS.APPROVED
+    OR (f.status = com.ADIB.FileSystem.Business.Enum.FILE_STATUS.PENDING
+        AND a.currentApprovalOrder = f.currentApprovalOrder)
+  )
+""")
+    Page<File> findVisibleToManager(@Param("deptId") Long deptId, Pageable pageable);
+
 }
