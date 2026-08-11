@@ -43,6 +43,10 @@ public class DepartmentService {
         return mine == null ? List.of() : List.of(mapToSummaryResponse(mine));
     }
 
+    public List<DepartmentResponse> getAllDepartmentsForLookup(){
+        return departmentRepo.findAll().stream().map(this::mapToSummaryResponse).toList();
+    }
+
     public DepartmentResponse getDepartmentDetails(Long id){
         if (!pagePermissionService.hasFullReadAccess("Departments")) {
             Department mine = currentUserProvider.getCurrentUser().getDepartment();

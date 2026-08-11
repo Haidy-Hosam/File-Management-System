@@ -4,6 +4,7 @@ import com.ADIB.FileSystem.Business.dto.response.DepartmentResponse;
 import com.ADIB.FileSystem.Business.dto.response.FileTypeResponse;
 import com.ADIB.FileSystem.Business.dto.response.RoleResponse;
 import com.ADIB.FileSystem.Business.service.DepartmentService;
+import com.ADIB.FileSystem.Business.service.LookUpService;
 import com.ADIB.FileSystem.Business.service.file.FileTypeService;
 import com.ADIB.FileSystem.Business.service.RoleService;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +19,18 @@ import java.util.List;
 @RequestMapping("api/lookup")
 @RequiredArgsConstructor
 public class LookupController {
-    private final DepartmentService departmentService;
-    private final RoleService roleService;
+    private final LookUpService lookUpService;
     private final FileTypeService fileTypeService;
-
+    private final RoleService roleService;
+/**
     @GetMapping("/departments")
     public ResponseEntity<List<DepartmentResponse>> getAllDepartments() {
         return ResponseEntity.ok(departmentService.getAllDepartments());
+    }
+*/
+    @GetMapping("/departments")
+    public ResponseEntity<List<DepartmentResponse>> getAllDepartments() {
+    return ResponseEntity.ok(lookUpService.getAllDepartmentsLookUp());
     }
 
     @GetMapping("/fileTypes")
