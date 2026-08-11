@@ -58,11 +58,9 @@ public class FileService {
     private final FileForwardRepo fileForwardRepo;
     private final DepartmentRepo departmentRepository;
     private final FileDepartmentApprovalRepo fileDepartmentApprovalRepo;
-    private final SecurityLevelRepo securityLevelRepo;
     private final UserRepo userRepo;
     private final CurrentUserProvider currentUserProvider;
     private final FileMapper fileMapper;
-    private final SecurityLevelMapper  securityLevelMapper;
     private final FileApprovalStepsMapper fileApprovalStepsMapper;
     private final FileEncryptionService fileEncryptionService;
     private final ApplicationEventPublisher eventPublisher;
@@ -469,11 +467,6 @@ public class FileService {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"search-results.csv\"")
                 .contentType(MediaType.parseMediaType("text/csv"))
                 .body(new ByteArrayResource(bytes));
-    }
-
-    public List<SecurityLevelResponse> getSecurityLevels(){
-        List<SecurityLevel> securityLevels = securityLevelRepo.findAll();
-        return  securityLevels.stream().map(securityLevelMapper::mapToResponse).toList();
     }
 
     private String mapSortField(String field) {

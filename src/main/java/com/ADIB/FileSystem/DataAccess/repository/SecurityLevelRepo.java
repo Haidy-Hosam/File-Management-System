@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SecurityLevelRepo extends JpaRepository<SecurityLevel, Long> {
+    SecurityLevel findByName(String name);
+    SecurityLevel findById(long id);
 }

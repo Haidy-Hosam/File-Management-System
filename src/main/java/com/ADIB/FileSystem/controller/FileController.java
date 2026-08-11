@@ -26,6 +26,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 public class FileController {
     private final FileService fileService;
+
     @PreAuthorize("@pagePermissionService.hasPermission('Files','CREATE')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FileResponse> createFile(@ModelAttribute FileRequest request) throws IOException {
@@ -123,10 +124,6 @@ public class FileController {
         return fileService.downloadFilesBulk(fileIds);
     }
 
-    @GetMapping("/securityLevel")
-    public ResponseEntity<List<SecurityLevelResponse>> getSecurityLevels() {
-        return ResponseEntity.ok(fileService.getSecurityLevels());
-    }
 
     @GetMapping("/fileApprovalStatusSteps/{fileId}")
     public ResponseEntity<List<FileApprovalStepsResponse>> GetFileApprovalStatusSteps(@PathVariable("fileId") Long fileId) throws IOException {
