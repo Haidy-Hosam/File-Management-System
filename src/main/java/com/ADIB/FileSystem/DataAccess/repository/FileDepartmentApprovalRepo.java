@@ -13,8 +13,4 @@ public interface FileDepartmentApprovalRepo extends JpaRepository<FileDepartment
     List<FileDepartmentApproval> findByFileId(Long fileId);
     Optional<FileDepartmentApproval> findByFileIdAndDepartmentId(Long fileId, Long departmentId);
 
-    long countByFileId(Long fileId);
-
-    Optional<FileDepartmentApproval> findByFileIdAndCurrentApprovalOrder(Long fileId, Long currentApprovalOrder);
-    List<FileDepartmentApproval> findByDepartmentIdAndCurrentApprovalOrderAndStatus(Long departmentId, Long currentApprovalOrder, FILE_STATUS status);
 }

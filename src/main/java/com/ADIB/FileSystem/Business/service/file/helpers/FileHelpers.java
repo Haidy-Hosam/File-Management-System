@@ -1,5 +1,6 @@
 package com.ADIB.FileSystem.Business.service.file.helpers;
 
+import com.ADIB.FileSystem.Business.Enum.FILE_STATUS;
 import com.ADIB.FileSystem.Business.Exceptions.FileExpiredException;
 import com.ADIB.FileSystem.Business.Model.Department;
 import com.ADIB.FileSystem.Business.Model.File;
@@ -91,6 +92,10 @@ public class FileHelpers {
         }
         Department dept = currentUserProvider.getCurrentUser().getDepartment();
         request.setDepartments(dept != null ? List.of(dept.getName()) : List.of("__NO_DEPARTMENT__"));
+
+        if(!pagePermissionService.hasPermission("Files","UPDATE")) {
+            request.setStatuses(List.of(FILE_STATUS.APPROVED));
+        }
     }
 
     public void ensureNotExpired(File file) {

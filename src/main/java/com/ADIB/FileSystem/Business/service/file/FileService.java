@@ -38,6 +38,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
@@ -347,6 +348,7 @@ public class FileService {
                 .body(resource);
     }
 
+    @Transactional
     public FileResponse updateFileStatus(Long fileId, UpdateFileStatusRequest request) {
         File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
         fileHelpers.ensureNotExpired(file);
@@ -372,11 +374,10 @@ public class FileService {
         approval.setStatus(request.getStatus());
         approval.setManager(currentUser);
         approval.setDecidedAt(java.time.LocalDateTime.now());
+
         fileDepartmentApprovalRepo.save(approval);
 
-//        recomputeFileStatus(file);
         advanceApproval(file, approval);
-//        file.setStatus(request.getStatus());
         return fileMapper.mapToResponse(fileRepository.save(file));
     }
 
