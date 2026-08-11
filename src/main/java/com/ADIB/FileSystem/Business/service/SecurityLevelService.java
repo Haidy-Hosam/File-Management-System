@@ -9,6 +9,7 @@ import com.ADIB.FileSystem.mapper.SecurityLevelMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -19,7 +20,10 @@ public class SecurityLevelService {
 
     public List<SecurityLevelResponse> getSecurityLevels(){
         List<SecurityLevel> securityLevels = securityLevelRepo.findAll();
-        return  securityLevels.stream().map(securityLevelMapper::mapToResponse).toList();
+        return  securityLevels.stream()
+                .map(securityLevelMapper::mapToResponse)
+                .sorted(Comparator.comparing(SecurityLevelResponse::getId))
+                .toList();
     }
 
     public SecurityLevelResponse createSecurityLevel(String name){
