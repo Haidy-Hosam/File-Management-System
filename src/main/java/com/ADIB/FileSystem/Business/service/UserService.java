@@ -100,8 +100,8 @@ public class UserService {
         Department department = getDepartmentOrThrow(request.getDepartmentId());
 
         if (MANAGER_ROLE_ID.equals(role.getId())) {
-            boolean managerExists = userRepo.ManagerExistsInDepartment(request.getDepartmentId());
-            if (managerExists) {
+            int managerExists = userRepo.ManagerExistsInDepartment(request.getDepartmentId());
+            if (managerExists > 0) {
                 throw new ResourceAlreadyExistsException(
                         "Department '" + department.getName() + "' already has a manager");
             }

@@ -16,8 +16,8 @@ public interface UserRepo extends JpaRepository<User, Long> {
     Optional<User> findDepartmentManager(@Param("deptId") Long deptId);
     Optional<User> findByEmail(String email);
 
-    @Query("SELECT 1 FROM users u WHERE u.department.id= :deptId AND u.role.id = 2 ")
-    boolean ManagerExistsInDepartment(@Param("deptId")Long deptId);
+    @Query("SELECT count(*) FROM users u WHERE u.department.id= :deptId AND u.role.id = 2 ")
+    int ManagerExistsInDepartment(@Param("deptId")Long deptId);
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
 

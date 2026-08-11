@@ -132,10 +132,10 @@ public class FileController {
         return fileService.downloadFilesBulk(fileIds);
     }
 
-    @GetMapping("/securityLevel")
-    public ResponseEntity<List<SecurityLevelResponse>> getSecurityLevels() {
-        return ResponseEntity.ok(fileService.getSecurityLevels());
-    }
+//    @GetMapping("/securityLevel")
+//    public ResponseEntity<List<SecurityLevelResponse>> getSecurityLevels() {
+//        return ResponseEntity.ok(fileService.getSecurityLevels());
+//    }
 
     @GetMapping("/fileApprovalStatusSteps/{fileId}")
     public ResponseEntity<List<FileApprovalStepsResponse>> GetFileApprovalStatusSteps(@PathVariable("fileId") Long fileId) throws IOException {

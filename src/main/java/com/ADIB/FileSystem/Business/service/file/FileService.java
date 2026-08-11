@@ -55,18 +55,17 @@ import java.util.zip.ZipOutputStream;
 public class FileService {
 
     private final FileStorageProperties  storageProperties;
-
     private final FileRepo fileRepository;
     private final FileTypeRepo fileTypeRepo;
     private final DepartmentRepo departmentRepository;
     private final FileDepartmentApprovalRepo fileDepartmentApprovalRepo;
-    private final FileApprovalStepsMapper fileApprovalStepsMapper;
     private final SecurityLevelRepo securityLevelRepo;
     private final UserRepo userRepo;
     private final CurrentUserProvider currentUserProvider;
     private final FileMapper fileMapper;
     private final SecurityLevelMapper  securityLevelMapper;
 
+    private final FileApprovalStepsMapper fileApprovalStepsMapper;
     private final FileEncryptionService fileEncryptionService;
     private final ApplicationEventPublisher eventPublisher;
     private final PagePermissionService pagePermissionService;
@@ -218,8 +217,8 @@ public class FileService {
 
     public Page<FileResponse> listFiles(int page, int size, String sortBy, String sortDir) {
         Sort sort = sortBy != null && !sortBy.isBlank()
-                ? Sort.by("desc".equalsIgnoreCase(sortDir) ? Sort.Direction.DESC : Sort.Direction.ASC,  fileHelpers.mapSortField(sortBy))
-                : Sort.unsorted();
+                ? Sort.by("desc".equalsIgnoreCase(sortDir) ? Sort.Direction.DESC : Sort.Direction.ASC, fileHelpers.mapSortField(sortBy))
+                : Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(page, size, sort);
 
         if (pagePermissionService.hasFullReadAccess("Files")) {
@@ -258,13 +257,13 @@ public class FileService {
     }
 
     public Page<FileResponse> listFilesByUser(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return fileRepository.findByCreatedByIdAndIsDeletedFalse(userId, pageable)
                 .map(fileMapper::mapToResponse);
     }
 
     public Page<FileResponse> listFilesByDepartment(Long departmentId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
 
@@ -426,13 +425,13 @@ public class FileService {
         int pageNumber = request.getPage() != null ? request.getPage() : 0;
         int pageSize = request.getSize() != null ? request.getSize() : 10;
 
-        Sort sort = Sort.unsorted();
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         if(request.getSortBy() != null &&  !request.getSortBy().isBlank()) {
             Sort.Direction direction = "desc".equalsIgnoreCase(request.getSortDir()) ? Sort.Direction.DESC : Sort.Direction.ASC;
             sort = Sort.by(direction,  fileHelpers.mapSortField(request.getSortBy()));
         }
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-
+        //        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Specification<File> spec = FileSpecification.search(request);
         Page<File> results = fileRepository.findAll(spec, pageable);
 
@@ -468,10 +467,10 @@ public class FileService {
                 .body(new ByteArrayResource(bytes));
     }
 
-    public List<SecurityLevelResponse> getSecurityLevels(){
-        List<SecurityLevel> securityLevels = securityLevelRepo.findAll();
-        return  securityLevels.stream().map(securityLevelMapper::mapToResponse).toList();
-    }
+//    public List<SecurityLevelResponse> getSecurityLevels(){
+//        List<SecurityLevel> securityLevels = securityLevelRepo.findAll();
+//        return  securityLevels.stream().map(securityLevelMapper::mapToResponse).toList();
+//    }
 
     public List<FileApprovalStepsResponse> GetFileApprovalSteps(Long fileId) {
         List<FileDepartmentApproval> fileApprovalSteps = fileDepartmentApprovalRepo.findByFileId(fileId);
@@ -479,5 +478,4 @@ public class FileService {
                 .map(fileApprovalStepsMapper::mapToResponse)
                 .toList();
     }
-
 }
