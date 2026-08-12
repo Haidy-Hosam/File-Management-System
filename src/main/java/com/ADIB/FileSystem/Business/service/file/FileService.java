@@ -47,6 +47,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -63,8 +64,6 @@ public class FileService {
     private final UserRepo userRepo;
     private final CurrentUserProvider currentUserProvider;
     private final FileMapper fileMapper;
-    private final SecurityLevelMapper  securityLevelMapper;
-
     private final FileApprovalStepsMapper fileApprovalStepsMapper;
     private final FileEncryptionService fileEncryptionService;
     private final ApplicationEventPublisher eventPublisher;
@@ -168,7 +167,10 @@ public class FileService {
                 .sorted(Comparator.comparing(d -> d.getSecurityLevels().getId()))
                 .toList();
 
-        Department firstDept =  orderedDepts.get(0);
+        Long firstOrder = orderedDepts.get(0).getSecurityLevels().getId();
+        Set<Department> firstGroup = orderedDepts.stream()
+                .filter(d -> d.getSecurityLevels().getId().equals(firstOrder))
+                .collect(Collectors.toSet());
 
         File file = File.builder()
                 .name(originalFileName)
@@ -176,7 +178,7 @@ public class FileService {
                 .size(size)
                 .extension(extension)
                 .status(FILE_STATUS.PENDING)
-                .departments(new HashSet<>(Set.of(firstDept)))
+                .departments(new HashSet<>(firstGroup))
                 .fileType(fileType)
                 .isDeleted(false)
                 .securityLevel(securityLevel)
@@ -197,8 +199,9 @@ public class FileService {
         fileDepartmentApprovalRepo.saveAll(approvals);
 
         eventPublisher.publishEvent(new FileUploadedEvent(this, savedFile, uploader));
-        notifiy.notifyManagerForApproval(savedFile, approvals.get(0).getManager());
-
+        approvals.stream()
+                        .filter(a -> a.getCurrentApprovalOrder().equals(firstOrder))
+                                .forEach(a -> notifiy.notifyManagerForApproval(savedFile, a.getManager()));
         filePath.toFile().setReadOnly();
         return fileMapper.mapToResponse(savedFile);
     }
@@ -389,20 +392,55 @@ public class FileService {
             file.setStatus(FILE_STATUS.REJECTED);
             return;
         }
-        Optional<FileDepartmentApproval> nextStep = fileDepartmentApprovalRepo
-                .findByFileId(file.getId()).stream()
-                .filter(a -> a.getCurrentApprovalOrder() > file.getCurrentApprovalOrder())
-                .min(Comparator.comparing(FileDepartmentApproval::getCurrentApprovalOrder));
 
-        if(nextStep.isPresent()){
-            FileDepartmentApproval next = nextStep.get();
-            file.setCurrentApprovalOrder(next.getCurrentApprovalOrder());
-            file.getDepartments().add(next.getDepartment());
-            notifiy.notifyManagerForApproval(file, next.getManager());
+        List<FileDepartmentApproval> allApprovals = fileDepartmentApprovalRepo.findByFileId(file.getId());
+
+        List<FileDepartmentApproval> currentGroup = allApprovals.stream()
+                .filter(a -> a.getCurrentApprovalOrder().equals(file.getCurrentApprovalOrder()))
+                .toList();
+        boolean groupStillPending = currentGroup.stream().anyMatch(a -> a.getStatus() == FILE_STATUS.PENDING);
+        if(groupStillPending){
+            return;
+        }
+
+        boolean anyRejectedInGroup = currentGroup.stream().anyMatch(a -> a.getStatus() == FILE_STATUS.REJECTED);
+        if(anyRejectedInGroup){
+            file.setStatus(FILE_STATUS.REJECTED);
+            return;
+        }
+
+        Optional<Long> nextOrder = allApprovals.stream()
+                .map(FileDepartmentApproval::getCurrentApprovalOrder)
+                .filter(o -> o > file.getCurrentApprovalOrder())
+                .min(Long::compareTo);
+
+        if(nextOrder.isPresent()){
+            List<FileDepartmentApproval> nextGroup = allApprovals.stream()
+                    .filter(a -> a.getCurrentApprovalOrder().equals(nextOrder.get()))
+                    .toList();
+
+            file.setCurrentApprovalOrder(nextOrder.get());
+            nextGroup.forEach(a -> file.getDepartments().add(a.getDepartment()));
+            nextGroup.forEach(a -> notifiy.notifyManagerForApproval(file, a.getManager()));
         }else{
             file.setStatus(FILE_STATUS.APPROVED);
             notifiy.notifyEmployeesOnApproval(file);
         }
+
+//        Optional<FileDepartmentApproval> nextStep = fileDepartmentApprovalRepo
+//                .findByFileId(file.getId()).stream()
+//                .filter(a -> a.getCurrentApprovalOrder() > file.getCurrentApprovalOrder())
+//                .min(Comparator.comparing(FileDepartmentApproval::getCurrentApprovalOrder));
+//
+//        if(nextStep.isPresent()){
+//            FileDepartmentApproval next = nextStep.get();
+//            file.setCurrentApprovalOrder(next.getCurrentApprovalOrder());
+//            file.getDepartments().add(next.getDepartment());
+//            notifiy.notifyManagerForApproval(file, next.getManager());
+//        }else{
+//            file.setStatus(FILE_STATUS.APPROVED);
+//            notifiy.notifyEmployeesOnApproval(file);
+//        }
     }
 
 //    private void recomputeFileStatus(File file) {
