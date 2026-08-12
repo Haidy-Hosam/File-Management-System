@@ -133,13 +133,14 @@ public class FileService {
 
             FileType fileType = fileTypeRepo.findById(fileTypeId)
                     .orElseThrow(() -> new ResourceNotFoundException("File type not found: " + fileTypeId));
-
+            SecurityLevel securityLevel = securityLevelRepo.findById(request.getSecurityLevelIds().get(i)).orElseThrow(() -> new ResourceNotFoundException("security level not found ."));
             results.add(storeSingleFile(
                     multipartFile.getOriginalFilename(),
                     multipartFile.getBytes(),
                     multipartFile.getSize(),
                     departments,
                     fileType,
+                    securityLevel,
                     uploader
             ));
         }
@@ -152,6 +153,7 @@ public class FileService {
             long size,
             Set<Department> departments,
             FileType fileType,
+            SecurityLevel securityLevel,
             User uploader
     ) throws IOException {
 
@@ -177,7 +179,7 @@ public class FileService {
                 .departments(new HashSet<>(Set.of(firstDept)))
                 .fileType(fileType)
                 .isDeleted(false)
-                .securityLevel(firstDept.getSecurityLevels())
+                .securityLevel(securityLevel)
                 .currentApprovalOrder(orderedDepts.get(0).getSecurityLevels().getId())
                 .build();
 

@@ -17,6 +17,7 @@ public class BulkFileUploadRequest {
 
     private List<Long> fileTypeIds;
     private List<Long> departmentIds;
+    private List<Long> securityLevelIds;
 
     private  List<Boolean> is_deleted;
 }
