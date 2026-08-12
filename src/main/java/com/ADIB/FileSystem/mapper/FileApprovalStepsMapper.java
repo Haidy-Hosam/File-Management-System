@@ -14,6 +14,7 @@ public class FileApprovalStepsMapper {
                 .status(fileApprovalStep.getStatus().name())
                 .managerName(fileApprovalStep.getManager().getName())
                 .decidedAt(fileApprovalStep.getDecidedAt())
+                .stepNumber(fileApprovalStep.getCurrentApprovalOrder())
                 .build();
     }
 }
