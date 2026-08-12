@@ -24,7 +24,7 @@ public class SecurityLevelController {
         return ResponseEntity.ok(SecurityService.getSecurityLevels());
     }
 
-    @PostMapping("/securityLevel/{name}")
+    @PostMapping("/{name}")
     public ResponseEntity<SecurityLevelResponse> addSecurityLevel(@PathVariable String name) {
         if(name == null || name.isEmpty()) {
             throw new RuntimeException("Security Level Name is required");
@@ -32,7 +32,7 @@ public class SecurityLevelController {
         return ResponseEntity.ok(SecurityService.createSecurityLevel(name));
     }
 
-    @PutMapping("/securityLevel")
+    @PutMapping
     public ResponseEntity<SecurityLevelResponse> updateSecurityLevel(@RequestBody SecurityLevelRequest securityLevelreq) {
         long id = securityLevelreq.getId();
         String name = securityLevelreq.getName();
@@ -42,7 +42,7 @@ public class SecurityLevelController {
         return ResponseEntity.ok(SecurityService.updateSecurityLevel(id,name));
     }
 
-    @DeleteMapping("/securityLevel/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<SecurityLevelResponse> deleteSecurityLevel(@PathVariable long id) {
         if(id == 0){
             throw new RuntimeException("Security Level id is required");

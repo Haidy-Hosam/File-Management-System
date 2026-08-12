@@ -24,5 +24,7 @@ public class FileApprovalStepsResponse {
 
     private String status;
 
+    private Long stepNumber;
+
     private LocalDateTime decidedAt;
 }
