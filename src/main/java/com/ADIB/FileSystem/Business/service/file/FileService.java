@@ -160,7 +160,7 @@ public class FileService {
         Path filePath = storageProperties.uploadPath().resolve(storedFileName);
 
         fileHelpers.writeEncrypted(filePath,fileBytes);
-        filePath.toFile().setReadOnly();
+
 
         List<Department> orderedDepts = departments.stream()
                 .sorted(Comparator.comparing(d -> d.getSecurityLevels().getId()))
@@ -174,7 +174,7 @@ public class FileService {
                 .size(size)
                 .extension(extension)
                 .status(FILE_STATUS.PENDING)
-//                .departments(new HashSet<>(Set.of(firstDept)))
+                .departments(new HashSet<>(Set.of(firstDept)))
                 .fileType(fileType)
                 .isDeleted(false)
                 .securityLevel(firstDept.getSecurityLevels())
@@ -197,6 +197,7 @@ public class FileService {
         eventPublisher.publishEvent(new FileUploadedEvent(this, savedFile, uploader));
         notifiy.notifyManagerForApproval(savedFile, approvals.get(0).getManager());
 
+        filePath.toFile().setReadOnly();
         return fileMapper.mapToResponse(savedFile);
     }
 
