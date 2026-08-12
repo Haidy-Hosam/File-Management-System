@@ -51,8 +51,11 @@ public class File extends Audit {
     @Column(name = "expired")
     private Boolean expired;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "security_level_id",nullable = true)
+    private SecurityLevel securityLevel;
+
     @Builder.Default
     private Long currentApprovalOrder = 0L;
-
 
 }

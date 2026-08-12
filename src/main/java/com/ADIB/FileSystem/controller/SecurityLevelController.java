@@ -19,7 +19,7 @@ public class SecurityLevelController {
 
     private final SecurityLevelService SecurityService;
 
-    @GetMapping("/securityLevel")
+    @GetMapping
     public ResponseEntity<List<SecurityLevelResponse>> getSecurityLevels() {
         return ResponseEntity.ok(SecurityService.getSecurityLevels());
     }

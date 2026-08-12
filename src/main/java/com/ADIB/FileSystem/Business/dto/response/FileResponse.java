@@ -24,6 +24,8 @@ public class FileResponse {
     private String ownerName;
     private Boolean expired;
 
+    private String securityLevel;
+
     private List<String> departmentNames;
 
 }

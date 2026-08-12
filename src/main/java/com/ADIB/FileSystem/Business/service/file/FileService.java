@@ -166,7 +166,7 @@ public class FileService {
                 .sorted(Comparator.comparing(d -> d.getSecurityLevels().getId()))
                 .toList();
 
-        Department frstDept =  orderedDepts.get(0);
+        Department firstDept =  orderedDepts.get(0);
 
         File file = File.builder()
                 .name(originalFileName)
@@ -174,9 +174,10 @@ public class FileService {
                 .size(size)
                 .extension(extension)
                 .status(FILE_STATUS.PENDING)
-                .departments(new HashSet<>(Set.of(frstDept)))
+//                .departments(new HashSet<>(Set.of(firstDept)))
                 .fileType(fileType)
                 .isDeleted(false)
+                .securityLevel(firstDept.getSecurityLevels())
                 .currentApprovalOrder(orderedDepts.get(0).getSecurityLevels().getId())
                 .build();
 
