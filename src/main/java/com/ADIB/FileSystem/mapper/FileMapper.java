@@ -2,15 +2,20 @@ package com.ADIB.FileSystem.mapper;
 
 import com.ADIB.FileSystem.Business.Model.Department;
 import com.ADIB.FileSystem.Business.Model.File;
+import com.ADIB.FileSystem.Business.Model.FileDepartmentApproval;
 import com.ADIB.FileSystem.Business.dto.request.FileRequest;
 import com.ADIB.FileSystem.Business.dto.response.FileResponse;
+import com.ADIB.FileSystem.DataAccess.repository.FileDepartmentApprovalRepo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class FileMapper {
+    private final FileDepartmentApprovalRepo fileDepartmentApprovalRepo;
 
     public File toEntity(FileRequest request) {
         File file = new File();
@@ -23,10 +28,10 @@ public class FileMapper {
     }
 
     public FileResponse mapToResponse(File file) {
-        List<String> departmentNames = file.getDepartments() == null
-                ? List.of()
-                : file.getDepartments().stream()
-                .map(Department::getName)
+        List<String> departmentNames = fileDepartmentApprovalRepo.findByFileId(file.getId()).stream()
+                .map(FileDepartmentApproval::getDepartment)
+                .map(com.ADIB.FileSystem.Business.Model.Department::getName)
+                .distinct()
                 .collect(Collectors.toList());
 
         return FileResponse.builder()

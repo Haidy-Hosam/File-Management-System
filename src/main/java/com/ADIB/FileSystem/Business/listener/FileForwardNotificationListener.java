@@ -35,6 +35,6 @@ public class FileForwardNotificationListener {
 
     @EventListener
     public void onFileUploaded(FileUploadedEvent event){
-        notifiy.notifyDepartmentsOnUpload(event.getFile(), event.getUploader());
+        notifiy.notifyManagersOnUpload(event.getFile(), event.getUploader());
     }
 }

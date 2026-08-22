@@ -65,4 +65,5 @@ WHERE f.isDeleted = false
 """)
     Page<File> findVisibleToManager(@Param("deptId") Long deptId, Pageable pageable);
 
+    long countByIsDeletedTrue();
 }
