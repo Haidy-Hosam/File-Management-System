@@ -16,6 +16,9 @@ import com.ADIB.FileSystem.DataAccess.repository.FileRepo;
 import com.ADIB.FileSystem.security.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -48,7 +51,7 @@ public class FileForwardService {
             if(recipientId.equals(sender.getId())){
                 continue;
             }
-            System.out.println("recipent :" + recipientId);
+            System.out.println("recipient :" + recipientId);
             User recipient = userRepo.findById(recipientId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
             FileForward forward =FileForward.builder()
@@ -68,28 +71,27 @@ public class FileForwardService {
         return responses;
     }
 
-    public List<FileForwardResponse> getSentForwards(Long userId){
+    public Page<FileForwardResponse> getSentForwards(Long userId ,int page, int size){
         User target = resolveTargetUser(userId);
-        return fileForwardRepo.findBySenderOrderByForwardedAtDesc(target)
+        Pageable pageable = PageRequest.of(page, size);
+        return fileForwardRepo.findBySenderOrderByForwardedAtDesc(target, pageable)
+                .map(fileForwardMapper::mapToResponse);
+    }
+
+    public List<FileForwardResponse> getReceivedForwards(Long userId , int page, int size){
+        User target = resolveTargetUser(userId);
+        Pageable pageable = PageRequest.of(page, size);
+        return fileForwardRepo.findByRecipientOrderByForwardedAtDesc(target, pageable)
                 .stream()
                 .map(fileForwardMapper::mapToResponse)
                 .collect(Collectors.toList());
     }
 
-    public List<FileForwardResponse> getReceivedForwards(Long userId){
-        User target = resolveTargetUser(userId);
-        return fileForwardRepo.findByRecipientOrderByForwardedAtDesc(target)
-                .stream()
-                .map(fileForwardMapper::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
-    public List<FileForwardResponse> getUnreadNotifications(){
+    public Page<FileForwardResponse> getUnreadNotifications(int page, int size){
         User currentUser = currentUserProvider.getCurrentUser();
-        return fileForwardRepo.findByRecipientAndIsReadFalseOrderByForwardedAtDesc(currentUser)
-                .stream()
-                .map(fileForwardMapper::mapToResponse)
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size);
+        return fileForwardRepo.findByRecipientAndIsReadFalseOrderByForwardedAtDesc(currentUser, pageable)
+                .map(fileForwardMapper::mapToResponse);
     }
 
     public long getUnreadCount(){

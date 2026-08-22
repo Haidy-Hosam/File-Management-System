@@ -26,5 +26,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
     List<User> findByDepartmentId(Long id);
     List<User> findByDepartmentInAndIdNot(Collection<Department> departments, Long excludedUserId);
 
+    @Query("SELECT u FROM users u WHERE u.department IN :departments AND u.role.id <> 2 AND u.id <> :excludedUserId")
+    List<User> findEmployeesByDepartmentInAndIdNot(@Param("departments") Collection<Department> departments, @Param("excludedUserId") Long excludedUserId);
 
 }

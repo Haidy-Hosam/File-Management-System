@@ -142,4 +142,15 @@ public class FileController {
         return ResponseEntity.ok(fileService.GetFileApprovalSteps(fileId));
     }
 
+    @PutMapping("/restore/{fileId}")
+    public ResponseEntity<Void> RestoreDeletedFile (@PathVariable("fileId") Long fileId){
+        fileService.RestoreDeletedFile(fileId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/TrashCount")
+    public ResponseEntity<Long> getTrashCount(){
+        return ResponseEntity.ok(fileService.ReturnTrashFilesCount());
+    }
+
 }

@@ -19,6 +19,7 @@ public class FileSpecification {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             boolean needsDistinct = false;
+            predicates.add(criteriaBuilder.equal(root.get("isDeleted"), false));
 
             if(request.getName() != null && !request.getName().isBlank()) {
                 predicates.add(

@@ -3,6 +3,7 @@ package com.ADIB.FileSystem.Business.service.file;
 import com.ADIB.FileSystem.Business.Enum.FILE_STATUS;
 import com.ADIB.FileSystem.Business.Enum.NOTIFICATIONTYPE;
 import com.ADIB.FileSystem.Business.Exceptions.FileExpiredException;
+import com.ADIB.FileSystem.Business.Exceptions.ResourceAlreadyExistsException;
 import com.ADIB.FileSystem.Business.Model.*;
 import com.ADIB.FileSystem.Business.dto.response.SecurityLevelResponse;
 import com.ADIB.FileSystem.Business.service.Permissions.PagePermissionService;
@@ -26,6 +27,7 @@ import com.ADIB.FileSystem.security.CurrentUserProvider;
 import com.ADIB.FileSystem.DataAccess.specification.FileSpecification;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
@@ -199,9 +201,9 @@ public class FileService {
         fileDepartmentApprovalRepo.saveAll(approvals);
 
         eventPublisher.publishEvent(new FileUploadedEvent(this, savedFile, uploader));
-        approvals.stream()
-                        .filter(a -> a.getCurrentApprovalOrder().equals(firstOrder))
-                                .forEach(a -> notifiy.notifyManagerForApproval(savedFile, a.getManager()));
+//        approvals.stream()
+//                        .filter(a -> a.getCurrentApprovalOrder().equals(firstOrder))
+//                                .forEach(a -> notifiy.notifyManagerForApproval(savedFile, a.getManager()));
         filePath.toFile().setReadOnly();
         return fileMapper.mapToResponse(savedFile);
     }
@@ -212,6 +214,10 @@ public class FileService {
                 .orElseThrow(() -> new ResourceNotFoundException("File not found"));
 
         fileHelpers.ensureNotExpired(file);
+
+        if(file.getStatus().equals(FILE_STATUS.APPROVED)){
+            throw new BadRequestException("You cannot delete approved file .");
+        }
 
         Path filePath = Paths.get(file.getPath());
         Path targetPath = storageProperties.trashPath().resolve(filePath.getFileName());
@@ -443,24 +449,6 @@ public class FileService {
 //        }
     }
 
-//    private void recomputeFileStatus(File file) {
-//        List<FileDepartmentApproval> approvals = fileDepartmentApprovalRepo.findByFileId(file.getId());
-//
-//        boolean anyRejected = approvals.stream()
-//                .anyMatch(a -> a.getStatus() == FILE_STATUS.REJECTED);
-//        boolean allApproved = approvals.stream()
-//                .allMatch(a -> a.getStatus() == FILE_STATUS.APPROVED);
-//
-//        if(anyRejected){
-//            file.setStatus(FILE_STATUS.REJECTED);
-//        }else if (allApproved && !approvals.isEmpty()){
-//            file.setStatus(FILE_STATUS.APPROVED);
-//        }else {
-//            file.setStatus(FILE_STATUS.PENDING);
-//        }
-//    }
-
-
     public Page<FileResponse> search(FileSearchRequest request) {
         fileHelpers.enforceDepartmentScope(request);
 
@@ -509,15 +497,22 @@ public class FileService {
                 .body(new ByteArrayResource(bytes));
     }
 
-//    public List<SecurityLevelResponse> getSecurityLevels(){
-//        List<SecurityLevel> securityLevels = securityLevelRepo.findAll();
-//        return  securityLevels.stream().map(securityLevelMapper::mapToResponse).toList();
-//    }
-
     public List<FileApprovalStepsResponse> GetFileApprovalSteps(Long fileId) {
         List<FileDepartmentApproval> fileApprovalSteps = fileDepartmentApprovalRepo.findByFileId(fileId);
         return fileApprovalSteps.stream()
                 .map(fileApprovalStepsMapper::mapToResponse)
                 .toList();
+    }
+
+    public void RestoreDeletedFile (Long fileId){
+        File file = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found"));
+        fileHelpers.ensureNotExpired(file);
+
+        file.setIsDeleted(false);
+        file.setStatus(FILE_STATUS.PENDING);
+        fileRepository.save(file);
+    }
+    public Long  ReturnTrashFilesCount (){
+        return  fileRepository.countByIsDeletedTrue();
     }
 }
