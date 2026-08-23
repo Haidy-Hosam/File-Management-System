@@ -1,295 +1,220 @@
 # 🔐 Secure File Management System
 
-> A secure enterprise-grade File Management System built with **ASP.NET Core** and **PostgreSQL** that enables organizations to securely upload, encrypt, store, and manage files with department-based access control.
+> A secure enterprise-grade File Management System backend built with **Java Spring Boot** and **PostgreSQL**. It enables organizations to securely upload, encrypt, store, and manage files with department-based access control, file forwarding, and approval workflows.
 
 ---
 
 ## 📌 Overview
 
-This project is designed as a secure backend solution for organizations where multiple departments share the same server while ensuring complete isolation of their data.
+This project is a secure backend solution for organizations where multiple departments share the same application while ensuring complete isolation and controlled access to their data.
 
 Instead of storing uploaded files directly inside the database, files are:
+- Uploaded to the server in bulk or individually.
+- Encrypted before storage using **AES Encryption**.
+- Saved securely on disk (or designated storage paths).
+- Tracked via metadata stored inside **PostgreSQL**.
 
-- Uploaded to the server
-- Encrypted before storage
-- Saved securely on disk
-- Only their metadata is stored inside PostgreSQL
-
-The system guarantees that each department can only access its own files while providing complete auditing and traceability of every file operation.
+The system guarantees that each department can manage its files, forward files, and participate in approval workflows with complete auditing and traceability.
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
 ### 👤 Authentication & Authorization
-
-- Secure User Authentication
-- Password Hashing
-- Role-Based Access Control (RBAC)
-- Department-Based Authorization
-
-Supported Roles:
-
-- 👑 Admin
-- 👨‍💼 Manager
-- 👨‍💻 Employee
-
----
+- **Secure JWT Authentication**: Stateless user authentication using JSON Web Tokens.
+- **Dynamic Role-Based Access Control (RBAC)**: Manage roles and granular page-level permissions dynamically.
+- **Security Levels**: Configurable security levels for files and users.
+- **Department-Based Authorization**: Users are tied to specific departments, preventing unauthorized cross-department data access.
 
 ### 📂 File Management
+- **Bulk Upload Support**: Efficiently upload multiple files at once.
+- **File Trash & Soft Deletes**: Deleted files go to a designated "Trash" area for easy recovery.
+- **File Searching & Status Tracking**: Search files by metadata and track their lifecycle.
+- **File Types Management**: Define and restrict file uploads by registered file types.
 
-- Upload Files
-- Download Files
-- View Files
-- Soft Delete Files
-- Department Isolation
-- Secure File Storage
+### 🔄 Approval Workflow
+- **Multi-step Approvals**: Files can require approvals from department managers.
+- **Status Tracking**: Files pass through `PENDING`, `APPROVED`, and `REJECTED` states.
+- **Department Interactions**: Files can be routed for approvals across different departments.
 
----
+### 📨 File Forwarding & Notifications
+- **File Forwarding**: Users can securely forward files to other users or departments.
+- **Real-Time Notifications**: Server-Sent Events (SSE) provide real-time updates for file forwards and approvals.
 
 ### 🔒 Security
+- **AES File Encryption**: Uploaded files are automatically encrypted locally on the server.
+- **Secure File Storage**: Files are kept off the database; only metadata (original name, path, extension, hash) is persisted.
 
-- AES File Encryption
-- SHA-256 File Integrity Verification
-- Unique File Naming
-- Secure File Paths
-- Initialization Vector (IV) for every encrypted file
-- Protection against duplicate file names
-
----
-
-### 📑 Audit Trail
-
-Every important action is logged:
-
-- Upload
-- Download
-- View
-- Delete
-
-Including:
-
-- User
-- File
-- Action
-- Timestamp
-- IP Address
+### 📊 Dashboard & Auditing
+- **Dashboard Statistics**: Retrieve system statistics and aggregated data.
+- **Audit Trails**: Core entities inherit from an `Audit` base class to automatically track creation and modification timestamps.
 
 ---
 
 ## 🏗 System Architecture
 
+The application follows a standard layered architecture:
+
+- **Controllers**: Handle incoming HTTP requests, input validation, and JWT security checks.
+- **Services**: Contain business logic (encryption, approval routing, file forwarding).
+- **Repositories**: Data Access Layer using Spring Data JPA.
+- **Database**: Relational data stored in PostgreSQL.
+
+---
+
+## 🛠 Technology Stack
+
+### Backend
+- **Java 17**
+- **Spring Boot 3.x**
+  - Spring Web (REST APIs)
+  - Spring Data JPA
+  - Spring Security
+  - Spring Validation
+- **JWT (JSON Web Tokens)**: Authentication and session handling
+- **Lombok**: Boilerplate code reduction
+- **Maven**: Build and dependency management
+
+### Database
+- **PostgreSQL**: Primary relational database
+- **H2 Database**: In-memory database used for testing
+
+---
+
+## 📁 Project Structure
+
+```text
+src/main/java/com/ADIB/FileSystem/
+├── Business/
+│   ├── dto/           # Data Transfer Objects (Requests & Responses)
+│   ├── Enum/          # Enumerations (FILE_STATUS, NOTIFICATIONTYPE, etc.)
+│   ├── event/         # Spring Application Events (Upload, Forward)
+│   ├── Exceptions/    # Custom Business Exceptions & Handlers
+│   ├── Model/         # JPA Entities (User, File, Department, Role, etc.)
+│   └── service/       # Business Logic Services (FileService, AuthService, etc.)
+├── config/            # Application Configurations (FileStorageProperties)
+├── controller/        # REST API Endpoints
+├── DataAccess/
+│   ├── repository/    # Spring Data JPA Repositories
+│   ├── specification/ # Dynamic Query Specifications
+│   └── Validation/    # Custom Validation Annotations
+├── exception/         # Global Exception Handler (Controller Advice)
+├── mapper/            # Object Mapping Utilities
+├── security/          # JWT Filters, UserDetails, and Security Configurations
+└── uploads/ & Trash/  # Default directories for physical file storage
 ```
 
-Client
+---
 
-↓
+## 🔌 Core API Endpoints
 
-Spring boot Web API
+### Authentication (`/api/auth`)
+- `POST /register` - Register a new user
+- `POST /login` - Authenticate and receive JWT tokens
+- `POST /refresh` - Refresh an expired access token
+- `POST /logout` - Logout user
 
-↓
+### File Management (`/api/files`)
+- `POST /bulk` - Upload multiple files simultaneously
+- `PUT /{fileId}/status` - Update the approval status of a file
+- `GET /trash` - List soft-deleted files
+- `POST /{fileId}/forward` - Forward a file to another user/department
 
-Business Logic
+### Dashboards & Lookups
+- `GET /api/dashboard/statistics` - Get general system stats
+- `GET /api/files/forwarded/notifications` - Get unread SSE notifications
 
-↓
-
-Encryption Service
-
-↓
-
-File Storage
-
-↓
-
-PostgreSQL Database
-
-```
+*(Note: Most endpoints require a valid `Bearer <JWT_TOKEN>` header and specific role permissions).*
 
 ---
 
 ## 🗄 Database Design
 
-Main Entities
-
-- Roles
-- Departments
-- Users
-- Files
-- FileAuditLogs
-
-### Relationships
-
-- One Role ➜ Many Users
-- One Department ➜ Many Users
-- One Department ➜ Many Files
-- One User ➜ Many Uploaded Files
-- One File ➜ Many Audit Logs
-
----
-
-## 🔒 File Upload Workflow
-
-```
-
-User Uploads File
-
-↓
-
-Validate Extension
-
-↓
-
-Validate MIME Type
-
-↓
-
-(Optional) Validate File Signature
-
-↓
-
-Generate SHA-256 Hash
-
-↓
-
-Generate Encryption IV
-
-↓
-
-Encrypt File
-
-↓
-
-Store File on Server
-
-↓
-
-Save Metadata in PostgreSQL
-
-↓
-
-Create Audit Log
-
-```
-
----
-
-## 📦 Stored File Metadata
-
-The database stores only metadata.
-
-| Field | Description |
-|---------|-------------|
-| OriginalFileName | User uploaded filename |
-| StoredFileName | Generated unique filename |
-| FilePath | Physical file location |
-| FileExtension | File extension |
-| ContentType | MIME type |
-| FileSize | File size |
-| FileHash | SHA-256 integrity hash |
-| EncryptionIV | AES Initialization Vector |
-| UploadedBy | User who uploaded the file |
-| DepartmentId | File owner department |
-| UploadedAt | Upload timestamp |
-
----
-
-## 🛡 Security Considerations
-
-- Passwords are never stored in plain text.
-- Uploaded files are encrypted before storage.
-- Files are never stored inside the database.
-- Only metadata is stored in PostgreSQL.
-- SHA-256 is used to verify file integrity.
-- Every encryption operation generates a unique IV.
-- Every important action is logged for auditing.
-
----
-
-## 🛠 Tech Stack
-
-### Backend
-
-- ASP.NET Core Web API
-- C#
-- Entity Framework Core
-
-### Database
-
-- PostgreSQL
-- pgAdmin
-
-### Security
-
-- AES Encryption
-- SHA-256 Hashing
-- JWT Authentication
-
-### Tools
-
-- Visual Studio
-- Git
-- GitHub
-- Postman
-
----
-
-## 📈 Future Improvements
-
-- File Versioning
-- Search by File Metadata
-- Full Text Search
-- Email Notifications
-- Cloud Storage Support
-- Two-Factor Authentication
-- File Preview
-- Docker Deployment
+Key Entities include:
+- **User**: Stores credentials, role, and department.
+- **Department**: Logical groupings for users and files.
+- **Role / Permission**: Defines what actions a user can perform.
+- **File**: Stores metadata (name, size, path, extension, status).
+- **FileDepartmentApproval**: Tracks file approval status by department managers.
+- **FileForward**: Tracks file sharing between users.
 
 ---
 
 ## 🚀 Getting Started
 
-Clone the repository
+### Prerequisites
+- **Java Development Kit (JDK) 17**
+- **Maven 3.8+**
+- **PostgreSQL 14+**
 
-```bash
-git clone https://github.com/yourusername/Secure-File-Management-System.git
+### 1. Database Setup
+Ensure PostgreSQL is running and create a database named `ArchivingFileSystem_db`.
+
+```sql
+CREATE DATABASE "ArchivingFileSystem_db";
 ```
 
-Navigate to the project
+### 2. Environment Configuration
+The application requires certain environment variables to be set (either in your environment or within an `application-config.properties` file).
+
+Required variables:
+- `POSTGRES_PASSWORD`: The password for your `postgres` database user.
+- `JWT_SECRET`: A secure, base64-encoded secret key used for signing JWTs.
+- `FILE_STORAGE_UPLOAD_DIR` (Optional): Path to store uploads (defaults to `./uploads`).
+- `FILE_STORAGE_TRASH_DIR` (Optional): Path to store deleted files (defaults to `./trash`).
+
+### 3. Build & Run
+Clone the repository, navigate to the root directory, and run the following Maven commands:
 
 ```bash
-cd Secure-File-Management-System
+# Clean and compile the project
+./mvnw clean install -DskipTests
+
+# Run the application
+./mvnw spring-boot:run
 ```
 
-Restore packages
-
-```bash
-dotnet restore
-```
-
-Run the project
-
-```bash
-dotnet run
-```
+By default, the server will start and connect to the local PostgreSQL database at `jdbc:postgresql://localhost:5432/ArchivingFileSystem_db`.
 
 ---
 
-## 📋 Project Status
+## 👨‍💻 Development Workflow
 
-🚧 Under Development
-
----
-
-## 👩‍💻 Developed By
-
-**Haidy Hosam**
-
-Computer Science Student
-
-Backend Developer (.NET)
+1. Start the PostgreSQL service on your machine.
+2. Verify that your IDE (IntelliJ IDEA, Eclipse, etc.) is using JDK 17.
+3. Configure the required environment variables in your IDE's Run Configuration.
+4. Run the application from `FileSystemApplication.java`.
+5. The application relies on Spring Boot DevTools for hot-reloading during local development.
 
 ---
 
-## ⭐ If you like this project
+## 💡 Usage
 
-Give it a ⭐ on GitHub.
+Once the backend is running, clients (like an Angular frontend or Postman) can interact with the system.
+
+1. **Authentication:** Start by sending a POST request to `/api/auth/login` with your credentials to receive a JWT token.
+2. **Authorization:** Include the token in the `Authorization` header (`Bearer <token>`) for subsequent requests.
+3. **File Operations:** Upload files using multipart/form-data via `/api/files/bulk`.
+4. **Workflows:** Department managers can track pending file approvals and update statuses via `/api/files/{fileId}/status`. Users can forward files and consume real-time SSE notifications on `/api/files/forwarded/notifications`.
+
+---
+
+## 📈 Future Improvements
+- Externalize the hardcoded AES encryption key to a secure vault or environment variable.
+- Implement integration tests utilizing Testcontainers for isolated PostgreSQL testing.
+- Add comprehensive API documentation using Swagger/OpenAPI (springdoc-openapi).
+- Introduce a scheduled task to automatically purge files from the `Trash` directory after a retention period.
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions to this project!
+
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/amazing-feature`).
+3. Commit your changes (`git commit -m 'Add amazing feature'`).
+4. Push to the branch (`git push origin feature/amazing-feature`).
+5. Open a Pull Request.
+
+Please ensure that you do not commit any sensitive information (like passwords or hardcoded encryption keys) and that all changes comply with the existing code style.
