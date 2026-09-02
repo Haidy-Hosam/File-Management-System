@@ -188,8 +188,8 @@ By default, the server will start and connect to the local PostgreSQL database a
 
 ---
 
-## 📈 Future Improvements
-- Externalize the hardcoded AES encryption key to a secure vault or environment variable.
-- Implement integration tests utilizing Testcontainers for isolated PostgreSQL testing.
-- Add comprehensive API documentation using Swagger/OpenAPI (springdoc-openapi).
-- Introduce a scheduled task to automatically purge files from the `Trash` directory after a retention period.
+## 🔗 Related Repositories
+
+This backend works alongside a companion service that handles automated file retention:
+
+- **[FileExpiryScheduler](https://github.com/Gannah211/FileExpiryScheduler)** — A standalone C# Windows Service (Quartz.NET) that checks file expiry dates and automatically marks files as expired, so retention doesn't depend on manual tracking.
